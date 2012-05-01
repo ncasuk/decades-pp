@@ -6,12 +6,14 @@ import cal_base
 from data import *
 """ Imports all c_*.py modules """
 def getmodules():
+    """ Gets a list of all the c_*.py files in this folder """
     ldir=sorted(os.listdir(os.path.dirname(__file__)))
     for fil in ldir:
         if fnmatch.fnmatch(fil,'c_*.py'):
             yield (os.path.basename(fil))[:-3]
 
 def is_calmodule(mod):
+    """ Checks whether it is a calibration module, by making sure it has a 'process' member """
     ans=False
     if inspect.isclass(mod):
         if issubclass(mod,cal_base.cal_base):
@@ -21,6 +23,7 @@ def is_calmodule(mod):
     return ans
 
 def calibrate(dataset):
+    """ Sorts calibrate modules - so they are run in order of availability of their inputs """
     notadded=cals
     callist=[]
     notlist=[]
@@ -65,6 +68,7 @@ def calibrate(dataset):
         notlist=[]
     return callist
 
+version='V004'
 cals=[]
 calnames=[]
 nocals=[]

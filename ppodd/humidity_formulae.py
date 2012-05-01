@@ -16,6 +16,10 @@ def uw2vp(uw,p):
     vp=p*vmr
     return vp
 
+def mmr_vmr(mmr):
+    VMR  =  mmr/622.0 
+    return VMR
+
 
 def vmr_mmr(vmr):
     MMR  =  622.0 * vmr 

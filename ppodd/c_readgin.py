@@ -1,5 +1,6 @@
 from cal_base import *
 import numpy as np
+from os.path import getsize
 class c_readgin(file_reader):
     def __init__(self,dataset):
         self.name='READGIN'
@@ -36,7 +37,12 @@ parameter('ACLD_GIN',units='m s-2',frequency=32,number=627,description='Accelera
 ('GSPD_GIN','<f4'),('ROLR_GIN','<f4'),
 ('PITR_GIN','<f4'),('HDGR_GIN','<f4'),('ACLF_GIN','<f4'),
 ('ACLS_GIN','<f4'),('ACLD_GIN','<f4'),('status','<u2'),('htime','<i4')]
-        self.data=np.memmap(filename,dtype=dtype)
+        l=getsize(filename)
+        dlength=136
+        if(l % dlength)==0:
+            self.data=np.memmap(filename,dtype=dtype)
+        else:
+            self.data=np.memmap(filename,dtype=dtype,shape=(l/dlength))
         
     def process(self):
         if(self.data!=None):

@@ -1,6 +1,6 @@
 decades post processing libraries.
 
-ppodd ( Post Processing of Decades Data or Pea Pod ) is the library of python modules for processing aircraft data.
+ppodd ( Post Processing of Decades Data - ppodd ) is the library of python modules for processing aircraft data.
 
 This includes c_runmod.so which in turn calls legacy fortran code in ppodd/fortran_modules.
 
