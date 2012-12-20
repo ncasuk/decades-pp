@@ -6,6 +6,7 @@ class c_readconst(file_reader):
         self.name='READCONST'
         self.input_names=[]
         self.filetype='CONST'
+        self.outputs=[]
         file_reader.__init__(self,dataset)
         
     def openfile(self,filename):

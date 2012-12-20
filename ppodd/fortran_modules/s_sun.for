@@ -71,13 +71,27 @@ C
       CALL DAT_CONV(IDAY,IMON,IYR,ICD)
 !      print *,IYR,IMON,IDAY,RLAT,RLON,ICD
 C
+      print *,sizeof(ICD)
       RCD = FLOAT(ICD) / 36525.0            ! Fraction of days elapsed this
       RCD2 = RCD*RCD                        ! century
       Y = (RCD * 36000.769 + 279.697) / 360.0 
-!      print *,y 
-      Y = AMOD( Y , 1.0 ) * 360.0             
+
+      print *,ICD
+      print *,sizeof(ICD)
+      print 10,FLOAT(ICD)
+      print 10,RCD
+      print 10,RCD2
+      print 10,Y
+10    format(f17.10)
+      print *,sizeof(Y)
+C      Y = AMOD( Y , 1.0 ) * 360.0
+      Y = AMOD( Y, 1.E0) * 360.E0
       Y2 = Y * D2R 
-!      print *,RCD,RCD2,Y,Y2
+      print *,RCD,RCD2,Y,Y2
+      print 20,Y
+20    format(f17.10)
+      print *,sizeof(RCD),sizeof(RCD2),sizeof(Y),sizeof(Y2)
+
 C                       
 C       Compute equation of time (in seconds) for this day 
 C       (No reference for this but it gives the correct answers
@@ -131,6 +145,16 @@ C
 C
       ENDIF
 C
+
+!      Following lines are for debugging purpose
+!      =========================================
+!      print *,IDAY,IMON,IYR,RSECS,RLAT,RLON,AZIM,ZEN
+!      print *,RSECS,RLAT,RLON,TWOPI,HALFPI,D2R,R2D,RCD,RCD2
+!      print *,Y,Y2,EQNT,SINALP,TANEQN,DECL,RSINDC,RCOSDC,RSINLT,RCOSLT
+!      print *,RGMT,TIME,HRA,RSINEV,RCOSEV,ZEN,COSAZ,AZIM
+!      print *,ICD,IDAY,IMON,IYR
+
+
       RETURN                                                                
       END                                                                   
 C

@@ -35,14 +35,12 @@ CDEC$ IDENT 'V1.01'
      &          ILSTFLG,IMATCHVAL
       REAL*4    RCONST(64),RDER(64,1024)
       DATA      ILSTVAL /-1/, IMATCH /0/, ILSTFLG /0/
-      SAVE ILSTVAL,IMATCH,ILSTFLG
 !
 ! Convert raw data
 ! to metres and store in appropriate element of array RDER.
 ! Repeat this for all samples passed to the routine. Note that IRAW contains
 ! the 16 bit number zero extended.
 !
-      
       DO IS=1,IFRQ(37)
         RDER(IS,575)=0.0
         IFLG=0

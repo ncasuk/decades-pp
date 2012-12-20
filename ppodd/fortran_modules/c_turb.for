@@ -61,6 +61,11 @@
 !                             These have the form:
 !                             AoA_new = AoA * ALPH1 + ALPH0
 !                             AoSS_new= AoSS * BET1 + BET0
+!                      1.12   08/10/2010 Axel Wellpott
+!                             added line "DATA TAS/-9999./"
+!                             Missing TAS data values were set to -999.
+!                             and not to -9999. as specified in the netcdf
+!                             files.
 !
 !         SUBROUTINES: S10_PECORR, ITSTFLG, ISETFLG, G_MACH
 !
@@ -109,7 +114,7 @@
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       SUBROUTINE C_TURB(IRAW,IFRQ,RCONST,RDER)
-CDEC$ IDENT 'V1.11'
+CDEC$ IDENT 'V1.12'
       IMPLICIT NONE
       INTEGER*4 IRAW(64,512),IFRQ(512),I,J
       INTEGER*4 ITSTFLG, ITTDIFLG, ITTNDFLG, ISPRFLG, IPSPFLG, IPHGTFLG
@@ -120,6 +125,7 @@ CDEC$ IDENT 'V1.11'
       REAL*4    AOA, AOANEW, AOSS, AOSSNEW, TOL
       REAL*4    DCP_S10, DCPA, DCPB, P0, Q
       REAL*4    AMACH, A0, A1, B0, B1, DAOA, DAOSS, TAS
+      DATA TAS/-9999./                   ! set all TAS values to -9999.
 !
       REAL*4    AIASMIN,TASMIN,TASMAX
       DATA AIASMIN,TASMIN,TASMAX/50.0,50.,250./
@@ -136,9 +142,9 @@ CDEC$ IDENT 'V1.11'
         CALL ISETFLG(RDER(I,548),3)
         RDER(I,549)=-99.9                !Set AoSS to 0
         CALL ISETFLG(RDER(I,549),3)
-        RDER(I,779)=-999.                !Set dry turbulence probe airspeed
+        RDER(I,779)=-9999.                !Set dry turbulence probe airspeed
         CALL ISETFLG(RDER(I,779),3)
-        RDER(I,780)=-999.                !Set wet turbulence probe airspeed
+        RDER(I,780)=-9999.                !Set wet turbulence probe airspeed
         CALL ISETFLG(RDER(I,780),3)
         RDER(I,781)=-950.                !Set turbulence probe pitot-static
         CALL ISETFLG(RDER(I,781),3)

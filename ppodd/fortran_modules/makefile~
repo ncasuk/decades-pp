@@ -7,7 +7,7 @@
 FC = ifort
 CALLIB = callib.a
 AC = ar rc 
-OUT = ../fortran_lib.so
+OUT = ../.
 # flags for debugging or for maximum performance, comment as necessary
 FCFLAGS = -extend_source -fPIC 
 F2PYFLAGS = --f77exec=$(FC)
@@ -19,7 +19,7 @@ MODULES+= c_drs
 MODULES+= c_fwvs
 MODULES+= c_geneas
 MODULES+= c_heiman
-MODULES+= c_ins1
+#MODULES+= c_ins1
 MODULES+= c_lwc
 MODULES+= c_nephl1
 MODULES+= c_nevz

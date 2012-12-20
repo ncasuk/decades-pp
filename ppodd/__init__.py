@@ -17,12 +17,12 @@ def is_calmodule(mod):
     ans=False
     if inspect.isclass(mod):
         if issubclass(mod,cal_base.cal_base):
-            for n,f in inspect.getmembers(mod):
+            for n,typ in inspect.getmembers(mod):
                 if n=='process':
                     ans=True
     return ans
 
-def calibrate(dataset):
+def calibrate(dataset,write=True):
     """ Sorts calibrate modules - so they are run in order of availability of their inputs """
     notadded=cals
     callist=[]
@@ -43,18 +43,19 @@ def calibrate(dataset):
                 if(i not in paras):
                     ok=False
             if(ok):
-                print 'PROCESSING '+c.name
-                callist.append(c)
-                c.process()
-                dataset+=oup
-                if c.name=='WRITE_NC':
-                   written=True
+                print 'PROCESSING .. '+c.name
+                if ((c.name=='WRITE_NC') & write) | (c.name!='WRITE_NC'):                        
+                    callist.append(c)
+                    c.process()
+                    dataset+=oup
+                    if c.name=='WRITE_NC':
+                        written=True
             else:
-                notlist.append(cal)
+                notlist.append(cal)                
         if((sorted(notlist)==sorted(notadded)) | written):    # probably need some sort of loop
             for cal in notlist:
                c=cal(dataset)
-               if(not(written) and c.name=='WRITE_NC'):
+               if(not(written) and c.name=='WRITE_NC' and write):
                    callist.append(c)
                    print 'PROCESSING '+c.name
                    c.process()

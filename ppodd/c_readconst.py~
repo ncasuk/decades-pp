@@ -1,5 +1,5 @@
 from cal_base import *
-import Ppodd as Ppodd
+import ppodd
 import dateutil.parser
 class c_readconst(file_reader):
     def __init__(self,dataset):
@@ -35,7 +35,7 @@ class c_readconst(file_reader):
                 if(l.startswith('NO')):
                     mod=l.replace('NO','',1)
                     print 'NO "%s"' % mod
-                    Ppodd.nocals.append(mod)                 
+                    ppodd.nocals.append(mod)                 
                 else:
                     values=l.split()
                     name=values[0]

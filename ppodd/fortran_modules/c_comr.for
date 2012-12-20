@@ -13,8 +13,11 @@ C
 C VERSION	1.00  8-Jul-2004  	D.Tiddeman
 C               1.01  27-OCT-2005
 C               1.02
-C		    1.03 31-JAN-2007 R Purvis Changed timedelay after cal to 20 s
-C		    1.04 18-SEP-2007 R Purvis	RCONST(5) added for correction factor
+C               1.03 31-JAN-2007 R Purvis Changed timedelay after cal to 20
+C               1.04 18-SEP-2007 R Purvis	RCONST(5) added for correction factor
+C               1.05 30-JUL-2010 S Bauguitte increased CO flag count threshold from 8000 to 10000
+C               1.06 15-OCT-2012 A Wellpott CO upper threshold flagging added. Now values above 
+C                                4995 are flagged with 3
 C                                                                
 C ARGUMENTS	IRAW(1,154) - on entry contains the raw CO signal
 C               IRAW(1,223) - on entry contains raw RVSM airspeed
@@ -24,11 +27,11 @@ C		RDER(1,782) - on exit contains the derived CO signal
 C
 C*******************************************************************************
       SUBROUTINE C_COMR(IRAW,IFRQ,RCONST,RDER)
-CDEC$ IDENT 'V1.02'
+CDEC$ IDENT 'V1.06'
       IMPLICIT NONE
       INTEGER*4 IRAW(64,1024),IFRQ(512)                 
-      INTEGER*4   IFLG,IS,ITSTFLG,ISHIFT
-      REAL*4 COMR,RERR,RFUDGE
+      INTEGER*4   IFLG,IS,ITSTFLG
+      REAL*4 COMR,RERR
       REAL*4 RCONST(64),RDER(64,1024)
       INTEGER*4 IWASCAL
 
@@ -47,16 +50,9 @@ C
 C     Convert CO DRS signals first to voltage, then apply voltage to 
 C     ppb conversion, then add instrument offset.
 C
-      RFUDGE=1.00
-      ISHIFT=0
-      IF(ITSTFLG(RCONST(8)).EQ.0)THEN
-        IF(ITSTFLG(RCONST(5)).EQ.0)RFUDGE=RCONST(5)
-      ENDIF
-
       COMR=((RCONST(1)+COMR*RCONST(2))*RCONST(3)+RCONST(4))
-C
       IF(ITSTFLG(RCONST(5)).EQ.0)COMR=COMR*RCONST(5)
-
+C
       IFLG=0
       IF(ITSTFLG(RCONST(8)).EQ.0) THEN
         DO IS=1,32
@@ -64,12 +60,15 @@ C
         ENDDO
       ENDIF
       IF(COMR.LT.0.) IFLG=2
+      IF(COMR.GT.4995.) IFLG=3
       IF(IRAW(1,154).EQ.0) IFLG=3
       IF(IRAW(1,154).EQ.'FFFF'X) IFLG=3
       IF(ITSTFLG(RCONST(6)).EQ.0.AND.ITSTFLG(RCONST(7)).EQ.0)THEN
         IF(COMR.LT.RCONST(6).OR.COMR.GT.RCONST(7))IFLG=3
       ENDIF
-      IF(IRAW(1,113).GT.8000) IWASCAL=20
+C      Changed on 30/07/2010 SB
+C      IF(IRAW(1,113).GT.8000) IWASCAL=20
+      IF(IRAW(1,113).GT.10000) IWASCAL=20
       IF(IWASCAL.GT.0)THEN
         IFLG=MAX(IFLG,2)
         IWASCAL=IWASCAL-1

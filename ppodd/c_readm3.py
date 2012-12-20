@@ -53,34 +53,27 @@ class c_readm3(file_reader):
             self.paras['Freq']=ia[0:self.npara]
             self.paradesc()
         hd.close()
-        dtype=[('dontknow','|S%i' % self.paras[0]['Other'])]
+        dtype=[('Horace_dontknow','|S%i' % self.paras[0]['Other'])]
         for n in range(self.npara):
-            dtype.append((str(self.paras[n]['Shortname']),'<u2',int(self.paras[n]['Freq'])))
+            dtype.append(('Horace_'+str(self.paras[n]['Shortname']),'<u2',int(self.paras[n]['Freq'])))
         dsize=2*np.sum(self.paras['Freq'])
         spare=2*self.iqrsiz-dsize-self.paras[0]['Other']
-        dtype.append(('Spare','|S%i' % spare))
-        time=self.get_time()
-        self.time=timestamp(times=time)
-        self.times={1:self.time}
-        print dtype,self.dat,len(time)
-        self.data=np.memmap(self.dat,dtype=dtype,mode='r',shape=len(time))
+        dtype.append(('Horace_Spare','|S%i' % spare))
+        self.time=self.get_time()
+        print dtype,self.dat,len(self.time)
+        self.data=np.memmap(self.dat,dtype=dtype,mode='r',shape=len(self.time))
         for p in self.paras:
-            n=p['Shortname']
+            n='Horace_'+p['Shortname']
             f=p['Freq']
-            if(f in self.times):
-                t=self.times[f]
-            else:
-                t=timestamp(self.time,times=time,frequency=f)                
-                self.times.update({f:t})
             self.outputs.append(parameter(n,number=p['Numb'],frequency=f,
-                                          description=p['Name'],data=timed_data(self.data[n],t,fill=65535)
+                                          long_name=p['Name'],data=timed_data(self.data[n],self.time)
                                           ,units=p['Units']))
 
     def get_time(self):
         T=[]
         for i in range(self.isectn):
             T+=range(self.issrtt[i],self.isendt[i]+1,1)
-        return np.array(T)
+        return timestamp(T,dtype='f8')
 
     def get_timex(self):
         return np.arange(self.issrtt[0],self.isendt[self.isectn-1]+1,1)
@@ -104,7 +97,7 @@ class c_readm3(file_reader):
                 if p==self.paras[i]['Numb']:
                     self.paras[i]['Name']=line[29:].strip()
                     self.paras[i]['Units']=line[19:27].strip()
-                    self.paras[i]['Shortname']=line[13:17].strip()
+                    self.paras[i]['Shortname']=line[13:17].strip().replace('/','_')
         return
 
  

@@ -85,8 +85,8 @@ CDEC$ IDENT 'V1.00'
                   CALL C_GENEAS(IRAW,IFRQ,RCONST,RDER)
               CASE('HEIMAN')
                   CALL C_HEIMAN(IRAW,IFRQ,RCONST,RDER)
-              CASE('INS1')
-                  CALL C_INS1(IRAW,IFRQ,RCONST,RDER)
+!              CASE('INS1')
+!                  CALL C_INS1(IRAW,IFRQ,RCONST,RDER)
               CASE('LWC')
                   CALL C_LWC(IRAW,IFRQ,RCONST,RDER)
               CASE('NEPHL1')
@@ -127,12 +127,12 @@ CDEC$ IDENT 'V1.00'
                   CALL C_TURB(IRAW,IFRQ,RCONST,RDER)
               CASE('TWC')
                   CALL C_TWC(IRAW,IFRQ,RCONST,RDER)
-              CASE('WINDS')
-                  CALL C_GWINDS(IRAW,IFRQ,RCONST,RDER)
+!              CASE('WINDS')
+!                  CALL C_GWINDS(IRAW,IFRQ,RCONST,RDER)
               CASE('GWINDS')
                   CALL C_GWINDS(IRAW,IFRQ,RCONST,RDER)
-              CASE('FWVS')
-                  CALL C_FWVS(IRAW,IFRQ,RCONST,RDER)
+!              CASE('FWVS')
+!                  CALL C_FWVS(IRAW,IFRQ,RCONST,RDER)
           END SELECT
           IFX=0
           DO IR=1,NOUT

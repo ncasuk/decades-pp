@@ -47,6 +47,7 @@ C                     now always called by CALIBRATE, even if neither Omega or
 C                     INU were available.  WDNJ 20/10/97
 C                1.04 Now strips flags from data before use.  WDNJ 22/12/97
 C                1.05 Can take GIN input 05/09/07
+C                1.06 Changes made how lon/lat input is derived AxW 29/03/10
 C#########################################################################
       SUBROUTINE C_GSUN ( IRAW,IFRQ,RCONST,RDER)
 CDEC$ IDENT 'V1.05'
@@ -61,12 +62,24 @@ C
       IDAY = INT(RCONST(1))          ! Date in month
       IMON = INT(RCONST(2))          ! Month in Year
       IYR = INT(RCONST(3))           ! Year
+!      IF((IYR.EQ.1997.AND.IMON.GE.10).OR.IYR.GT.1997) THEN
+!        IF(ITSTFLG(RDER(1,541)).EQ.0)RLAT = RDER(1,541)           ! INU latitude
+!        IF(ITSTFLG(RDER(1,542)).EQ.0)RLON = RDER(1,542)           ! INU longitude
+!	IF(ITSTFLG(RDER(1,610)).EQ.0)RLAT=RDER(1,610)
+!	IF(ITSTFLG(RDER(1,611)).EQ.0)RLON=RDER(1,611)
+!	print *,ITSTFLG(RDER(1,610)),ITSTFLG(RDER(1,541))
+!      ELSE    
+!        RLAT = RDER(1,550)           ! Omega latitude
+!        RLON = RDER(1,551)           ! Omega longitude
+!      END IF
+
+!Changed on 31/03/2010 after suggestion from Dave Tiddeman
       IF((IYR.EQ.1997.AND.IMON.GE.10).OR.IYR.GT.1997) THEN
         RLAT = RDER(1,541)           ! INU latitude
         RLON = RDER(1,542)           ! INU longitude
-	  IF(ITSTFLG(RDER(1,610)).LT.3)RLAT=RDER(1,610) !GIN latitude
-	  IF(ITSTFLG(RDER(1,611)).LT.3)RLON=RDER(1,611) !GIN longitude
-      ELSE    
+          IF(ITSTFLG(RDER(1,610)).LT.3)RLAT=RDER(1,610) !GIN latitude
+          IF(ITSTFLG(RDER(1,611)).LT.3)RLON=RDER(1,611) !GIN longitude
+      ELSE   
         RLAT = RDER(1,550)           ! Omega latitude
         RLON = RDER(1,551)           ! Omega longitude
       END IF
