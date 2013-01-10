@@ -36,7 +36,7 @@ class c_readconst(file_reader):
                 if(l.startswith('NO')):
                     mod=l.replace('NO','',1)
                     print 'NO "%s"' % mod
-                    ppodd.nocals.append(mod)                 
+                    self.dataset.nocals.update([mod])                 
                 else:
                     values=l.split()
                     name=values[0]

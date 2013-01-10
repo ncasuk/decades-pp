@@ -22,61 +22,87 @@ def is_calmodule(mod):
                     ans=True
     return ans
 
-def calibrate(dataset,write=True):
+def calibrate(dataset,write=True,calmods=[],nocals=[],outparas=None,start=None,end=None):
     """ Sorts calibrate modules - so they are run in order of availability of their inputs """
-    notadded=cals
+    dataset.start=start
+    dataset.end=end
+    cals=[]
+    if(len(calmods)==0):
+        calmods=calnames
+    for c in calmods:
+        if(c in calnames):
+            cals.append(eval('c_%s' % c.lower()))
+        else:
+            print 'Warning:Module C_%s not available' % c
+    notadded=cals            
     callist=[]
     notlist=[]
-    written=False
+    finished=False
+    dataset.nocals=set(nocals)
     while(len(notadded)>0):
-        paras=dataset.para_names()
-        q=0
         for cal in notadded:
-            q+=1
-            c=cal(dataset)
-            inp=c.input_names
-            oup=c.outputs
-            ok=True
-            if c.name in nocals:
-                ok=False
-            for i in inp:
-                if(i not in paras):
+            paras=dataset.para_names()
+            if (outparas is not None):
+                finished=True
+                for i in outparas:
+                    if(i not in paras):
+                        finished=False
+            ok=False
+            if(not(finished)):
+                c=cal(dataset)
+                if(c.name=='WRITE_NC'):
+                    if (outparas is None):
+                        outparas=c.input_names
+                        outparas.remove('DATE')
+                        outparas.remove('FLIGHT')
+                    else:
+                        c.input_names=['DATE','FLIGHT']+outparas
+                    print c.name,c.input_names
+                inp=c.input_names
+                oup=c.outputs
+                ok=True
+                if c.name in dataset.nocals:
                     ok=False
+                for i in inp:
+                    if(i not in paras):
+                        ok=False
+                
+                if(c.name=='WRITE_NC'):
+                    print 'WRITE_NC -> ',ok
+                    print dataset.nocals
+                    print paras
+                    print inp    
             if(ok):
                 print 'PROCESSING .. '+c.name
                 if ((c.name=='WRITE_NC') & write) | (c.name!='WRITE_NC'):                        
                     callist.append(c)
                     c.process()
                     dataset+=oup
-                    if c.name=='WRITE_NC':
-                        written=True
             else:
-                notlist.append(cal)                
-        if((sorted(notlist)==sorted(notadded)) | written):    # probably need some sort of loop
+                notlist.append(cal)             
+        if((sorted(notlist)==sorted(notadded)) | finished):    # probably need some sort of loop
             for cal in notlist:
-               c=cal(dataset)
-               if(not(written) and c.name=='WRITE_NC' and write):
-                   callist.append(c)
-                   print 'PROCESSING '+c.name
-                   c.process()
-                   written=True
-               elif(c.name not in nocals):
-                   nocals.append(c.name)
-            for c in nocals:
-               if (c in calnames): calnames.remove(c)            
+                print 'not list ',cal
+                c=cal(dataset)
+                if(c.name=='WRITE_NC' and write):
+                    if (outparas is not None):
+                        c.input_names=['DATE','FLIGHT']+outparas
+                    callist.append(c)
+                    print 'PROCESSING '+c.name
+                    c.process()
+                    finished=True
+                else:
+                    dataset.nocals.update([c.name])
             break
         notadded=notlist
         notlist=[]
     return callist
 
 version='V004'
-cals=[]
 calnames=[]
-nocals=[]
 for m in getmodules():
     print 'from %s import %s' % (m,m)
     exec 'from %s import %s' % (m,m)
     if is_calmodule(eval('%s' % m)):
-        cals.append(eval('%s' % m))
         calnames.append(m[2:].upper())
 del m

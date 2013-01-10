@@ -1,5 +1,6 @@
 from cal_base import *
 import time
+import os.path
 from netCDF4 import Dataset
 class c_write_nc(cal_base):
     def __init__(self,dataset):
@@ -24,14 +25,18 @@ class c_write_nc(cal_base):
         except:
             self.netcdf_type='NETCDF3_CLASSIC'
         filename=None
+        folder=''
         fill_value=-9999
         dtyp='f4'              
         flag_fill=-1
         for fname,filetype in self.dataset.files.items():
             if(filetype=='OUTPUT'):
-                filename=fname
-        if(not(filename)):
-            filename='core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset.get_para('DATE')[-1::-1])
+                if(os.path.basename(fname)==''):
+                    folder=fname
+                else:
+                    filename=fname
+        if(filename is None):
+            filename=os.path.join(folder,'core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset.get_para('DATE')[-1::-1]))
             filename+='r%1.1i_%s.nc' % (0,self.dataset.get_para('FLIGHT')[:])
         self.coredata=Dataset(filename,'w',format=self.netcdf_type)
         drstime = self.coredata.createDimension('data_point', None)
@@ -45,14 +50,13 @@ class c_write_nc(cal_base):
         for p in self.input_names:
             if p in paras:
                 par=self.dataset[p]
-                if(isinstance(par,parameter)):
+                try:                    
                     t=par.times
                     f=par.frequency
                     if(f not in self.tdims):
                         name='sps%2.2i' % f
                         self.coredata.createDimension(name, f)
                         self.tdims.update({f:name}) 
-                    print p,par
                     para=self.coredata.createVariable(
                            p,dtyp,('data_point',self.tdims[f]),fill_value=fill_value)
                     paralist.append(p)
@@ -62,35 +66,54 @@ class c_write_nc(cal_base):
                         paraf=self.coredata.createVariable(
                                p+'_FLAG','i1',('data_point',self.tdims[f]),fill_value=flag_fill)
                         for att in par.attributes:
-                            setattr(paraf,att,par.attributes[att])
+                            if att not in ['units','number','standard_name']:
+                                setattr(paraf,att,par.attributes[att])
                         paraf.long_name='Flag for '+par.long_name
                     try:
                         para.number=par.number
                     except:
                         pass
-                        
                     try:
-                        stop=max(stop,np.max(t))
+                        end=max(end,np.max(t))
                         start=min(start,np.min(t))
+                        print (start,end)
                     except NameError:
-                        stop=np.max(t)
-                        start=np.min(t)                      
-        print 'Start %f, stop %f' % (start,stop)
+                        end=np.max(t)
+                        start=np.min(t)
+                        print 'First ',(start,end)
+                except AttributeError:
+                    # This is probably a constants_parameter with no times
+                    print p,' not got time'
+            else:
+                print 'No ',p       
+                             
         t0=time.time()
-        ti=timestamp((start,stop))
-        length=len(ti)
-        print 'Writing to NetCDF:%s' % filename
-        times[:]=ti
-        self.coredata.close()
-        self.coredata=Dataset(filename,'a',format=self.netcdf_type)
-        for p in paralist:
-            par=self.dataset.get_para(p)
-            para=self.coredata.variables[p]
-            print 'Writing %s' % par
-            f=par.frequency
-            para[:]=np.float_(par.data).asmasked(start=start,stop=stop,fill_value=fill_value)
-            if hasattr(par.data,'flagmasked'):
-                paraf=self.coredata.variables[p+'_FLAG']
-                paraf[:]=par.data.flagmasked(start=start,stop=stop,fill_value=-1)
-        self.coredata.close()
-        print 'Total write time %f seconds' % (time.time()-t0)
+        if self.dataset.start is not None:
+            start=self.dataset.start
+        if self.dataset.end is not None:
+            end=self.dataset.end
+        print start,end
+        try:
+            ti=timestamp((start,end))
+            print 'Start %f, end %f' % (start,end)
+        except (UnboundLocalError,TypeError):
+            ti=None
+        if ti is None:
+            raise Warning('No data to write')
+        else:
+            length=len(ti)
+            print 'Writing to NetCDF:%s' % filename
+            times[:]=ti
+            self.coredata.close()
+            self.coredata=Dataset(filename,'a',format=self.netcdf_type)
+            for p in paralist:
+                par=self.dataset.get_para(p)
+                para=self.coredata.variables[p]
+                print 'Writing %s' % par
+                f=par.frequency
+                para[:]=np.float_(par.data).asmasked(start=start,end=end,fill_value=fill_value)
+                if hasattr(par.data,'flagmasked'):
+                    paraf=self.coredata.variables[p+'_FLAG']
+                    paraf[:]=par.data.flagmasked(start=start,end=end,fill_value=-1)
+            self.coredata.close()
+            print 'Total write time %f seconds' % (time.time()-t0)

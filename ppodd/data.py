@@ -1,29 +1,8 @@
 import time
 import numpy as np
-import netCDF4
-import sys
 from scipy.interpolate import interp1d
-import struct
 
 """
-A timed parameter must be able to...
-
-find matched times ( list of parameters )
-extract parameters from ( parameters , matched times )
-put parameters onto a contiguous time frame
-
-
-keep it simple...
-
-All times ( except GIN ) are whole seconds with multiple data points per second, same as output data, but output must be contiguous
-
-The issue is going from data which isn't available every second to contiguous data and or vice versa
-
-fortran routines won't like missing data
-
-masked arrays ?
-
-
 read in M3 data - will have time stamp in whole secs past midnight not always contiguous
 read in GIN data - will have time stamp in fractional secs past saturday night ? not always contiguous
 read in RIO data - will have time stamp in whole seconds since 1970 ( unix time )
@@ -116,7 +95,7 @@ class decades_dataset(list):
     def get_para(self,name):
         for i in self:
             if(i.name==name):
-               return i
+                return i
         raise AttributeError("%r object has no parameter %r" %
                          (type(self).__name__, name))
     def __getitem__(self,para):
@@ -134,7 +113,7 @@ class decades_dataset(list):
         try:
             ans['files']=''
             for f in self.files:
-               ans['files']+=f+'\n'
+                ans['files']+=f+'\n'
         except KeyError:
             pass
         return ans
@@ -145,7 +124,7 @@ class decades_dataset(list):
         """ Add a file to the dataset - the filetype tells it how to read in but doesnt do the reading """
         if(filetype.startswith('OUTPUT')):
             outtype=filetype[7:]
-            possible_types=['NETCDF4', 'NETCDF4_CLASSIC', 'NETCDF3_CLASSIC','NETCDF3_64BIT']
+            possible_types=['NETCDF3_CLASSIC','NETCDF4', 'NETCDF4_CLASSIC', 'NETCDF3_64BIT']
             if(outtype in possible_types):
                 self.output_type=outtype
             else:
@@ -226,6 +205,24 @@ class timestamp(np.ndarray):
         
 
 class timed_data(np.ndarray):
+    """
+    A timed parameter must be able to...
+    
+    find matched times ( list of parameters )
+    extract parameters from ( parameters , matched times )
+    put parameters onto a contiguous time frame
+    
+    
+    keep it simple...
+    
+    All times ( except GIN ) are whole seconds with multiple data points per second, same as output data, but output must be contiguous
+    
+    The issue is going from data which isn't available every second to contiguous data and or vice versa
+    
+    fortran routines won't like missing data
+    
+    masked arrays ?
+    """
     def __new__(cls,data,times):
         data = np.asarray(data)
         obj = data.view(cls)
@@ -311,15 +308,15 @@ class timed_data(np.ndarray):
             return arr
         
         
-    def asmasked(self,start=None,stop=None,mask=None,fill_value=None,data=None,returntimes=False):
+    def asmasked(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
         """Only for 1d 1Hz times"""
         if data is None:
             data=self.raw_data
         if start is None:
             start=np.min(self.times)
-        if stop is None:
-            stop=np.max(self.times)
-        t1=timestamp((start,stop))
+        if end is None:
+            end=np.max(self.times)
+        t1=timestamp((start,end))
         t=timestamp(self.twod_array(t1))
         msk=~t.ismatch(self.times)
         d=np.ma.empty(t.shape,dtype=data.dtype,fill_value=fill_value)
@@ -369,16 +366,16 @@ class flagged_data(timed_data):
         if(type(result)==type(self)):
             result.flag=self.flag[index]
         return result
-    def asmasked(self,maxflag=None,start=None,stop=None,fill_value=None,returntimes=False):
+    def asmasked(self,maxflag=None,start=None,end=None,fill_value=None,returntimes=False):
         if maxflag is None:
             maxflag=self.maxflag
-        ans=timed_data.asmasked(self,start=start,stop=stop,mask=self.flag>maxflag,
+        ans=timed_data.asmasked(self,start=start,end=end,mask=self.flag>maxflag,
                                 fill_value=fill_value,returntimes=returntimes)
         return ans
-    def flagmasked(self,maxflag=None,start=None,stop=None,fill_value=-1,returntimes=False):
+    def flagmasked(self,maxflag=None,start=None,end=None,fill_value=-1,returntimes=False):
         if maxflag is None:
             maxflag=self.maxflag
-        ans=timed_data.asmasked(self,start=start,stop=stop,data=self.flag,
+        ans=timed_data.asmasked(self,start=start,end=end,data=self.flag,
                                 fill_value=fill_value,returntimes=returntimes)
         return ans
 

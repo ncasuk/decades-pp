@@ -6,6 +6,7 @@ class c_readconst(file_reader):
         self.name='READCONST'
         self.input_names=[]
         self.filetype='CONST'
+        self.outputs=[]
         file_reader.__init__(self,dataset)
         
     def openfile(self,filename):
@@ -35,7 +36,7 @@ class c_readconst(file_reader):
                 if(l.startswith('NO')):
                     mod=l.replace('NO','',1)
                     print 'NO "%s"' % mod
-                    ppodd.nocals.append(mod)                 
+                    ppodd.nocals.update([mod])                 
                 else:
                     values=l.split()
                     name=values[0]

@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+from optparse import OptionParser
+import time
+import re
+import os
+
+def split_up(option, opt, value, parser): 
+    setattr(parser.values, option.dest, value.upper().split(','))
+
+def split_(option, opt, value, parser): 
+    setattr(parser.values, option.dest, value.split(','))
+
+def times(option, opt, value, parser): 
+    #t=re.sub(':','',value)
+    #t=time.mktime(time.strptime(t,'%H%M%S')) % 86400
+    t=value.split(':')
+    t=int(t[0])*3600+int(t[1])*60+int(t[2])
+    setattr(parser.values, option.dest, t)
+    
+if __name__=="__main__":    
+    usage="usage: %prog [options] constants_file input_file1:type1 input_file2:type2 .. input_filen:typen [-o output_file[:type]]"
+    parser=OptionParser(usage=usage)
+    parser.add_option("-o","--output",dest="output",
+           help="Output file or folder",metavar="OUTPUT",default="")
+    # Nothing is done with the start and end options yet - not sure if they are needed..
+    parser.add_option("-s","--start",dest="start",
+           help="Start time (HH:MM:SS)",metavar="START TIME",default=None,
+           action='callback',callback=times,type='string')
+    parser.add_option("-e","--end",dest="end",
+           help="End time (HH:MM:SS)",metavar="END TIME",default=None,
+           action='callback',callback=times,type='string')
+    parser.add_option("-p","--parameters",dest="paras",
+           help="Parameters to output (p1,p2...pn)",metavar="PARAMETERS",default=None,
+           action='callback',callback=split_,type='string')
+    parser.add_option("-m","--modules",dest="calmods",
+           help="Only run these use (mod1,mod2..modn)",metavar="MODULES",default=[],
+           action='callback',callback=split_up,type='string')
+    parser.add_option("-n","--not_modules",dest="nocals",
+           help="Don't run these modules (mod1,mod2..modn)",
+           metavar="NOT THESE MODULES",default=[],
+           action='callback',callback=split_up,type='string')
+    (options,args)=parser.parse_args()
+    print options
+    print args
+    foundconst=None
+    for i in range(len(args)):
+        opt=args[i].split(':')
+        if (len(opt)<2):
+            if i==0:
+                opt.append('CONST')
+                foundconst=opt[0]
+            else:
+                if(os.path.basename(opt[0])==''):
+                    opt.append('CRIOS')
+                else:
+                    opt.append('CRIO')
+        else:
+            if(opt[1]=='CONST'):
+                foundconst=opt[0]
+        args[i]=tuple(opt)
+    if(foundconst!=None):
+        import ppodd
+        d=ppodd.decades_dataset()
+        for oi in args:
+            d.add_file(*oi)
+        if(options.output!=""):
+            opt=options.output.split(':')
+            if (len(opt)<2):
+                opt.append('OUTPUT')
+            else:
+                opt[1]='OUTPUT_'+opt[1]
+            d.add_file(*opt)
+            print opt
+        callist=ppodd.calibrate(d,calmods=options.calmods,nocals=options.nocals,
+                                outparas=options.paras,start=options.start,end=options.end)    
+
