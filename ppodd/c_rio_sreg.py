@@ -2,9 +2,9 @@ from cal_base import *
 class c_rio_sreg(cal_base):
     def __init__(self,dataset):
         self.input_names=['CALCABT','PRTAFT_heimann_calib_flag','PRTAFT_deiced_temp_flag','CORCON_cabin_t']
-        self.outputs=[parameter('SREG-rio',units='bits',frequency=2,number=27,long_name='Signal register')
-                     ,parameter('SREG_CAL-rio',units='IBITS',frequency=2,number=641,long_name='SIGNAL REGISTER')
-                     ,parameter('CAB_TEMP-rio',units='degC',frequency=1,number=660,long_name='Cabin temperature at the core consoles')]
+        self.outputs=[parameter('SREG',units='bits',frequency=2,number=27,long_name='Signal register')
+                     ,parameter('SREG_CAL',units='IBITS',frequency=2,number=641,long_name='SIGNAL REGISTER')
+                     ,parameter('CAB_TEMP',units='degC',frequency=1,number=660,long_name='Cabin temperature at the core consoles')]
         self.name='RIO_SREG'
         self.version=1.00
         cal_base.__init__(self,dataset)

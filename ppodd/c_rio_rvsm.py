@@ -4,9 +4,9 @@ from scipy.interpolate import interp1d
 class c_rio_rvsm(fort_cal):
     def __init__(self,dataset):
         self.input_names=['PRTAFT_pressure_alt', 'PRTAFT_ind_air_speed']
-        self.outputs=[parameter('PS_RVSM-rio',units='hPa',frequency=32,number=576,long_name='Static pressure from the aircraft RVSM (air data) system')
-                     ,parameter('Q_RVSM-rio',units='hPa',frequency=32,number=577,long_name='Pitot static pressure inverted from RVSM (air data) system indicated airspeed')
-                     ,parameter('PALT_RVS-rio',units='m',frequency=32,number=578,long_name='Pressure altitude from the aircraft RVSM (air data) system')]
+        self.outputs=[parameter('PS_RVSM',units='hPa',frequency=32,number=576,long_name='Static pressure from the aircraft RVSM (air data) system')
+                     ,parameter('Q_RVSM',units='hPa',frequency=32,number=577,long_name='Pitot static pressure inverted from RVSM (air data) system indicated airspeed')
+                     ,parameter('PALT_RVS',units='m',frequency=32,number=578,long_name='Pressure altitude from the aircraft RVSM (air data) system')]
         self.name='C_RIO_RVSM'
         self.fortname='RVSM'
         self.version=1.00

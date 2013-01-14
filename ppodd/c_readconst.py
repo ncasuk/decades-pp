@@ -9,12 +9,12 @@ class c_readconst(file_reader):
         self.outputs=[]
         file_reader.__init__(self,dataset)
         
-    def openfile(self,filename):
+    def readfile(self,filename):
         f=open(filename)
-        lines=f.readlines()
+        self.dataset.flight_constants=f.readlines()
         f.close()
         self.outputs=[]
-        for l in lines:
+        for l in self.dataset.flight_constants:
             l=l.strip()
             if(l.startswith('!')):
                 if(l.startswith('! FLIGHT ')):

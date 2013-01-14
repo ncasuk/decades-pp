@@ -10,7 +10,9 @@ git clone git://x.x.x.x:decades_pp           # get the repository
 cd decades_pp/ppodd/fortran_modules          #
 make                                         # build fortran libraries
 cd ../..
-calibrate.py data/flight-cst_faam_r0_xxxxxxxx_bxxx.txt data/bxxx_raw:M3 -o data/core_faam_xxxxxxxx_v001_r0_bxxx.nc  # calibrate data
+calibrate data/flight-cst_faam_r0_xxxxxxxx_bxxx.txt data/bxxx_raw:M3 -o data/core_faam_xxxxxxxx_v001_r0_bxxx.nc  # calibrate data
+
+
 
 
  

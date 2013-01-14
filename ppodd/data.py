@@ -2,33 +2,6 @@ import time
 import numpy as np
 from scipy.interpolate import interp1d
 
-"""
-read in M3 data - will have time stamp in whole secs past midnight not always contiguous
-read in GIN data - will have time stamp in fractional secs past saturday night ? not always contiguous
-read in RIO data - will have time stamp in whole seconds since 1970 ( unix time )
-other data may not be like any of these...
-
-
-Convert all times to RIO/unix time ...
-interpolate GIN data onto 2d type grid for fortran routines..
-
-Read in multiple RIO files at once...
-
-Timestamps always 1d
-Getitem
-Try
-     Index=index[1]
-
-
-
-
-
-
-Property times2d calls timestamp.asfrequency(self.shape[1])
-
-
-"""
-
 class constants_parameter:
     """ The class for describing constants """
     def __init__(self,name,values):
@@ -47,11 +20,6 @@ class parameter:
                   standard_name='',units='',
                   frequency=1,number=0):
         self.name=name
-        #self.attributes={'units':units,'standard_name':standard_name,'number':number,'frequency':frequency}
-        #if(long_name):
-        #    self.attributes['long_name']=long_name
-        #else:
-        #    self.attributes['long_name']=name
         self.data=data
         if(long_name):
             self.long_name=long_name
@@ -79,16 +47,19 @@ class parameter:
         return ans
     attributes=property(__getatts__) 
     def __getattr__(self,name):
-        """if(name in self.attributes):
-            return self.attributes[name]
-        else:
-            return getattr(self.data,name)"""
+        """ Gets attributes from the data if not in the parameter object """
         return getattr(self.data,name)
     
 class decades_dataset(list):
-    """ A dataset made up of a list of parameters, and information about times, and files """
+    """ A dataset made up of a list of parameters, and information about files etc """
     def __init__(self,*args,**kwargs):
         self.files={}
+        self.history=''
+        self.conventions='CF-1.0'
+        self.source='FAAM BAe-146 Aircraft Data'
+        self.references='http://www.faam.ac.uk'
+        self.institution='FAAM'
+        self.format_version='1.0'
         list.__init__(self,*args,**kwargs)
     def para_names(self):
         return [i.name for i in self]
@@ -113,9 +84,12 @@ class decades_dataset(list):
         try:
             ans['files']=''
             for f in self.files:
-                ans['files']+=f+'\n'
+                ans['files']+=f+':'+self.files[f]+'\n'
         except KeyError:
             pass
+        if 'Title' not in ans:
+            dt=time.gmtime(date2time(self['DATE'][:]))
+            ans['Title']='Data from %s on %s' % (self['FLIGHT'][:],time.strftime('%d-%b-%Y',dt))
         return ans
 
     attributes=property(__getatts__) 
@@ -132,6 +106,24 @@ class decades_dataset(list):
             filetype='OUTPUT'
         self.files.update({filename:filetype})
 
+    def matchtimes(self,input_names,paras=[],notparas=[]):
+        """ Finding matching times for a list of inputs """    
+        for i in input_names:
+            p=self.get_para(i)
+            try:
+                frqin=p.frequency
+                paras.append(p)
+                if paras[-1].data is not None:
+                    if(len(paras)==1):
+                        match=paras[0].data.times
+                    else:
+                        match=paras[-1].data.matchtimes(match)
+                else:
+                    match=timestamp([])
+            except AttributeError:
+                # If there is no frequency add to notparas list (probably constant) 
+                notparas.append(p)
+        return match
 
 def date2time(fromdate):
     l=len(fromdate)
@@ -208,20 +200,20 @@ class timed_data(np.ndarray):
     """
     A timed parameter must be able to...
     
-    find matched times ( list of parameters )
-    extract parameters from ( parameters , matched times )
-    put parameters onto a contiguous time frame
+    find matched times ( from two ( or more ) parameters )
+    extract data from matched times 
+    put data onto a contiguous time frame / masked arrays
     
     
     keep it simple...
     
     All times ( except GIN ) are whole seconds with multiple data points per second, same as output data, but output must be contiguous
     
-    The issue is going from data which isn't available every second to contiguous data and or vice versa
+    The difficulty is going from data which isn't available every second to contiguous data and or vice versa
     
     fortran routines won't like missing data
     
-    masked arrays ?
+    
     """
     def __new__(cls,data,times):
         data = np.asarray(data)
@@ -290,6 +282,7 @@ class timed_data(np.ndarray):
             return self.times.match(otherdata.times)
         except AttributeError:
             return self.times.match(otherdata)
+
 
     def ismatch(self,times):
         return self[self.times.ismatch(times)]

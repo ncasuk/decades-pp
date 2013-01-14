@@ -9,24 +9,24 @@ class c_rio_sols(fort_cal):
                           'LOWBBR_radiometer_1_sig', 'LOWBBR_radiometer_2_sig', 'LOWBBR_radiometer_3_sig', 
                           'LOWBBR_radiometer_1_zero', 'LOWBBR_radiometer_2_zero', 'LOWBBR_radiometer_3_zero', 
                           'LOWBBR_radiometer_1_temp', 'LOWBBR_radiometer_2_temp', 'LOWBBR_radiometer_3_temp']
-        self.outputs=[parameter('UP1S-rio',units='W M-2',frequency=1,number=673,long_name='UPP VIS CLR SIG')
-                     ,parameter('UP2S-rio',units='W M-2',frequency=1,number=674,long_name='UPP VIS RED SIG')
-                     ,parameter('UIRS-rio',units='W M-2',frequency=1,number=675,long_name='UPP I/R SIGNAL')
-                     ,parameter('UP1Z-rio',units='W M-2',frequency=1,number=676,long_name='UPP VIS CLR ZERO')
-                     ,parameter('UP2Z-rio',units='W M-2',frequency=1,number=677,long_name='UPP VIS RED ZERO')
-                     ,parameter('UIRZ-rio',units='W M-2',frequency=1,number=678,long_name='UPP I/R ZERO')
-                     ,parameter('UP1T-rio',units='DEG C',frequency=1,number=679,long_name='UPP VIS CLR TEMP')
-                     ,parameter('UP2T-rio',units='DEG C',frequency=1,number=680,long_name='UPP VIS RED TEMP')
-                     ,parameter('UIRT-rio',units='DEG C',frequency=1,number=681,long_name='UPP I/R TEMP')
-                     ,parameter('LP1S-rio',units='WM-2',frequency=1,number=682,long_name='LWR VIS CLR SIG')
-                     ,parameter('LP2S-rio',units='WM-2',frequency=1,number=683,long_name='LWR VIS RED SIG')
-                     ,parameter('LIRS-rio',units='WM-2',frequency=1,number=684,long_name='LWR I/R SIGNAL')
-                     ,parameter('LP1Z-rio',units='WM-2',frequency=1,number=685,long_name='LWR VIS CLR ZERO')
-                     ,parameter('LP2Z-rio',units='WM-2',frequency=1,number=686,long_name='LWR VIS RED ZERO')
-                     ,parameter('LIRZ-rio',units='WM-2',frequency=1,number=687,long_name='LWR I/R ZERO')
-                     ,parameter('LP1T-rio',units='DEG C',frequency=1,number=688,long_name='LWR VIS CLR TEMP')
-                     ,parameter('LP2T-rio',units='DEG C',frequency=1,number=689,long_name='LWR VIS RED TEMP')
-                     ,parameter('LIRT-rio',units='DEG C',frequency=1,number=690,long_name='LWR I/R TEMP')]
+        self.outputs=[parameter('UP1S',units='W M-2',frequency=1,number=673,long_name='UPP VIS CLR SIG')
+                     ,parameter('UP2S',units='W M-2',frequency=1,number=674,long_name='UPP VIS RED SIG')
+                     ,parameter('UIRS',units='W M-2',frequency=1,number=675,long_name='UPP I/R SIGNAL')
+                     ,parameter('UP1Z',units='W M-2',frequency=1,number=676,long_name='UPP VIS CLR ZERO')
+                     ,parameter('UP2Z',units='W M-2',frequency=1,number=677,long_name='UPP VIS RED ZERO')
+                     ,parameter('UIRZ',units='W M-2',frequency=1,number=678,long_name='UPP I/R ZERO')
+                     ,parameter('UP1T',units='DEG C',frequency=1,number=679,long_name='UPP VIS CLR TEMP')
+                     ,parameter('UP2T',units='DEG C',frequency=1,number=680,long_name='UPP VIS RED TEMP')
+                     ,parameter('UIRT',units='DEG C',frequency=1,number=681,long_name='UPP I/R TEMP')
+                     ,parameter('LP1S',units='WM-2',frequency=1,number=682,long_name='LWR VIS CLR SIG')
+                     ,parameter('LP2S',units='WM-2',frequency=1,number=683,long_name='LWR VIS RED SIG')
+                     ,parameter('LIRS',units='WM-2',frequency=1,number=684,long_name='LWR I/R SIGNAL')
+                     ,parameter('LP1Z',units='WM-2',frequency=1,number=685,long_name='LWR VIS CLR ZERO')
+                     ,parameter('LP2Z',units='WM-2',frequency=1,number=686,long_name='LWR VIS RED ZERO')
+                     ,parameter('LIRZ',units='WM-2',frequency=1,number=687,long_name='LWR I/R ZERO')
+                     ,parameter('LP1T',units='DEG C',frequency=1,number=688,long_name='LWR VIS CLR TEMP')
+                     ,parameter('LP2T',units='DEG C',frequency=1,number=689,long_name='LWR VIS RED TEMP')
+                     ,parameter('LIRT',units='DEG C',frequency=1,number=690,long_name='LWR I/R TEMP')]
         self.name='C_RIO_SOLS'
         self.fortname='SOLS'
         self.version=1.00

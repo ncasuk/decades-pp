@@ -2,6 +2,7 @@ from cal_base import *
 import time
 import os.path
 from netCDF4 import Dataset
+import ppodd
 class c_write_nc(cal_base):
     def __init__(self,dataset):
         self.input_names=['DATE','FLIGHT','IR_UP_C', 'SOL_AZIM', 'SOL_ZEN', 
@@ -37,7 +38,7 @@ class c_write_nc(cal_base):
                     filename=fname
         if(filename is None):
             filename=os.path.join(folder,'core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset.get_para('DATE')[-1::-1]))
-            filename+='r%1.1i_%s.nc' % (0,self.dataset.get_para('FLIGHT')[:])
+            filename+='%s_r%1.1i_%s.nc' % (ppodd.version,self.dataset.revision,self.dataset.get_para('FLIGHT')[:])
         self.coredata=Dataset(filename,'w',format=self.netcdf_type)
         drstime = self.coredata.createDimension('data_point', None)
         self.tdims={}
@@ -73,6 +74,7 @@ class c_write_nc(cal_base):
                         para.number=par.number
                     except:
                         pass
+                    print p,
                     try:
                         end=max(end,np.max(t))
                         start=min(start,np.min(t))
@@ -80,18 +82,21 @@ class c_write_nc(cal_base):
                     except NameError:
                         end=np.max(t)
                         start=np.min(t)
-                        print 'First ',(start,end)
+                        print (start,end)
                 except AttributeError:
                     # This is probably a constants_parameter with no times
-                    print p,' not got time'
+                    print p,' has no timed data'
             else:
-                print 'No ',p       
+                print 'No',p       
                              
         t0=time.time()
-        if self.dataset.start is not None:
-            start=self.dataset.start
-        if self.dataset.end is not None:
-            end=self.dataset.end
+        if self.dataset.starttime is not None:
+            start=self.dataset.starttime
+        if self.dataset.endtime is not None:
+            end=self.dataset.endtime
+        self.dataset.timeinterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
+        self.dataset.data_date=time.strftime('%Y%m%d',time.gmtime(time.time()))
+        self.dataset.processing_version=ppodd.version
         print start,end
         try:
             ti=timestamp((start,end))
@@ -111,9 +116,21 @@ class c_write_nc(cal_base):
                 para=self.coredata.variables[p]
                 print 'Writing %s' % par
                 f=par.frequency
-                para[:]=np.float_(par.data).asmasked(start=start,end=end,fill_value=fill_value)
-                if hasattr(par.data,'flagmasked'):
-                    paraf=self.coredata.variables[p+'_FLAG']
-                    paraf[:]=par.data.flagmasked(start=start,end=end,fill_value=-1)
+                try:
+                    para[:]=np.float_(par.data).asmasked(start=start,end=end,fill_value=fill_value)
+                    if hasattr(par.data,'flagmasked'):
+                        paraf=self.coredata.variables[p+'_FLAG']
+                        paraf[:]=par.data.flagmasked(start=start,end=end,fill_value=-1)
+                except ValueError:
+                    print "Can't write %s" % par
+            for att in self.dataset.attributes:
+                print 'Setting attribute ',att
+                print 'Value = ',self.dataset.attributes[att]
+                print 'Type = ',type(self.dataset.attributes[att])
+                try:
+                    setattr(self.coredata,att,self.dataset.attributes[att])
+                except TypeError:
+                    print "Cant write this one"
+                
             self.coredata.close()
             print 'Total write time %f seconds' % (time.time()-t0)

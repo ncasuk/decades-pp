@@ -11,17 +11,18 @@ class c_twc_cor(cal_base):
         
     def process(self):
         dx=self.dataset
-        p1=dx['PS_RVSM'][:,0]
-        p1f=dx['PS_RVSM'].flag[:,0]==0
-        t1=dx['TAT_DI_R'][:,0]
-        t1f=dx['TAT_DI_R'].flag[:,0]==0
+        match=dx.matchtimes(['PS_RVSM','TAT_DI_R','TWC_TSAM','TWC_DET','TDEW_GE'])
+        p1=dx['PS_RVSM'].data.ismatch(match)[:,0]
+        p1f=p1.flag==0
+        t1=dx['TAT_DI_R'].data.ismatch(match)[:,0]
+        t1f=t1.flag==0
         F=0.93
-        t2=dx['TWC_TSAM'][:]
-        t2f=dx['TWC_TSAM'].flag[:]==0
-        v=dx['TWC_DET'][:,0]
-        vf=dx['TWC_DET'].flag[:,0]==0
-        ge=dx['TDEW_GE'][:,0]
-        gef=dx['TDEW_GE'].flag[:,0]==0
+        t2=dx['TWC_TSAM'].data.ismatch(match)[:]
+        t2f=t2.flag==0
+        v=dx['TWC_DET'].data.ismatch(match)[:,0]
+        vf=v.flag==0
+        ge=dx['TDEW_GE'].data.ismatch(match)[:,0]
+        gef=ge.flag==0
         over=ge>278.0
         under=ge<=273-15.0
         iunder=np.where(under)

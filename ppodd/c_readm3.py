@@ -10,7 +10,7 @@ class c_readm3(file_reader):
         self.outputs=[]
         file_reader.__init__(self,dataset)
         
-    def openfile(self,filename):
+    def readfile(self,filename):
         hddr='_hddr.dat'
         self.filename=filename
         try:

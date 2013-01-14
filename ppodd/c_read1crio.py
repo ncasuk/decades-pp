@@ -1,6 +1,5 @@
 from cal_base import *
 import numpy as np
-import struct
 import csv
 import os
 class c_read1crio(file_reader):
@@ -13,7 +12,7 @@ class c_read1crio(file_reader):
         self.outputs=[]
         file_reader.__init__(self,dataset)
 
-    def openfile(self,filename):
+    def readfile(self,filename):
         """ require 2 parts the definition and the data
             may have several data files that need combining 
             Assume they are all in one folder.
@@ -33,9 +32,9 @@ class c_read1crio(file_reader):
         for f in ls:
             if file_type in f:
                 if f.endswith('.csv'):
-                   deffiles.append(f)
+                    deffiles.append(f)
                 else:
-                   bins.append(f)
+                    bins.append(f)
         
         print 'There are %i definition files ' % len(deffiles)
         deffile=os.path.join(dirname,sorted(deffiles)[-1])
@@ -47,22 +46,22 @@ class c_read1crio(file_reader):
         dt=[]
         total=0
         for row in defin:
-           if row[0]!='field' :
-               total+=int(row[1])
-               if(label==''):
-                   full_descriptor=row[0]
-                   label=full_descriptor[1:-2]
-                   dt.append(('label','S'+row[1]))
-               else:
-                   f=int(row[1])/int(row[2])
-                   para=label+'_'+row[0]
-                   outputs.append(parameter(para,frequency=f,
+            if row[0]!='field' :
+                total+=int(row[1])
+                if(label==''):
+                    full_descriptor=row[0]
+                    label=full_descriptor[1:-2]
+                    dt.append(('label','S'+row[1]))
+                else:
+                    f=int(row[1])/int(row[2])
+                    para=label+'_'+row[0]
+                    outputs.append(parameter(para,frequency=f,
                                           long_name=row[4],
                                           units='RAW'))
-                   if(f>1):
-                       dt.append((para,conv[row[3]]+row[2],(f,)))
-                   else:
-                       dt.append((para,conv[row[3]]+row[2]))
+                    if(f>1):
+                        dt.append((para,conv[row[3]]+row[2],(f,)))
+                    else:
+                        dt.append((para,conv[row[3]]+row[2]))
         print 'CRIO dtype=',dt
         print full_descriptor,' total packet length ',total
         print '%i files' % len(bins)
@@ -72,7 +71,7 @@ class c_read1crio(file_reader):
             statinfo = os.stat(filen)
             size=statinfo.st_size
             if (size % total) != 0:
-               print 'Data truncated',
+                print 'Data truncated',
             n=size/total
             print filen,n,
             offset=0
@@ -105,7 +104,7 @@ class c_read1crio(file_reader):
             time=timestamp(data[label+'_utc_time'],fromdate=self.dataset['DATE'].data)
             time,ind=np.unique(time,return_index=True)
             if len(np.where(data['label'] != full_descriptor)[0])!=0:
-               print 'Could be corrupted'
+                print 'Could be corrupted'
             good=data[ind][label+'_ptp_sync']=='1'
             time=time[good]
             for o in outputs:

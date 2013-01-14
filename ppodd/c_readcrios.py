@@ -6,7 +6,7 @@ import csv
 import os
 class c_readcrios(c_read1crio):
     """
-    Reads all cRIO data in one file
+    Reads all cRIO data in one folder
     """
     def __init__(self,dataset):
     
@@ -18,7 +18,7 @@ class c_readcrios(c_read1crio):
         file_reader.__init__(self,dataset)
                 
 
-    def openfile(self,filename):
+    def readfile(self,filename):
         """
         Looks for the .csv definition files then calls c_read1crio 
         to read in data from each type
@@ -29,6 +29,6 @@ class c_readcrios(c_read1crio):
                 ftype=f[:6]
                 if(ftype not in already_done):
                     already_done.append(ftype)
-                    c_read1crio.openfile(self,os.path.join(filename,ftype))
+                    c_read1crio.readfile(self,os.path.join(filename,ftype))
 
 

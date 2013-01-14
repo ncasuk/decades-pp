@@ -10,7 +10,7 @@ class c_readgin(file_reader):
         self.data=None
         file_reader.__init__(self,dataset)
    
-    def openfile(self,filename):
+    def readfile(self,filename):
         self.outputs=[
 parameter('LAT_GIN',units='degree_north',frequency=32,number=610,long_name='Latitude from POS AV 510 GPS-aided Inertial Navigation unit'),
 parameter('LON_GIN',units='degree_east',frequency=32,number=611,long_name='Longitude from POS AV 510 GPS-aided Inertial Navigation unit'),
@@ -44,11 +44,6 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
             self.data=np.memmap(filename,dtype=dtype,mode='r')
         else:
             self.data=np.memmap(filename,dtype=dtype,shape=(l/dlength),mode='r')
-        
-    def ginday(self,fromdate):
-        return (time.localtime(date2time(fromdate)).tm_wday+1) % 7  # day since saturday night
-
-    def process(self):
         if(self.data!=None):
             ind=np.where(self.data['grpid']==1)[0]
             gsecs=86400.0*self.ginday(self.dataset['DATE'].data)
@@ -75,4 +70,8 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
                     d=timed_data(self.data[o.name][ind],tgin)
                     d.interp1d()
                     o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)  
+        
+    def ginday(self,fromdate):
+        return (time.localtime(date2time(fromdate)).tm_wday+1) % 7  # day since saturday night
+
 
