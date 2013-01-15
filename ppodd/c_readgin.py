@@ -1,5 +1,4 @@
-from cal_base import *
-import numpy as np
+from ppodd.cal_base import *
 from os.path import getsize
 class c_readgin(file_reader):
     def __init__(self,dataset):

@@ -2,7 +2,7 @@ import os.path
 import fnmatch
 import sys
 import inspect
-import cal_base
+from ppodd.cal_base import cal_base
 from data import *
 """ Imports all c_*.py modules """
 def getmodules():
@@ -16,7 +16,7 @@ def is_calmodule(mod):
     """ Checks whether it is a calibration module, by making sure it has a 'process' member """
     ans=False
     if inspect.isclass(mod):
-        if issubclass(mod,cal_base.cal_base):
+        if issubclass(mod,cal_base):
             for n,typ in inspect.getmembers(mod):
                 if n=='process':
                     ans=True

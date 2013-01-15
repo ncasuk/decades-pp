@@ -1,5 +1,4 @@
-from cal_base import *
-import numpy as np
+from ppodd.cal_base import *
 import struct
 import os
 class c_readm3(file_reader):

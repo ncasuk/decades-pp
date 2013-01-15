@@ -1,5 +1,4 @@
-from cal_base import *
-import ppodd
+from ppodd.cal_base import *
 import dateutil.parser
 class c_readconst(file_reader):
     def __init__(self,dataset):

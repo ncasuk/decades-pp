@@ -60,6 +60,7 @@ class decades_dataset(list):
         self.references='http://www.faam.ac.uk'
         self.institution='FAAM'
         self.format_version='1.0'
+        self.revision=0
         list.__init__(self,*args,**kwargs)
     def para_names(self):
         return [i.name for i in self]
@@ -187,11 +188,11 @@ class timestamp(np.ndarray):
                 except TypeError:
                     try:
                         fromdate=time.mktime(time.strptime(fromdate,dateformat))
-                    except TypeError,ValueError:
+                    except (TypeError,ValueError):
                         raise Exception,'Incompatible date for conversion'
                 ans=self[:]-fromdate
         else:
-             ans=self[:]-86400.0*int(self[0]/86400)
+            ans=self[:]-86400.0*int(self[0]/86400)
         return ans        
 
         
@@ -276,7 +277,7 @@ class timed_data(np.ndarray):
         return self.interp
     def interpolated(self,times):
         if self.interp:
-           return self.interp(times)
+            return self.interp(times)
     def matchtimes(self,otherdata):
         try:
             return self.times.match(otherdata.times)

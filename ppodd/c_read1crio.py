@@ -1,7 +1,7 @@
-from cal_base import *
-import numpy as np
+from ppodd.cal_base import *
 import csv
-import os
+import os.path
+from os import listdir
 class c_read1crio(file_reader):
 
     def __init__(self,dataset):
@@ -26,7 +26,7 @@ class c_read1crio(file_reader):
         print 'Open CRIO file '+filename
         dirname=os.path.dirname(filename)
         file_type=os.path.basename(filename)[0:8]
-        ls=os.listdir(dirname)
+        ls=listdir(dirname)
         bins=[]
         deffiles=[]
         for f in ls:

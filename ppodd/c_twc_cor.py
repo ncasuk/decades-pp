@@ -1,5 +1,5 @@
-from cal_base import *
-from humidity_formulae import *
+from ppodd.cal_base import *
+from ppodd.humidity_formulae import *
 class c_twc_cor(cal_base):
     def __init__(self,dataset):
         self.input_names=['PS_RVSM','TAT_DI_R','TDEW_GE','TWC_DET','TWC_TSAM']

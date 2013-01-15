@@ -1,4 +1,4 @@
-from cal_base import *
+from ppodd.cal_base import *
 class c_airspd(fort_cal):
     def __init__(self,dataset):
         self.input_names=['TASCORR', 'SECS','PS_RVSM', 'Q_RVSM', 'TAT_DI_R']

@@ -1,7 +1,6 @@
-import numpy as np
-from c_runmod import c_runmod as run_old_module
-from data import *
-import types
+from ppodd.c_runmod import c_runmod as run_old_module
+from ppodd.data import *
+
 class cal_base(object):
     """ Base for all calibration modules """
     def __init__(self,dataset):
@@ -10,7 +9,7 @@ class cal_base(object):
         self.version=1.0
         self.history=''
 
-    def get_inputs():
+    def get_inputs(self):
         return [i.get_para() for i in self.input_names]
         
     def run(self):
@@ -62,11 +61,11 @@ class fort_cal(cal_base):
         self.pout=np.empty(len(self.outputs),dtype=np.int32,order='F')
         self.frqout=np.empty(len(self.outputs),dtype=np.int32,order='F')
         for i,p in enumerate(self.outputs):
-           try:
-               self.frqout[i]=p.frequency
-           except AttributeError:
-               self.frqout[i]=1
-           self.pout[i]=p.number
+            try:
+                self.frqout[i]=p.frequency
+            except AttributeError:
+                self.frqout[i]=1
+            self.pout[i]=p.number
         self.noutall=np.sum(self.frqout)
         self.fortname=getattr(self,'fortname',self.name) # Use the name as fortran module name unless explicitly set
     

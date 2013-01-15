@@ -1,9 +1,7 @@
-from cal_base import *
-from c_read1crio import c_read1crio
-import numpy as np
-import struct
-import csv
-import os
+from ppodd.cal_base import *
+from ppodd.c_read1crio import c_read1crio
+import os.path
+from os import listdir
 class c_readcrios(c_read1crio):
     """
     Reads all cRIO data in one folder
@@ -24,7 +22,7 @@ class c_readcrios(c_read1crio):
         to read in data from each type
         """
         already_done=[]
-        for f in os.listdir(filename):
+        for f in listdir(filename):
             if f.endswith('.csv'):
                 ftype=f[:6]
                 if(ftype not in already_done):

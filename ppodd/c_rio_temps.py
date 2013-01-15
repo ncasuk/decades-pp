@@ -1,4 +1,4 @@
-from cal_base import *
+from ppodd.cal_base import *
 class c_rio_temps(fort_cal):
     def __init__(self,dataset):
         self.input_names=['TRFCTR', 'CALDIT', 'CALNDT', 'CORCON_di_temp', 'SREG', 'CORCON_ndi_temp', 'CORCON_utc_time','PS_RVSM', 'Q_RVSM']

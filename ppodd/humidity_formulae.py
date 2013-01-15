@@ -13,7 +13,7 @@ def vmr2vp(vmr,p):
     return vp
     
 def uw2vp(uw,p):
-    vp=p*vmr
+    vp=p*uw
     return vp
 
 def mmr_vmr(mmr):

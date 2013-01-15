@@ -1,4 +1,4 @@
-from cal_base import *
+from ppodd.cal_base import *
 import numpy as np
 from netCDF4 import Dataset
 from os.path import getsize
