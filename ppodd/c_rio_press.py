@@ -10,6 +10,6 @@ class c_rio_press(fort_cal):
         fort_cal.__init__(self,dataset)
         
     def process(self): 
-        self.dataset[self.input_names[1]].number=14
-        self.dataset[self.input_names[2]].number=221
+        self.dataset[self.input_names[2]].number=14
+        self.dataset[self.input_names[3]].number=221
         fort_cal.process(self)
