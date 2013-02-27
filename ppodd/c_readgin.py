@@ -30,8 +30,8 @@ parameter('ACLF_GIN',units='m s-2',frequency=32,number=625,long_name='Accelerati
 parameter('ACLS_GIN',units='m s-2',frequency=32,number=626,long_name='Acceleration along the aircraft transverse axis (GIN) (positive starboard)'),
 parameter('ACLD_GIN',units='m s-2',frequency=32,number=627,long_name='Acceleration along the aircraft vertical axis (GIN) (positive down)'),
 parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs past midnight')]
-        dtype=[('grpid','<u2'),('bytes','<u2'),('Time','<f8'),('time2','<f8'),
-('dist','<f8'),('time_types','<u1'),('dist_type','<u1'),('LAT_GIN','<f8'),('LON_GIN','<f8'),
+        dtype=[('grpid','<u2'),('bytes','<u2'),('time1','<f8'),('time2','<f8'),
+('dist','<f8'),('timetype','<u1'),('disttype','<u1'),('LAT_GIN','<f8'),('LON_GIN','<f8'),
 ('ALT_GIN','<f8'),('VELN_GIN','<f4'),('VELE_GIN','<f4'),('VELD_GIN','<f4'),('ROLL_GIN','<f8'),
 ('PTCH_GIN','<f8'),('HDG_GIN','<f8'),('WAND_GIN','<f8'),('TRCK_GIN','<f4'),
 ('GSPD_GIN','<f4'),('ROLR_GIN','<f4'),
@@ -46,7 +46,7 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
         if(self.data!=None):
             ind=np.where(self.data['grpid']==1)[0]
             gsecs=86400.0*self.ginday(self.dataset['DATE'].data)
-            sgin=self.data['Time'][ind[0]]-gsecs
+            sgin=self.data['time1'][ind[0]]-gsecs
             if(sgin<0):
                 sgin+=(86400.0*7)  # if was started on the Sunday after the date ...
             tfrom=self.data['time2'][ind[0]] - sgin

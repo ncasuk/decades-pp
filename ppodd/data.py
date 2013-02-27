@@ -303,7 +303,7 @@ class timed_data(np.ndarray):
         
         
     def asmasked(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
-        """Only for 1d 1Hz times"""
+        """Only for 2d 1Hz times"""
         if data is None:
             data=self.raw_data
         if start is None:

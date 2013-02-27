@@ -2,6 +2,7 @@ from ppodd.cal_base import *
 import csv
 import os.path
 from os import listdir
+import struct
 class c_read1crio(file_reader):
 
     def __init__(self,dataset):
@@ -40,7 +41,9 @@ class c_read1crio(file_reader):
         deffile=os.path.join(dirname,sorted(deffiles)[-1])
         print 'Using definition file = '+deffile
         defin=csv.reader(open(deffile,'rb'),delimiter=',')
-        conv={'text':'S','unsigned_int':'>u','signed_int':'>i','double':'>f','single_float':'>f'}
+        conv={'text':'S','unsigned_int':'>u','signed_int':'>i','double':'>f','single_float':'>f'
+             ,'>unsigned_int':'>u','>signed_int':'>i','>double':'>f','>single_float':'>f'
+             ,'<unsigned_int':'<u','<signed_int':'<i','<double':'<f','<single_float':'<f'}
         label=''
         outputs=[]
         dt=[]
@@ -52,6 +55,10 @@ class c_read1crio(file_reader):
                     full_descriptor=row[0]
                     label=full_descriptor[1:-2]
                     dt.append(('label','S'+row[1]))
+                elif((row[0]=='grpid') & (label=='G') & (row[1]=='2') & (row[2]=='2')):
+                    label='GINDAT'
+                    full_descriptor+=struct.pack('<H',1)
+                    dt[0]=('label','S6')
                 else:
                     f=int(row[1])/int(row[2])
                     para=label+'_'+row[0]
@@ -65,6 +72,7 @@ class c_read1crio(file_reader):
         print 'CRIO dtype=',dt
         print full_descriptor,' total packet length ',total
         print '%i files' % len(bins)
+        print bins
         data=np.zeros((0,),dtype=dt)
         for fil in sorted(bins):
             filen=os.path.join(dirname,fil)
@@ -74,39 +82,56 @@ class c_read1crio(file_reader):
                 print 'Data truncated',
             n=size/total
             print filen,n,
-            offset=0
-            mind=-1
-            allok=True
-            notdone=True
-            while(notdone & (n>0)):
-                d=np.memmap(filen,dtype=dt,mode='r',shape=(n,),offset=offset)
-                if(np.any(d['label']!=full_descriptor)):
-                    """ Not matching labels.... """
-                    allok=False
-                    if(d[0]['label']==full_descriptor):
-                        mind=np.where(d['label']!=full_descriptor)[0][0]
-                        data=np.append(data,d[:mind],axis=0)
-                        offset+=mind*total+1
-                        #print 'Ind ',mind,offset
-                    else:
-                        offset+=1
-                        #print 'Offset ',offset
-                else:
-                    notdone=False
-                    data=np.append(data,d,axis=0)    
-                n=(size-offset)/total
-            if not allok:
-                print 'Some mismatches',len(data)
-            else:
-                print 'OK',len(data)
-            
+            offs=0        
+            if(n>0):
+                z=np.memmap(filen,dtype=dt,mode='r',shape=(n,)) # Try a simple read 
+                if(np.any(z['label']!=full_descriptor)):
+                    nfulld=len(full_descriptor)  # If the simple read fails read in byte at a time
+                    z=np.empty((n,),dtype=dt)
+                    n=0   
+                    with open(filen, "rb") as f:
+                        byte = f.read(1)
+                        while byte:
+                            nl=0
+                            while(byte==full_descriptor[nl]):
+                                nl+=1
+                                if(nl==nfulld):  # If we have read in the packet name
+                                    rest=f.read(total-nfulld)
+                                    if len(rest)+nfulld==total:
+                                        z.data[offs:offs+total]=full_descriptor+rest
+                                        offs+=total
+                                        n+=1
+                                    nl=0
+                                byte = f.read(1)
+                            byte = f.read(1)
+            if(n>0):
+                data=np.append(data,z[:n],axis=0)
+        dtype_names=[]
+        for d in dt:
+            dtype_names.append(d[0])
+        print data.shape   
         if len(data)>0:
-            time=timestamp(data[label+'_utc_time'],fromdate=self.dataset['DATE'].data)
-            time,ind=np.unique(time,return_index=True)
+            
+            if(label+'_utc_time' in dtype_names):
+                time=timestamp(data[label+'_utc_time'],fromdate=self.dataset['DATE'].data)
+                time,ind=np.unique(time,return_index=True)
+                good=data[ind][label+'_ptp_sync']=='1'
+                time=time[good]
+            elif (label+'_time1' in dtype_names):
+                # GIN ?
+                ind=np.arange(len(data[label+'_time1']))
+                gsecs=86400.0*self.ginday(self.dataset['DATE'].data)
+                sgin=data[label+'_time1'][ind[0]]-gsecs
+                if(sgin<0):
+                    sgin+=(86400.0*7)  # if was started on the Sunday after the date ...
+                tfrom=data[label+'_time2'][ind[0]] - sgin
+                print 'Gin times ',sgin,tfrom
+                time=timestamp(data[label+'_time2'][ind]-tfrom)
+                good=np.arange(len(ind))
+            else:
+                raise ValueError('No recognised timing')             
             if len(np.where(data['label'] != full_descriptor)[0])!=0:
                 print 'Could be corrupted'
-            good=data[ind][label+'_ptp_sync']=='1'
-            time=time[good]
             for o in outputs:
                 if o.name==label+'_utc_time':
                     o.data=timed_data(time,time)
@@ -115,4 +140,7 @@ class c_read1crio(file_reader):
                     o.data=timed_data(data[o.name][ind[good]],time)
 
         self.outputs=getattr(self,'outputs',[])+outputs
+
+    def ginday(self,fromdate):
+        return (time.localtime(date2time(fromdate)).tm_wday+1) % 7  # day since saturday night
 
