@@ -6,7 +6,7 @@ This includes c_runmod.so which in turn calls legacy fortran code in ppodd/fortr
 
 Typical usage - 
 
-git clone git://x.x.x.x:decades_pp           # get the repository
+git clone git@77.68.61.13:decades-pp         # get the repository
 cd decades_pp/ppodd/fortran_modules          #
 make                                         # build fortran libraries
 cd ../..
