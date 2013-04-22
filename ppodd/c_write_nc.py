@@ -52,6 +52,7 @@ class c_write_nc(cal_base):
             if p in paras:
                 par=self.dataset[p]
                 try:                    
+                    print p,
                     t=par.times
                     f=par.frequency
                     if(f not in self.tdims):
@@ -74,7 +75,6 @@ class c_write_nc(cal_base):
                         para.number=par.number
                     except:
                         pass
-                    print p,
                     try:
                         end=max(end,np.max(t))
                         start=min(start,np.min(t))

@@ -107,13 +107,18 @@ class decades_dataset(list):
             filetype='OUTPUT'
         self.files.update({filename:filetype})
 
-    def matchtimes(self,input_names,paras=[],notparas=[]):
-        """ Finding matching times for a list of inputs """    
+    def matchtimes(self,input_names,paras=None,notparas=None):
+        """ Finding matching times for a list of inputs """  
+        if paras is None:
+            paras=[]
+        if notparas is None:
+            notparas=[]
         for i in input_names:
             p=self.get_para(i)
             try:
                 frqin=p.frequency
                 paras.append(p)
+                print p,len(paras),frqin
                 if paras[-1].data is not None:
                     if(len(paras)==1):
                         match=paras[0].data.times

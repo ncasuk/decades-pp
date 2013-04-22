@@ -49,6 +49,7 @@ class c_read1crio(file_reader):
         dt=[]
         total=0
         for row in defin:
+            print row
             if row[0]!='field' :
                 total+=int(row[1])
                 if(label==''):
@@ -115,8 +116,11 @@ class c_read1crio(file_reader):
             if(label+'_utc_time' in dtype_names):
                 time=timestamp(data[label+'_utc_time'],fromdate=self.dataset['DATE'].data)
                 time,ind=np.unique(time,return_index=True)
-                good=data[ind][label+'_ptp_sync']=='1'
-                time=time[good]
+                if(label+'_ptp_sync' in dtype_names):
+                    good=data[ind][label+'_ptp_sync']=='1'
+                    time=time[good]
+                else:
+                    good=np.arange(len(time))
             elif (label+'_time1' in dtype_names):
                 # GIN ?
                 ind=np.arange(len(data[label+'_time1']))
