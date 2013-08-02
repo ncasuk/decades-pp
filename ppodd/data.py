@@ -2,7 +2,7 @@ import time
 import numpy as np
 from scipy.interpolate import interp1d
 import ppodd
-from collections import OrderedDict
+#from collections import OrderedDict
 
 class constants_parameter:
     """ The class for describing constants """
@@ -52,7 +52,7 @@ class parameter:
         """ Gets attributes from the data if not in the parameter object """
         return getattr(self.data,name)
     
-class decades_dataset(OrderedDict):
+class decades_dataset(dict):
     """ A dataset made up of a list of parameters, and information about files etc """
     def __init__(self,*args,**kwargs):
         self.files={}
@@ -65,31 +65,14 @@ class decades_dataset(OrderedDict):
         self.revision=0
         self.callist=[]
         self.notlist=[]
-        #list.__init__(self,*args,**kwargs)
-        OrderedDict.__init__(self,*args,**kwargs)
-    """def para_names(self):
-        return self.keys()
-        #return [i.name for i in self]
-    def get_para(self,name):
-        for i in self:
-            if(i.name==name):
-                return i
-        raise AttributeError("%r object has no parameter %r" %
-                         (type(self).__name__, name))
-    def __getitem__(self,para):
-        ans=self.get_para(para)
-        if ans is None:
-            try:
-                return list.__getitem__(self,para)
-            except TypeError:
-                return None
-        else:
-            return ans"""
+        #OrderedDict.__init__(self,*args,**kwargs)
+        dict.__init__(self,*args,**kwargs)
 
     def __getatts__(self):
         ans={}
         for a in dir(self):
-            if('OrderedDict' not in a) and (a not in dir(decades_dataset)):
+            #if('OrderedDict' not in a) and (a not in dir(decades_dataset)):
+            if(a not in dir(decades_dataset)):
                 ans.update({a:self.__getattribute__(a)})
         try:
             ans['files']=''
