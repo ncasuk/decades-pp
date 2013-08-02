@@ -74,12 +74,27 @@ class c_readm3(file_reader):
             T+=range(self.issrtt[i],self.isendt[i]+1,1)
         return timestamp(T,dtype='f8')
 
+    def get_BCDtime(self):
+        s=10*((self.data['Horace_GMTM']%256)/16)+self.data['Horace_GMTM']%16
+        m=10*(self.data['Horace_GMTH']%16)+self.data['Horace_GMTM']/256
+        h=10*(self.data['Horace_GMTH']/256)+(self.data['Horace_GMTH']%256)/16
+        return timestamp(h*3600+m*60+s,dtype='f8')
+
+    def time_BCD(self):
+        s0=self.time%10
+        s1=(self.time.astype(int)/10)%6
+        m0=(self.time.astype(int)/60)%10
+        m1=(self.time.astype(int)/600)%6
+        h0=(self.time.astype(int)/3600)%10
+        h1=(self.time.astype(int)/36000)
+        return (s0+s1*16+m0*256,m1+h0*16+h1*256)
+
     def get_timex(self):
         return np.arange(self.issrtt[0],self.isendt[self.isectn-1]+1,1)
 
     def paradesc(self,descfile=None):
         if(descfile==None):
-            descfile=os.path.join(os.environ['CALTEXT'],'MFDPARDESC.DAT')
+            descfile=os.path.join(os.path.dirname(__file__),'MFDPARDESC.DAT')
         lines=[]
         try:
             desc=open(descfile)

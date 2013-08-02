@@ -75,6 +75,7 @@ if __name__=="__main__":
                 opt[1]='OUTPUT_'+opt[1]
             d.add_file(*opt)
         d.revision=options.revision
-        callist=ppodd.calibrate(d,calmods=options.calmods,nocals=options.nocals,
+        callist=d.process(write=True,calmods=options.calmods,nocals=options.nocals,
                                 outparas=options.paras,start=options.start,end=options.end)    
-
+    else:
+        parser.print_help()

@@ -1,6 +1,8 @@
 import time
 import numpy as np
 from scipy.interpolate import interp1d
+import ppodd
+from collections import OrderedDict
 
 class constants_parameter:
     """ The class for describing constants """
@@ -50,7 +52,7 @@ class parameter:
         """ Gets attributes from the data if not in the parameter object """
         return getattr(self.data,name)
     
-class decades_dataset(list):
+class decades_dataset(OrderedDict):
     """ A dataset made up of a list of parameters, and information about files etc """
     def __init__(self,*args,**kwargs):
         self.files={}
@@ -61,9 +63,13 @@ class decades_dataset(list):
         self.institution='FAAM'
         self.format_version='1.0'
         self.revision=0
-        list.__init__(self,*args,**kwargs)
-    def para_names(self):
-        return [i.name for i in self]
+        self.callist=[]
+        self.notlist=[]
+        #list.__init__(self,*args,**kwargs)
+        OrderedDict.__init__(self,*args,**kwargs)
+    """def para_names(self):
+        return self.keys()
+        #return [i.name for i in self]
     def get_para(self,name):
         for i in self:
             if(i.name==name):
@@ -78,10 +84,13 @@ class decades_dataset(list):
             except TypeError:
                 return None
         else:
-            return ans
+            return ans"""
 
     def __getatts__(self):
-        ans=dict(vars(self))
+        ans={}
+        for a in dir(self):
+            if('OrderedDict' not in a) and (a not in dir(decades_dataset)):
+                ans.update({a:self.__getattribute__(a)})
         try:
             ans['files']=''
             for f in self.files:
@@ -114,7 +123,8 @@ class decades_dataset(list):
         if notparas is None:
             notparas=[]
         for i in input_names:
-            p=self.get_para(i)
+            #p=self.get_para(i)
+            p=self[i]
             try:
                 frqin=p.frequency
                 paras.append(p)
@@ -130,6 +140,95 @@ class decades_dataset(list):
                 # If there is no frequency add to notparas list (probably constant) 
                 notparas.append(p)
         return match
+        
+    def process(self,write=False,calmods=[],nocals=[],outparas=None,start=None,end=None):
+        """ Sorts calibrate modules - so they are run in order of availability of their inputs 
+        and do the processing """
+        self.starttime=start
+        self.endtime=end
+        cals=[]
+        if(len(calmods)==0):
+            calmods=ppodd.calnames
+        for c in calmods:
+            if(c in ppodd.calnames):
+                cals.append(eval('ppodd.c_%s' % c.lower()))
+            else:
+                print 'Warning:Module C_%s not available' % c
+        notadded=cals            
+        self.callist=[]
+        self.notlist=[]
+        finished=False
+        self.nocals=set(nocals)
+        while(len(notadded)>0):
+            """ Keep going while more modules to add """
+            for cal in notadded:
+                """ For each unrun module """
+                #paras=self.para_names()
+                paras=self.keys()
+                if (outparas is not None):
+                    """ If all output parameters are present then we have finished """
+                    finished=True
+                    for i in outparas:
+                        if(i not in paras):
+                            finished=False
+                ok=False
+                if(not(finished)):
+                    """ Load the modules """
+                    c=cal(self)
+                    if(c.name=='WRITE_NC'):
+                        """ If it is the writing module sync the output parameters with it """
+                        if (outparas is None):
+                            outparas=c.input_names
+                            outparas.remove('DATE')
+                            outparas.remove('FLIGHT')
+                        else:
+                            c.input_names=['DATE','FLIGHT']+outparas
+                    inp=c.input_names
+                    ok=True
+                    """ Run the module if not listed in self.nocals and have all the inputs """
+                    if c.name in self.nocals:
+                        ok=False
+                    for i in inp:
+                        if(i not in paras):
+                            ok=False                
+                if(ok):
+                    """ Run the module... Only run WRITE_NC if write is True """
+                    print 'PROCESSING .. '+c.name
+                    if ((c.name=='WRITE_NC') & write) | (c.name!='WRITE_NC'):                        
+                        self.callist.append(c)
+                        c.run()
+                        #self+=c.outputs
+                        for o in c.outputs:
+                            self.update({o.name:o})
+                else:
+                    """ Not running the module this time add to dataset.notlist """
+                    self.notlist.append(cal)             
+            if((sorted(self.notlist)==sorted(notadded)) | finished):    # probably need some sort of loop
+                """ If we have failed to run anything in the last loop, or we know we have finished """
+                for cal in self.notlist:
+                    c=cal(self)
+                    if(c.name=='WRITE_NC' and write):
+                        """ If we still haven't written anything despite the write flag then we should try even though we 
+                        don't have all the parameters requested 
+                        If all parameters requested output everything """
+                        if (outparas is not None):
+                            if(outparas==['all']):
+                                c.input_names=paras
+                            else:
+                                c.input_names=['DATE','FLIGHT']+outparas
+                        self.callist.append(c)
+                        print 'PROCESSING '+c.name
+                        c.run()
+                        finished=True
+                    else:
+                        """ If we haven't run the module add it to the nocals list """
+                        self.nocals.update([c.name])
+                break # Break out of the loop as we have finished
+            notadded=self.notlist
+            self.notlist=[]
+        return self.callist
+
+
 
 def date2time(fromdate):
     l=len(fromdate)

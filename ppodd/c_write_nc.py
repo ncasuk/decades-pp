@@ -37,17 +37,17 @@ class c_write_nc(cal_base):
                 else:
                     filename=fname
         if(filename is None):
-            filename=os.path.join(folder,'core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset.get_para('DATE')[-1::-1]))
-            filename+='%s_r%1.1i_%s.nc' % (ppodd.version,self.dataset.revision,self.dataset.get_para('FLIGHT')[:])
+            filename=os.path.join(folder,'core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset['DATE'][-1::-1]))
+            filename+='%s_r%1.1i_%s.nc' % (ppodd.version,self.dataset.revision,self.dataset['FLIGHT'][:])
         self.coredata=Dataset(filename,'w',format=self.netcdf_type)
         drstime = self.coredata.createDimension('data_point', None)
         self.tdims={}
         paralist=[]
-        paras=self.dataset.para_names()
+        paras=self.dataset.keys()
         times = self.coredata.createVariable('Time','i4',('data_point',),fill_value=flag_fill)
         times.long_name='time of measurement'
         times.standard_name='time'
-        times.units='seconds since %4.4i-%2.2i-%2.2i 00:00:00 +0000' % tuple(self.dataset.get_para('DATE')[-1::-1])
+        times.units='seconds since %4.4i-%2.2i-%2.2i 00:00:00 +0000' % tuple(self.dataset['DATE'][-1::-1])
         for p in self.input_names:
             if p in paras:
                 par=self.dataset[p]
@@ -112,7 +112,7 @@ class c_write_nc(cal_base):
             self.coredata.close()
             self.coredata=Dataset(filename,'a',format=self.netcdf_type)
             for p in paralist:
-                par=self.dataset.get_para(p)
+                par=self.dataset[p]
                 para=self.coredata.variables[p]
                 print 'Writing %s' % par
                 f=par.frequency
@@ -130,7 +130,11 @@ class c_write_nc(cal_base):
                 try:
                     setattr(self.coredata,att,self.dataset.attributes[att])
                 except TypeError:
-                    print "Cant write this one"
+                    try:
+                        if(self.dataset.attributes[att]):
+                            setattr(self.coredata,att,str(self.dataset.attributes[att]))
+                    except TypeError:
+                        print "Cant write this one"
                 
             self.coredata.close()
             print 'Total write time %f seconds' % (time.time()-t0)
