@@ -1,0 +1,42 @@
+Data processing issues that might need to be addressed
+* Gin data not flagged as 3 when GIN_LAT and GIN_LON are 0
+
+* averaging for creating 1Hz data is not working for angles (wind direction, gin hdg, etc.)
+   import scipy.stats
+   scipy.stats.circmean
+  might be the solution
+
+* adding gin offset constants to the flight constants
+
+* adding the noturb code to the gin decades-pp
+
+* From an email from Alan Blyth on the 5/7/13: 
+  "When I try to run ncplot on the 4 July 1Hz data file, it 
+   gives me an error message "File does not contain Time dimension".
+
+   ncrename -d data_point,Time core_faam_20130704_v004_r0_b785_1Hz.nc out.nc
+
+  fixes this problem.
+
+* buck processing code and flagging; add it to the ppod code; translation from idl to python
+
+* double check flagging to make sure that missing values do match the defintion of missing_values for all variables
+
+* Below is a short bash script that can be run on the core netcdf file to make it compliant with some american 
+  3d plotting software (I can't remember the name). But maybe it would be worthwhile to add the global
+  coordinates to the netcdf file too 
+
+#!/bin/bash
+
+ofile=`echo $1 | sed s/.nc/_editted.nc/`
+
+ncatted \
+ -a 'conventions,global,m,c,NCAR-RAF/nimbus' \
+ -a 'Version,global,c,c,1.3' \
+ -a 'coordinates,global,c,c,LON_GPS LAT_GPS GPS_ALT Time' \
+ -a '_FillValue,LAT_GPS,m,f,0' \
+ -a '_FillValue,LON_GPS,m,f,0' \
+ -o $ofile $1 
+ncwa -a sps01 -O $ofile $ofile
+ncrename -d data_point,Time -O $ofile
+
