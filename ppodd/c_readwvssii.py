@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 import csv
 import os.path
 from os import listdir
@@ -13,6 +13,13 @@ class c_readwvssii(file_reader):
         self.filetype='WVSS'
         self.outputs=[]
         file_reader.__init__(self,dataset)
+        self.patterns=('WVSS*.txt',)
+        
+    def fixfilename(self,filename):
+        if os.path.isdir(filename):
+            return filename
+        else:
+            return os.path.dirname(filename)
 
     def readfile(self,filename):
         converttime = lambda x: int(x[:14]+x[15:])

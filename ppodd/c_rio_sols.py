@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_sols(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALUP1S', 'CALUP2S', 'CALUIRS', 'CALLP1S', 'CALLP2S', 'CALLIRS', 

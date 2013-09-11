@@ -1,8 +1,18 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 from os.path import getsize
 from resample import createtimes
 class c_gin(cal_base):
+    """ GIN processing
+
+ Purpose:  Resample GIN data to 32Hz so it matches the time frame of turbulence and temperature data
+
+ Description:  Use numpy.interpolation to resample frequency from 50 to 32Hz
+ Missing out times where the gap is greater than 0.5 sec ( see resample.createtimes )
+              
+@author: Dave Tiddeman
+"""
     def __init__(self,dataset):
+
         self.name='GIN'
         self.input_names=['DATE','GINDAT_lat','GINDAT_lon','GINDAT_alt',
                           'GINDAT_veln','GINDAT_vele','GINDAT_veld',
@@ -34,25 +44,26 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
         cal_base.__init__(self,dataset)
    
     def process(self):
-        tgin=self.dataset['GINDAT_time1'].times
-        #tstep=timestamp((np.round(tgin[0]),np.round(tgin[-1])))
-        tstep=timestamp(createtimes(tgin))
-        tout=tstep.at_frequency(32)
-        sh=tout.shape
-        print 'SHAPE ',sh,(np.round(min(tgin)),np.round(max(tgin)))
-        flg=self.dataset['GINDAT_status'][:]/3
-        flagg=timed_data(flg,tgin)        
-        flagg.interp1d()
-        flags=np.int8(flagg.interpolated(tout.ravel()).reshape(sh))
-        for o in self.outputs:
-            print 'Interpolating ',o
-            if(o.name=='SECS_GIN'):
-               o.data=timed_data(tstep,tstep)
-            else:
-                name='GINDAT_'+(o.name[:-4].lower())
-                d=self.dataset[name].data
-                d.interp1d()
-                o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)  
+        if(self.dataset['GINDAT_time1'].data!=None):
+            tgin=self.dataset['GINDAT_time1'].times
+            #tstep=timestamp((np.round(tgin[0]),np.round(tgin[-1])))
+            tstep=timestamp(createtimes(tgin))
+            tout=tstep.at_frequency(32)
+            sh=tout.shape
+            print 'SHAPE ',sh,(np.round(min(tgin)),np.round(max(tgin)))
+            flg=self.dataset['GINDAT_status'][:]/3
+            flagg=timed_data(flg,tgin)        
+            flagg.interp1d()
+            flags=np.int8(flagg.interpolated(tout.ravel()).reshape(sh))
+            for o in self.outputs:
+                print 'Interpolating ',o
+                if(o.name=='SECS_GIN'):
+                   o.data=timed_data(tstep,tstep)
+                else:
+                    name='GINDAT_'+(o.name[:-4].lower())
+                    d=self.dataset[name].data
+                    d.interp1d()
+                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)  
         
 
 

@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 from ppodd.humidity_formulae import *
 class c_twc_wvsscor(cal_base):
     def __init__(self,dataset):

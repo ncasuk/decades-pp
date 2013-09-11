@@ -1,5 +1,6 @@
 import numpy as np
 def createtimes(times1):
+    """Create 1Hz times with gaps for gaps in input times of more than 0.5 sec""" 
     i=times1[1:]-times1[:-1]
     jumps=np.where(i>0.5)[0]
     jumps=np.append(jumps,len(times1)-1)

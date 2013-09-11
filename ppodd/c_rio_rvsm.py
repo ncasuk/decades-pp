@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 from scipy.interpolate import interp1d
 
 class c_rio_rvsm(fort_cal):

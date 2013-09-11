@@ -25,12 +25,12 @@ if __name__=="__main__":
            help="Output file or folder",metavar="OUTPUT",default="")
     parser.add_option("-r","--revision",dest="revision",
            help="Output revision number",metavar="N",default=0,type='int')
-    parser.add_option("-s","--start",dest="start",
-           help="Start time",metavar="HH:MM:SS",default=None,
-           action='callback',callback=times,type='string')
-    parser.add_option("-e","--end",dest="end",
-           help="End time",metavar="HH:MM:SS",default=None,
-           action='callback',callback=times,type='string')
+    #parser.add_option("-s","--start",dest="start",
+    #       help="Start time",metavar="HH:MM:SS",default=None,
+    #       action='callback',callback=times,type='string')
+    #parser.add_option("-e","--end",dest="end",
+    #       help="End time",metavar="HH:MM:SS",default=None,
+    #       action='callback',callback=times,type='string')
     parser.add_option("-p","--parameters",dest="paras",
            help="Parameters to output ",metavar="p1,p2...pn or all",default=None,
            action='callback',callback=split_,type='string')
@@ -76,6 +76,6 @@ if __name__=="__main__":
             d.add_file(*opt)
         d.revision=options.revision
         callist=d.process(write=True,calmods=options.calmods,nocals=options.nocals,
-                                outparas=options.paras,start=options.start,end=options.end)    
+                                outparas=options.paras) #,start=options.start,end=options.end)    
     else:
         parser.print_help()

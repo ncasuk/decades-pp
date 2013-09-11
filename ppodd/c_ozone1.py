@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_ozone1(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALO3', 'CALO3P', 'CALO3T', 'CALO3F', 'CALO3MX', 'Horace_O3', 'Horace_RVAS']

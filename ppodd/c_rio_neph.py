@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_neph(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALNPRS', 'CALNTMP', 'CALNBTS', 'CALNGTS', 'CALNRTS', 'CALNBBS', 'CALNGBS', 'CALNRBS', 'CALNHUM', 'CALNSTS', 

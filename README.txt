@@ -28,13 +28,13 @@ processdd data/flight-cst_faam_r0_xxxxxxxx_bxxx.txt data/bxxx_raw:M3 -o data/cor
 Writing modules for Decades Post Processing
 -------------------------------------------
 
-All processing modules should be subclasses of cal_base.
+All processing modules should be subclasses of ppodd.core.cal_base.
 
 They should include a process method which does the main work of the class, and an __init__ method for setting up inputs and outputs.
 
 inputs should be defined as a list of parameter names.
 
-outputs should be a list of parameters ( of type parameter defined in data.py )
+outputs should be a list of parameters ( of type parameter defined in ppodd/core.py )
 
 There are two defined subclasses already which can be subclassed further.
 
@@ -50,7 +50,7 @@ Example
 
 Here is a simple example to create a new parameter with calculated potential temperature.  Should be stored in a file with the same name as the class in folder ppodd so that it gets imported automatically.
 
-from ppodd.cal_base import *   # Import the base class
+from ppodd.core import cal_base,parameter,flagged_data   # Import the base class, parameter and data types.
 
 class c_potential_temp(cal_base):
     """ Calculate Potential Temperature """

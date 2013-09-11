@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_nox(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALNO', 'CALNO2', 'CALNOX', 'CALO3F', 'CALNOMX',  

@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_comr(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALCOMR', 'CALCOMX', 'Horace_CO', 'Horace_RVAS']

@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_geneas(fort_cal):
     def __init__(self,dataset):
         self.input_names=['GELIMS', 'CALGE', 'SECS','Horace_HYGR','Horace_HYCS']

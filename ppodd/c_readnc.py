@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 import numpy as np
 from netCDF4 import Dataset
 from os.path import getsize
@@ -10,6 +10,7 @@ class c_readnc(file_reader):
         self.outputs=[]
         self.data=None
         file_reader.__init__(self,dataset)
+        self.patterns=('*.nc',)
    
     def readfile(self,filename):
         self.outputs=[]
@@ -26,14 +27,28 @@ class c_readnc(file_reader):
             if newpar:
                 p=parameter(v)
                 for n in self.var[v].ncattrs():
-                    setattr(p,n,self.var[v].getncattr(n))
+                    if(n!='_FillValue'):
+                        setattr(p,n,self.var[v].getncattr(n))
                 self.outputs.append(p)
         for o in self.outputs:
+            data=np.squeeze(self.var[o.name][:])
+            try:
+                m=data.mask
+                data=data.data
+            except AttributeError:
+                pass
             if o.name+'_FLAG' in self.var:
                 """ there is a flag """
-                o.data=flagged_data(np.squeeze(self.var[o.name][:]),self.time,np.squeeze(self.var[o.name+'_FLAG'][:]))
+                flag=np.squeeze(self.var[o.name+'_FLAG'][:])
+                try:
+                    m=flag.mask
+                    flag=flag.data
+                    flag[flag<0]=3  # Convert masked out missing data to flagged 3
+                except AttributeError:
+                    pass
+                o.data=flagged_data(data,self.time,flag)
             else:
-                o.data=timed_data(np.squeeze(self.var[o.name][:]),self.time)
+                o.data=timed_data(data,self.time)
     
 
         

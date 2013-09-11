@@ -1,4 +1,3 @@
-      SUBROUTINE C_GENEAS   (IRAW,IFRQ,RCONST,RDER)
 CDEC$ IDENT 'V1.02'
 C
 C ROUTINE  	   C_GENEAS     SUBROUTINE FORTVAX
@@ -52,6 +51,7 @@ C                  V1.02  27/09/02  W.D.N.JACKSON
 C                  Changed to include handling of 16 bit data from the new 
 C                  DRS.
 C------------------------------------------------------------------------------
+      SUBROUTINE C_GENEAS   (IRAW,IFRQ,RCONST,RDER)
       IMPLICIT    NONE
       INTEGER*4   IRAW(64,512), IFRQ(512)
       REAL*4      RCONST(64), RDER(64,1024)

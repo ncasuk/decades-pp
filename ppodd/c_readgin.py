@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 from os.path import getsize
 from resample import createtimes
 class c_readgin(file_reader):
@@ -9,6 +9,12 @@ class c_readgin(file_reader):
         self.outputs=[]
         self.data=None
         file_reader.__init__(self,dataset)
+        self.patterns=('*gin*.dat','*gin*.dat;*')
+        
+
+    def fixfilename(self,filename):
+        filename[:filename.index('.dat')+4]
+
    
     def readfile(self,filename):
         self.outputs=[

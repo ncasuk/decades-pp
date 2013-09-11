@@ -1,5 +1,4 @@
-
-from ppodd.cal_base import *
+from ppodd.core import cal_base,parameter,flagged_data
 
 class c_potential_temp(cal_base):
     def __init__(self,dataset):

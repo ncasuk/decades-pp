@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_sreg(cal_base):
     def __init__(self,dataset):
         self.input_names=['CALCABT','PRTAFT_heimann_calib_flag','PRTAFT_deiced_temp_flag','CORCON_cabin_t']

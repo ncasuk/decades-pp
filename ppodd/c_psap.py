@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_psap(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALPLIN', 'CALPLOG', 'Horace_PLIN', 'Horace_PLOG', 'Horace_PTRN', 'Horace_PFLO']

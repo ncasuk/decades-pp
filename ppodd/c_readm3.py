@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 import struct
 import os
 class c_readm3(file_reader):
@@ -8,6 +8,10 @@ class c_readm3(file_reader):
         self.filetype='M3'
         self.outputs=[]
         file_reader.__init__(self,dataset)
+        self.patterns=('*raw_data.dat','*raw_hddr.dat','*raw_data.dat;*','*raw_hddr.dat;*')
+        
+    def fixfilename(self,filename):
+        return filename[:filename.find('.dat')-5]
         
     def readfile(self,filename):
         hddr='_hddr.dat'

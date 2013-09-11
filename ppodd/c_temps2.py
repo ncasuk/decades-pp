@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_temps2(fort_cal):
     def __init__(self,dataset):
         self.input_names=['TRFCTR', 'CALDIT', 'CALNDT', 'Horace_DITM', 'Horace_SREG', 'Horace_NDTM', 'SECS','PS_RVSM', 'Q_RVSM']

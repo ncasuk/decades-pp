@@ -18,10 +18,10 @@ setup(name = "ppodd",
     author = "Dave Tiddeman",
     author_email = "dave.tiddeman@metoffice.gov.uk",
     url = "http://www.faam.ac.uk",
-    packages = ['ppodd'],
+    packages = ['ppodd','ppodd.gui'],
     package_data = {'ppodd' : ["MFDPARDESC.DAT","c_runmod.so"] },
     include_package_data=True,
-    scripts = ["processdd"],
+    scripts = ["processdd","PPODD"],
     long_description = """Post-processing of decades data.""", 
     cmdclass={'build': prebuild}   
 ) 

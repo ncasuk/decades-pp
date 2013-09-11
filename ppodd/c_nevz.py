@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_nevz(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALNVLW', 'CALNVLR', 'CALNVLC', 'CALNVTW', 'CALNVTR', 'CALNVTC', 'CALRSL', 'CALRST', 

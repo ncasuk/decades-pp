@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_so2(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALSO2', 'Horace_SO2']

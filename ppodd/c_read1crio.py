@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 import csv
 import os.path
 from os import listdir
@@ -12,6 +12,13 @@ class c_read1crio(file_reader):
         self.filetype='CRIO'
         self.outputs=[]
         file_reader.__init__(self,dataset)
+        self.patterns=('*.csv',)
+
+
+    def fixfilename(self,filename):
+        d=os.path.dirname(filename)
+        b=os.path.basename(filename)
+        return os.path.join(d,b[:6])
 
     def readfile(self,filename):
         """ require 2 parts the definition and the data
@@ -21,12 +28,12 @@ class c_read1crio(file_reader):
             folder/type
             eg.
             decades_data/Bxxx/AERACK01
-            so any thing in folder/*type*.bin is data
+            so any thing in folder/*type* is data
             and             folder/type_TCP*.csv is definition
         """
         print 'Open CRIO file '+filename
         dirname=os.path.dirname(filename)
-        file_type=os.path.basename(filename)[0:8]
+        file_type=os.path.basename(filename)[:6]
         ls=listdir(dirname)
         bins=[]
         deffiles=[]
@@ -49,7 +56,6 @@ class c_read1crio(file_reader):
         dt=[]
         total=0
         for row in defin:
-            print row
             if row[0]!='field' :
                 total+=int(row[1])
                 if(label==''):
@@ -73,7 +79,7 @@ class c_read1crio(file_reader):
         print 'CRIO dtype=',dt
         print full_descriptor,' total packet length ',total
         print '%i files' % len(bins)
-        print bins
+        print sorted(bins)
         data=np.zeros((0,),dtype=dt)
         for fil in sorted(bins):
             filen=os.path.join(dirname,fil)
@@ -87,24 +93,33 @@ class c_read1crio(file_reader):
             if(n>0):
                 z=np.memmap(filen,dtype=dt,mode='r',shape=(n,)) # Try a simple read 
                 if(np.any(z['label']!=full_descriptor)):
+                    print 'Reading bytewise\n'
                     nfulld=len(full_descriptor)  # If the simple read fails read in byte at a time
                     z=np.empty((n,),dtype=dt)
-                    n=0   
+                    n=0
                     with open(filen, "rb") as f:
-                        byte = f.read(1)
-                        while byte:
-                            nl=0
-                            while(byte==full_descriptor[nl]):
-                                nl+=1
-                                if(nl==nfulld):  # If we have read in the packet name
-                                    rest=f.read(total-nfulld)
-                                    if len(rest)+nfulld==total:
-                                        z.data[offs:offs+total]=full_descriptor+rest
-                                        offs+=total
-                                        n+=1
-                                    nl=0
-                                byte = f.read(1)
-                            byte = f.read(1)
+                        strdata=f.read()
+                    nl=0
+                    inds=[]
+                    try:
+                        while(True):
+                            nl=strdata.index(full_descriptor,nl)
+                            inds.append(nl)
+                            if(nl+total<=len(strdata)):
+                                z.data[offs:offs+total]=strdata[nl:nl+total]
+                                offs+=total
+                                n+=1
+                            nl+=total
+                    except ValueError:
+                        import matplotlib.pyplot as plt #Plots to diagnose weird message lengths
+                        plt.figure()
+                        plt.ion()
+                        inds=np.array(inds)
+                        plt.plot(inds[1:]-inds[:-1])
+                        plt.title('Packet lengths for '+os.path.basename(filen))
+                        pass
+                else:
+                    print 'Read Easily\n'
             if(n>0):
                 data=np.append(data,z[:n],axis=0)
         dtype_names=[]

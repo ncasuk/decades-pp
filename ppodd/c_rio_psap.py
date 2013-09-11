@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_psap(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALPLIN', 'CALPLOG', 'psap_lin', 'psap_log', 'psap_transmission', 'psap_flow']

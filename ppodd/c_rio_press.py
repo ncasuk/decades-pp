@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_press(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALCABP', 'CALS9SP', 'CORCON_cabin_p', 'CORCON_s9_press']

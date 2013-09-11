@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_press1(fort_cal):
     def __init__(self,dataset):
         self.input_names=['CALCABP', 'CALS9SP', 'Horace_CABP', 'Horace_S9SP']

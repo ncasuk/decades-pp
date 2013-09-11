@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 from ppodd.c_read1crio import c_read1crio
 import os.path
 from os import listdir
@@ -14,6 +14,13 @@ class c_readcrios(c_read1crio):
         self.filetype='CRIOS'
         self.outputs=[]
         file_reader.__init__(self,dataset)
+        self.patterns=('*.csv',)
+
+    def fixfilename(self,filename):
+        if os.path.isdir(filename):
+            return filename
+        else:
+            return os.path.dirname(filename)
                 
 
     def readfile(self,filename):

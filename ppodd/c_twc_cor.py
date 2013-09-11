@@ -1,6 +1,16 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 from ppodd.humidity_formulae import *
 class c_twc_cor(cal_base):
+    """
+    Fit TWC sensor to GE chilled mirror
+    
+    Calculates Vapour pressures from GE where less than a threshold ( to screen out liquid and ice )
+    Calculate a theoretical Oxygen absorption from pressure
+    Fit the TWC detector less the oxygen correction against the GE vapour pressure
+    
+    Use the fit to create a Mass Mixing ratio for the TWC and then a dewpoint.
+    
+    """
     def __init__(self,dataset):
         self.input_names=['PS_RVSM','TAT_DI_R','TDEW_GE','TWC_DET','TWC_TSAM']
         self.outputs=[parameter('TWC_TDEWx',units='K',frequency=64,number=725,long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air)')
@@ -11,7 +21,7 @@ class c_twc_cor(cal_base):
         
     def process(self):
         dx=self.dataset
-        match=dx.matchtimes(['PS_RVSM','TAT_DI_R','TWC_TSAM','TWC_DET','TDEW_GE'])
+        match=dx.matchtimes(self.input_names)
         p1=dx['PS_RVSM'].data.ismatch(match)[:,0]
         p1f=p1.flag==0
         t1=dx['TAT_DI_R'].data.ismatch(match)[:,0]
@@ -55,7 +65,8 @@ class c_twc_cor(cal_base):
             print plt.xlim()
             plt.ylim(np.polyval(fit,plt.xlim()))
             print plt.ylim()
-            plt.show()
+            plt.ion()
+            plt.title('TWC vs GE')
             px=dx['PS_RVSM'].data.ravel()
             px.interp1d()
             p1=px.interpolated(t64x).reshape(sh)

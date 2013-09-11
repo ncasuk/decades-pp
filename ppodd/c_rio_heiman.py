@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_heiman(fort_cal):
     def __init__(self,dataset):
         self.input_names=['PRTCCAL', 'HEIMCAL', 'SREG', 'CORCON_heim_t', 'CORCON_heim_c']

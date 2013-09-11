@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_gsun(fort_cal):
     def __init__(self,dataset):
         self.input_names=['DATE', 'SECS', 'LAT_GIN', 'LON_GIN']

@@ -1,4 +1,4 @@
-from ppodd.cal_base import *
+from ppodd.core import *
 class c_rio_airspd(fort_cal):
     def __init__(self,dataset):
         self.input_names=['TASCORR', 'PRTAFT_utc_time','PS_RVSM', 'Q_RVSM', 'TAT_DI_R']
