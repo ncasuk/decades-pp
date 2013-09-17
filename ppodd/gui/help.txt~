@@ -1,0 +1,66 @@
+Processing Decades Data
+=======================
+
+Screen layout:
+
+----------------------------------------
+(Menus) File: Modules: Parameters: Process: Help
+----------------------------------------
+
+   (View of Files/Modules/Parameters)
+  
+
+----------------------------------------
+
+
+               ( Log )
+
+
+----------------------------------------
+
+
+Menus:-
+
+
+
+File:
+
+     Archive:
+             Options for backing up raw data from aircraft, and archiving at BADC
+     Files:
+             The input files the dataset will use
+     Write:
+             Write data out as NetCDF
+
+
+Files:
+
+     View the files to be used as input.  You can add or remove files from the list.  
+    
+Modules:
+     
+     View available processing modules
+     Hovering over the module name will show the documentation of the module
+     Hovering over In and Out will list the input and output parameters
+     Clicking on In or Out will open a parameter view showing the relevant parameters
+     
+Parameters:
+
+     View parameters read in or created by processing.
+     The Show button will pop up a window with with a plot or a text description of the data.
+     
+Process:
+
+     Process data, including reading data in from files
+
+
+Help:
+
+     Display this help text
+
+
+
+
+
+                                        
+

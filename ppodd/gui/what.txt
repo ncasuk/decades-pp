@@ -1,0 +1,56 @@
+separate backup and processing
+
+File not in normal place .. do we copy it ?  Is that as simple as it could be...
+
+Same idea for zip.. - or do we keep as zip for backup...
+
+  Do I need to create new folders for DLU/RIO or use RAWDATA and RAWCORE
+
+
+$RAWCORE/core_faam_YYYYMMDD_rX_bNNN_rawdlu.zip
+$RAWDATA/bNNN_rawdlu/*
+
+the rawdlu files should include the csv descriptors - or not...??
+
+
+
+
+
+
+If just one file -
+
+ is it a zip ?
+    Unzip
+ is it a folder ... what is in it ?
+ 
+ 
+What could we have.
+
+A single flight constants - 
+
+  Do we look for data - where ?
+  
+A folder of cRIO data
+  Do we look for flight constants ?
+  
+Would the flight constants ever be in with the data ??
+
+
+
+
+Identify files...
+
+    If folder - identify files within...
+    
+    If zip - identify files within...
+    
+Once all files identified
+
+   reduce to minimum number
+   
+
+
+Identify
+
+crio folder must contain .csv
+ 

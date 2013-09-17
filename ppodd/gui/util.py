@@ -2,6 +2,7 @@ import Tkinter as Tk
 import time
 import sys
 import Queue
+import os
 
 class ToolTip( Tk.Toplevel ):
     """
@@ -133,16 +134,15 @@ class ScrollFrame(Tk.Frame,object):
     def pack(self):
         self.outer.pack(fill=Tk.BOTH, expand=Tk.TRUE)
 
-
-class RedirectPrint(object):
-    def __init__(self,widget,err=True):
+                
+class RedirectPrint(Queue.Queue,object):
+    def __init__(self,widget):
         self.widget=widget
-        self.previous_out=sys.stdout
+        self.stdout=sys.stdout
+        self.stderr=sys.stderr
         sys.stdout=self
-        if(err):
-            self.previous_err=sys.stderr
-            sys.stderr=self
-        
+        sys.stderr=self
+        Queue.Queue.__init__(self)
     def write(self,string):
         try:
             self.widget.insert(Tk.END,string)
@@ -151,24 +151,14 @@ class RedirectPrint(object):
             except:
                 pass
             self.widget.update_idletasks()
-        except Exception:
-            self.previous_out.write(string)
-        
+        except:
+            try:
+                self.put(string)
+            except:
+                self.stdout.write(string)     
     def revert(self):
-        sys.stdout=self.previous_out
-        try:
-            sys.stderr=self.previous_err
-        except AttributeError:
-            pass # probably wasn't set
-
-class QueuedWriter(Queue.Queue):
-    def __init__(self):
-        Queue.Queue.__init__(self)
-        
-    def write(self,string):
-        self.put(string)
-                
-
+        sys.stdout=self.stdout
+        sys.stderr=self.stderr
 
 class ScrollText(Tk.Text):
     def  __init__(self,parent,*args,**kwargs):
@@ -182,6 +172,64 @@ class ScrollMessage(ScrollFrame):
         ScrollFrame.__init__(self,parent,**kwargs)
         mess=Tk.Message(self,text=text,**kwargs)
         mess.pack(fill=Tk.BOTH, expand=Tk.TRUE)
+
+
+
+class PrintLog(Queue.Queue,ScrollText,object):
+    def __init__(self,*args,**kwargs):
+        self.stdout=sys.stdout
+        self.stderr=sys.stderr
+        sys.stdout=self
+        sys.stderr=self
+        Queue.Queue.__init__(self)
+        ScrollText.__init__(self,*args,**kwargs)
+        self.after(2000, self.check_queue)
+        r="$ROUOPS"
+        rouops=os.path.expandvars(r)
+        rouops=r if r!=rouops else ''
+        try:
+            self.logfile=open(os.path.join(rouops,'ppodd_log_%s.txt' % time.strftime('%Y%m%d%H%M%S')),'w')
+        except IOError:
+            rouops=os.path.expanduser('~')
+            self.logfile=open(os.path.join(rouops,'ppodd_log_%s.txt' % time.strftime('%Y%m%d%H%M%S')),'w')
+            
+    def write(self,string):
+        self.logfile.write(string)
+        try:
+            self.insert(Tk.END,string)
+            try:
+                self.yview_moveto(1.0) # Try to move the view to the last thing written
+            except:
+                pass
+            self.update_idletasks()
+        except:
+            try:
+                self.put(string)
+            except:
+                self.stdout.write(string)     
+
+    def revert(self):
+        sys.stdout=self.stdout
+        sys.stderr=self.stderr
+
+
+    def check_queue(self):
+        changed=0
+        try:
+            while(changed<10):
+                string=self.get(False)
+                self.insert(Tk.END,string)
+                changed+=1
+        except Queue.Empty:
+            pass
+        if(changed):
+            try:
+                self.yview_moveto(1.0) # Try to move the view to the last thing written
+            except:
+                pass
+        self.update_idletasks()
+        self.after(200, self.check_queue)
+
 
 
 class ValidEntry(Tk.Entry,object):

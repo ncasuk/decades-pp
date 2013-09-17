@@ -2,8 +2,9 @@
 import Tkinter as Tk
 from util import *
 from ppodd.core import decades_dataset
-from views import viewfiles,viewparas,viewmodules
+from views import viewparas,viewmodules
 from archive import viewarchive
+from files import viewfiles
 
 
 class main(Tk.Tk):
@@ -35,38 +36,16 @@ class main(Tk.Tk):
         self.viewpane.settitle=self.setviewtitle
         self.viewtitle=Tk.Label(self,text='',bg=self.cget('bg'))
         self.logpane=Tk.Frame(self,bg=self.cget('bg'))
-        self.log=ScrollText(self.logpane,bg=self.cget('bg'))
+        self.log=PrintLog(self.logpane,bg=self.cget('bg'))
         self.log.pack()
         self.viewtitle.pack()
         self.viewpane.pack()
         self.logpane.pack()
-        self.rd=RedirectPrint(self.log)
-        self.qwrite=QueuedWriter()
         self.mods=None
-        self.paras=None
+        self.paras=self.data.write_nc.input_names
         self.fileview=viewfiles(self.viewpane,self.data,bg=self.cget('bg'))
-        self.files_changed=False
-        self.log.after(100, self.check_queue)
         self.setview('files')
 
-    
-    def check_queue(self):
-        changed=0
-        try:
-            while(changed<10):
-                string=self.qwrite.get(False)
-                self.log.insert(Tk.END,string)
-                changed+=1
-        except Queue.Empty:
-            pass
-        if(changed):
-            try:
-                self.log.yview_moveto(1.0) # Try to move the view to the last thing written
-            except:
-                pass
-        self.log.update_idletasks()
-        self.log.after(100, self.check_queue)
-        
         
 
     def setviewtitle(self,title):
@@ -143,7 +122,6 @@ Help:
         ScrollMessage( helpwdgt, text=helptext, bg='#FFFFDD').pack()
                                                          
     def setview(self,viewstate='none',paras=None):
-        print self.viewstate+' : '+viewstate
         if(viewstate==self.viewstate):
             return
         if(self.viewstate.find('paras') > -1):
@@ -160,45 +138,50 @@ Help:
             del self.modview            
         elif(self.viewstate=='archive'):
             self.archiveview.forget()  
-            del self.archiveview
-            self.files_changed=True   
         if(viewstate=='paras'):
+            selectable=False
             if(not paras):
                 paras=[self.data[p] for p in self.data]
+                selectable=True
             else:
                 viewstate='specialparas'
-            self.paraview=viewparas(self.viewpane,paras,bg=self.cget('bg'))
+            self.paraview=viewparas(self.viewpane,paras,selectable=selectable,bg=self.cget('bg'))
+            if(self.paras!=None):
+                self.paraview.setselected(self.paras)
             self.paraview.pack()
         elif(viewstate=='files'):
-            if self.files_changed:
-                self.fileview.reset_files()
-            self.files_changed=False   
             self.fileview.pack()
         elif(viewstate=='modules'):
             mods=self.data.modules
             self.modview=viewmodules(self.viewpane,mods.values(),selectable=True,paraview=self.setview,bg=self.cget('bg'))
+            if(self.mods!=None):
+                self.modview.setselected(self.mods)
+            else:
+                self.modview.selectall()
             self.modview.pack()
         elif(viewstate=='archive'):
-            self.archiveview=viewarchive(self.viewpane,self.data,printer=self.qwrite,bg=self.cget('bg'))
-            self.archiveview.pack()
+            try:
+                self.archiveview.pack()
+            except AttributeError:
+                self.archiveview=viewarchive(self.viewpane,self.data,bg=self.cget('bg'))
+                self.archiveview.pack()
         self.viewstate=viewstate
     
 
     def archive(self):
-        print "Archive\n"
         self.setviewtitle('Archive')
         self.setview('archive')
     def files(self):
-        print "Files\n"
         self.setviewtitle('Files')
         self.setview('files')
     def write(self):
         print "Write\n"
-        #self.data.modules['WRITE_NC'].process()
-        self.data.modules['WRITE_NC'].process()
+        self.data.write_nc.process(paras=self.paras)
+    def writeonehz(self):
+        print "Write\n"
+        self.data.write_nc.process(onehz=True,paras=self.paras)
     def modules(self):
         self.setviewtitle('Modules')
-        print "Modules\n"        
         self.setview('modules')
     def paras(self):
         self.setviewtitle('All Parameters')
@@ -215,6 +198,7 @@ Help:
             pass
         print 'Paras=',self.paras
         print 'Modules=',self.mods
+        self.data.mods=self.mods
         if(self.viewstate=='files'):
             self.data.files=self.fileview.files
         self.data.process()
@@ -224,7 +208,7 @@ Help:
     def quality(self):
         print "Quality\nNot implemented fully\nIDL version\n"
         try:
-            idlcomm="idl -quiet -e \"!path=!path+':$MRF_IDL' & checkf,'"+self.data.modules['WRITE_NC'].filename+"'\""
+            idlcomm="idl -quiet -e \"!path=!path+':$MRF_IDL' & checkf,'"+self.data.write_nc.filename+"'\""
             import subprocess
             subp = subprocess.Popen(idlcomm, shell = True)
         except AttributeError:

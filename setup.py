@@ -6,7 +6,7 @@ class prebuild(distbuild):
         """ make fortran modules before build """
         import os,subprocess
         d=os.getcwd()
-        os.chdir('ppodd/fortran_modules')
+        os.chdir('ppodd/pod/fortran_modules')
         subprocess.call('make')
         os.chdir(d)
         distbuild.run(self)
@@ -18,8 +18,8 @@ setup(name = "ppodd",
     author = "Dave Tiddeman",
     author_email = "dave.tiddeman@metoffice.gov.uk",
     url = "http://www.faam.ac.uk",
-    packages = ['ppodd','ppodd.gui'],
-    package_data = {'ppodd' : ["MFDPARDESC.DAT","c_runmod.so"] },
+    packages = ['ppodd','ppodd.gui','ppodd.pod'],
+    package_data = {'ppodd.pod' : ["c_runmod.so","fortran_modules/*.for","fortran_modules/makefile"] },
     include_package_data=True,
     scripts = ["processdd","PPODD"],
     long_description = """Post-processing of decades data.""", 

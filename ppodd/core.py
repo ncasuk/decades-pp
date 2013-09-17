@@ -26,8 +26,6 @@ try:
 except ImportError:
     from OrderedDictOld import OrderedDict
 
-version='v004'
-
 class constants_parameter:
     """ The class for describing constants """
     def __init__(self,name,values):
@@ -90,24 +88,34 @@ class decades_dataset(OrderedDict):
         self.atts['revision']=0
         self.usedmods=[]
         self.modules=OrderedDict()
+        self.mods=[]
+        self.nomods=set()
+        self.outparas=None
+        self.start=None
+        self.end=None
         self.notlist=[]
         self.starttime=None
         self.endtime=None
         self.filetypes={}
-        self.nocals=set()
+        self.nocals=()
         """ Import all the calibration modules
         The names are listed in calnames
         """
         #self.calnames=[]
+        """
         for m in self.getmodules():
             exec 'from %s import %s' % (m,m)
             if self.is_calmodule(eval('%s' % m)):
-                exec 'self.modules["%s"]=%s(self)' % (m[2:].upper(),m)
+                exec 'self.modules["%s"]=%s(self)' % (m[2:].upper(),m)"""
+        import ppodd.pod
+        self.modules=ppodd.pod.get_ps(self)
         for m in self.modules.values():
             try:
                 self.filetypes[m.filetype]=m
             except AttributeError:
                 pass
+        from ppodd.pod.write_nc import write_nc
+        self.write_nc=write_nc(self)
         OrderedDict.__init__(self,*args,**kwargs)
 
     def getmodules(self):
@@ -155,15 +163,10 @@ class decades_dataset(OrderedDict):
              
     def add_file(self,filename,filetype):
         """ Add a file to the dataset - the filetype tells it how to read in but doesnt do the reading """
-        if(filetype.startswith('OUTPUT')):
-            outtype=filetype[7:]
-            possible_types=['NETCDF3_CLASSIC','NETCDF4', 'NETCDF4_CLASSIC', 'NETCDF3_64BIT']
-            if(outtype in possible_types):
-                self.output_type=outtype
-            else:
-                self.output_type=possible_types[0]
-            filetype='OUTPUT'
-        self.files.append((filename,filetype))
+        if(filetype in self.filetypes):
+            self.files.append((filename,filetype))
+        else:
+            raise ValueError('Unknown Filetype %s' % filetype)
 
     def matchtimes(self,input_names,paras=None,notparas=None):
         """ Finding matching times for a list of inputs """  
@@ -188,15 +191,25 @@ class decades_dataset(OrderedDict):
                 # If there is no frequency add to notparas list (probably constant) 
                 notparas.append(p)
         return match
+
+    def __setnocals__(self,x):
+        self.__nocals__=set(x)
         
-    def process(self,write=False,calmods=[],nocals=[],outparas=None,start=None,end=None):
+    def __getnocals__(self):
+        return self.__nocals__
+        
+    nocals=property(__getnocals__,__setnocals__)
+ 
+    def process(self):
         """ Sorts calibrate modules - so they are run in order of availability of their inputs 
         and do the processing """
-        self.starttime=start
-        self.endtime=end
+        self.starttime=self.start
+        self.endtime=self.end
         cals=[]
-        if(not(calmods)):
+        if(not(self.mods)):
             calmods=self.modules.keys()
+        else:
+            calmods=self.mods
         for c in calmods:
             if(c in self.modules.keys()):
                 cals.append(self.modules[c])
@@ -206,32 +219,22 @@ class decades_dataset(OrderedDict):
         self.usedmods=[]
         self.notlist=[]
         finished=False
-        self.nocals=set(nocals)
+        self.nocals=self.nomods
         while(len(notadded)>0):
             """ Keep going while more modules to add """
             for cal in notadded:
                 """ For each unrun module """
-                #paras=self.para_names()
                 paras=self.keys()
-                if (outparas is not None):
+                if (self.outparas):
                     """ If all output parameters are present then we have finished """
                     finished=True
-                    for i in outparas:
+                    for i in self.outparas:
                         if(i not in paras):
                             finished=False
                 ok=False
                 if(not(finished)):
                     """ Load the modules """
                     c=cal
-                    if(c.name=='WRITE_NC'):
-                        """ If it is the writing module sync the output parameters with it """
-                        if (outparas):
-                            c.input_names=['DATE','FLIGHT']+outparas
-                        else:
-                            if(write):
-                                outparas=c.input_names
-                                outparas.remove('DATE')
-                                outparas.remove('FLIGHT')
                     inp=c.input_names
                     ok=True
                     """ Run the module if not listed in self.nocals and have all the inputs """
@@ -243,9 +246,9 @@ class decades_dataset(OrderedDict):
                 if(ok):
                     """ Run the module... Only run WRITE_NC if write is True """
                     print 'PROCESSING .. '+c.name
-                    if ((c.name=='WRITE_NC') & write) or (c.name!='WRITE_NC'):                        
-                        self.usedmods.append(c)
-                        c.run()
+                    #if ((c.name=='WRITE_NC') & write) or (c.name!='WRITE_NC'):                        
+                    self.usedmods.append(c)
+                    c.run()
                 else:
                     """ Not running the module this time add to dataset.notlist """
                     self.notlist.append(cal)             
@@ -253,22 +256,8 @@ class decades_dataset(OrderedDict):
                 """ If we have failed to run anything in the last loop, or we know we have finished """
                 for cal in self.notlist:
                     c=cal
-                    if(c.name=='WRITE_NC' and write):
-                        """ If we still haven't written anything despite the write flag then we should try even though we 
-                        don't have all the parameters requested 
-                        If all parameters requested output everything """
-                        if (outparas is not None):
-                            if(outparas==['all']):
-                                c.input_names=paras
-                            else:
-                                c.input_names=['DATE','FLIGHT']+outparas
-                        self.usedmods.append(c)
-                        print 'PROCESSING '+c.name
-                        c.run()
-                        finished=True
-                    else:
-                        """ If we haven't run the module add it to the nocals list """
-                        self.nocals.update([c.name])
+                    """  If we haven't run the module add it to the nocals list """
+                    self.nocals.update([c.name])
                 break # Break out of the loop as we have finished
             notadded=self.notlist
             self.notlist=[]
@@ -540,165 +529,4 @@ class flagged_data(timed_data):
         else:
             return self
 
-class cal_base(object):
-    """ Base for all calibration modules """
-    def __init__(self,dataset):
-        """ Sub class should initialise the version inputs outputs and name as a minimum """
-        self.dataset=dataset
-        self.version=1.0
-        self.history=''
-
-    def get_inputs(self):
-        return [i.get_para() for i in self.input_names]
-        
-    def run(self):
-        self.process()
-        for o in self.outputs:
-            self.dataset.update({o.name:o})
-        self.addhistory()
-
-    def process(self):
-        pass
-    
-    def addhistory(self):
-        if(len(self.outputs)>0):
-            self.dataset.history+='\n%s\n  Inputs=%s ,\n  Outputs=%s \n\n' % (self.name,str(self.input_names),str(self.outputs))
-            self.history+='INPUTS\n'
-            for i in self.input_names:
-                try:
-                    f=self.dataset[i].frequency
-                    self.history+='  Parameter %s\n' % i
-                except:
-                    self.history+='  Constants %s=' % i
-                    for c in self.dataset[i][:]:
-                        try:
-                            self.history+='%e,' % c
-                        except TypeError:
-                            self.history+='%s,' % str(c)
-                    self.history+='\n'
-            self.history+='\n\nOUTPUTS\n'
-            for o in self.outputs:
-                self.history+=repr(o)+','+str(o)+'\n'
-                
-                
-    def __repr__(self):
-        return self.name
-
-class file_reader(cal_base):
-    """ Base class for file reading modules """
-    def __init__(self,dataset):
-        cal_base.__init__(self,dataset)
-        self.patterns=('.*','*')
-        if(not(self.__doc__)):
-            self.__doc__='Routine for reading in %s data' % self.filetype
-    def process(self):
-        self.files=[]
-        for filename,filetype in self.dataset.files:
-            if(filetype==self.filetype):
-                self.files.append(filename)
-        for filename in self.files:
-            self.readfile(filename)  
-
-    def fixfilename(self,filename):
-        return filename
-
-    
-            
-        
-             
-class fort_cal(cal_base):
-    """ Base class for calibration modules that call legacy fortran """
-    def __init__(self,dataset):
-        import os.path
-        cal_base.__init__(self,dataset)
-        self.pout=np.empty(len(self.outputs),dtype=np.int32,order='F')
-        self.frqout=np.empty(len(self.outputs),dtype=np.int32,order='F')
-        for i,p in enumerate(self.outputs):
-            try:
-                self.frqout[i]=p.frequency
-            except AttributeError:
-                self.frqout[i]=1
-            self.pout[i]=p.number
-        self.noutall=np.sum(self.frqout)
-        self.fortname=getattr(self,'fortname',self.name) # Use the name as fortran module name unless explicitly set
-        try:
-            fdir=os.path.join(os.path.dirname(__file__),'fortran_modules')
-            with open(os.path.join(fdir,'c_'+self.fortname.lower()+'.for'),'r') as fmod:
-                comments=''
-                for fline in fmod:
-                    if(fline.startswith('C') or fline.startswith('!')):
-                        comments+=fline[1:]
-                    elif(fline.startswith('      SUBROUTINE')):
-                        break
-                try:
-                    self.__doc__+=comments
-                except TypeError:
-                    self.__doc__=comments
-        except IOError:
-            pass            
-    
-    
-    def process(self):
-        """ Get the input data into an array matching the times..
-        All input parameters must have a frequency and number set or will not be accepted as inputs
-        Run the fortran
-        Extract ouput into timestamped parameters     """
-        from ppodd.c_runmod import c_runmod as run_old_module
-        frqin=[]
-        pin=[]
-        inputs=[]
-        constants=[]
-        const=[]
-        match=self.dataset.matchtimes(self.input_names,paras=inputs,notparas=constants)
-        for c in constants:
-            const.extend(c[:])
-        for p in inputs:
-            frqin.append(p.frequency)
-            pin.append(p.number)
-        constants=np.array(const,dtype=np.float32,order='F')    # Constants array
-        frqin=np.array(frqin,dtype=np.int32,order='F')           # Input frequencies
-        pin=np.array(pin,dtype=np.int32,order='F')               # Input parameter numbers
-        length=len(match)
-        if(length>0):
-            """If there are data with any matching times"""
-            din=np.empty((length,np.sum(frqin)),dtype=np.float32,order='F') # Input data
-            flagin=np.zeros((length,np.sum(frqin)),dtype=np.int8,order='F') # Input flags
-            ofs=0
-            # Arrange inputs
-            for i,p in enumerate(inputs):
-                if(frqin[i]==1):
-                    s=ofs
-                else:
-                    s=slice(ofs,ofs+frqin[i])    
-                try:    
-                    din[:,s]=p.data.ismatch(match).raw_data
-                except ValueError:
-                    print 'S=',s
-                    print 'Data',p.data.shape
-                    print 'Match',match.shape
-                    print p.data.ismatch(match).raw_data.shape
-                    print din[:,s].shape
-                    raise ValueError
-                try:
-                    flagin[:,s]=p.data.flag.ismatch(match).raw_data 
-                except:
-                    pass
-                ofs+=frqin[i]
-            # Call FORTRAN
-            print 'Calling fortran %s' % self.fortname
-            dout,flagout=run_old_module(self.fortname,constants,
-                                        pin,frqin,din,flagin,
-                                        self.pout,self.frqout,self.noutall)
-
-            # Arrange ouputs
-            ofs=0
-            for i,p in enumerate(self.outputs):
-                frq=self.frqout[i]
-                if(frq==1):
-                    s=ofs
-                else:
-                    s=slice(ofs,ofs+frq)
-                p.data=flagged_data(dout[:,s],match,flagout[:,s])
-                ofs+=frq
-        cal_base.process(self)    
 

@@ -18,17 +18,16 @@ import StringIO
 class ftpjob(threading.Thread):
     def __init__(self,filename,host='ftp.badc.rl.ac.uk',login='',passwd='',account='',
                 to='/incoming/faam',**kwargs):
-        if('printer' in kwargs):
-            self.printer=kwargs.pop('printer')
-        else:
-            self.printer=sys.stdout
         self.filename=filename
         self.text=False
         self.host=host
         if(self.filename.endswith('.txt')):
             self.text=True
         self.init_macro=[]
-        if(not(login)):
+        self.login=login
+        self.passwd=passwd
+        self.account=account
+        if(not(self.login)):
             try:
                 ne=netrc.netrc()
                 auth = ne.authenticators(host)
@@ -38,14 +37,11 @@ class ftpjob(threading.Thread):
                     self.init_macro=ne.macros['init']                
             except (netrc.NetrcParseError, IOError):
                 pass
-        else:
-            self.login=login
-            self.passwd=passwd
-            self.account=account
         self.to=to
         threading.Thread.__init__(self) 
              
     def run(self):
+        print("ftp to %s:%s " % (self.host,self.to))
         ftp=ftplib.FTP(self.host)
         ftp.login(self.login, self.passwd, self.account)
         for m in self.init_macro:
@@ -66,7 +62,7 @@ class ftpjob(threading.Thread):
         mdfile=bn[:bn.rfind('.')]+'.md5'
         ftp.storlines('STOR '+mdfile,md)
         ftp.quit()
-        self.printer.write("FTP %s successful" % bn)
+        print("FTP %s successful" % bn)
         
         
         
