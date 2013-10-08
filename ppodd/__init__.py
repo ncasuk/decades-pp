@@ -12,7 +12,7 @@ import time
 logging.basicConfig()
 
 logger=logging.getLogger('PPODD')
-logger.setLevel('DEBUG')
+logger.setLevel(logging.DEBUG)
 rouops='$ROUOPS'
 rouops=os.path.expandvars(rouops) if os.path.expandvars(rouops)!=rouops else ''
 flog=os.path.join(rouops,time.strftime('ppodd_log_%Y%m%d_%H%M%S.txt'))

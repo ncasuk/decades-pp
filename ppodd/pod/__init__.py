@@ -24,8 +24,10 @@ def getstandardmodule():
         if(f.startswith('p_') and f.endswith('.py')):
             m=f[:-3]
             try:
-                pod=__import__('pod.'+m)
-                cls=getattr(getattr(pod,m),m[2:])
+                __import__('ppodd.pod.'+m,globals(),locals())
+                cls=getattr(globals()[m],m[2:])
+                #pod=__import__('pod.'+m)                
+                #cls=getattr(getattr(pod,m),m[2:])
                 yield cls
             except ImportError:
                 ppodd.logger.warning('No module %s in %s' % (m[2:],m))
