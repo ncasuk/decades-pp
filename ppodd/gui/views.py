@@ -21,9 +21,9 @@ class onepara(Tk.Frame):
         self.checked=Tk.BooleanVar()
         self.para=para
         if(selectable):
-            self.label=Tk.Checkbutton(self,text=repr(para),var=self.checked,bg=bg)
+            self.label=Tk.Checkbutton(self,text=para.name,var=self.checked,bg=bg)
         else:
-            self.label=Tk.Label(self,text=repr(para),bg=bg)
+            self.label=Tk.Label(self,text=para.name,bg=bg)
         self.label.pack(side=Tk.LEFT,expand=1)
         self.showbutton=Tk.Button(self,text='Show',command=self.show,bg=bg)
         self.showbutton.pack(side=Tk.LEFT)
@@ -37,7 +37,7 @@ class onepara(Tk.Frame):
             ts=timeSeries(self,self.para)
         except (AttributeError,ValueError):
             try:
-                tkMessageBox.showinfo(repr(self.para),str(self.para)+'\n\nData: '+str(self.para.data),master=self)
+                tkMessageBox.showinfo(repr(self.para),str(self.para)+'\n\n'+str(self.para.data),master=self)
             except AttributeError:
                 tkMessageBox.showinfo(repr(self.para),str(self.para)+'\n\nNo information',master=self)
    

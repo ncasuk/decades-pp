@@ -1,6 +1,6 @@
 from ppodd.core import *
 import ppodd
-from ppodd.pod import *
+#from ppodd.pod import *
 import time
 import os.path
 from netCDF4 import Dataset
@@ -26,6 +26,44 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         self.name='WRITE_NC'
         self.version=1.00
         cal_base.__init__(self,dataset)
+        self.comment="""
+FAAM data core_faam_yyyymmdd_vnnn_rn_cnnn.nc
+
+ where yyyymmdd is the flight start date, vnnn the processing version cnnn is 
+ the flight number and rn the revision number.
+
+The NetCDF file comprises a header followed by the actual data.  The header
+contains a list of the parameters in the dataset - their long names, short
+names, units, and measurement frequency.  For each named parameter there is a
+matching parameter with FLAG added to the parameter name which contains
+details of the quality of each measurement.  The FLAG parameters take four
+possible values:
+
+0 - measurement believed to be good.
+Other flags need to be checked in the metadata for each measurement, which 
+is stored at the BADC
+
+The NetCDF file header also contains:
+
+1.      Flight number
+2.      Flight date
+3.      Data date - date datafile was created
+4.      History - contains information about the data processing, not all of
+        which may be relevant to the data in the final NetCDF file:
+        a.      The dataset the NetCDF file was produced from
+        b.      Input and output files used by the calibration process
+        c.      The versions of the software modules used by the calibration
+                process
+        d.      Processor information
+        e.      Constants used for calibration
+        f.      Processing modules used for calibration
+        g.      Data start and end times
+        h.      Raw input parameters to the calibration process
+        i.      Calibrated output parameters to the calibration process
+        j.      Summary of quality flags applied by the calibration process
+        k.      Details of other data added to, or taken from, the original
+                calibrated dataset.
+"""
     def process(self,output=None,nctype='',paras=None,onehz=False,fill_value=-9999,dtyp='f4',flag_fill=-1):
         possible_types=['NETCDF3_CLASSIC','NETCDF4', 'NETCDF4_CLASSIC', 'NETCDF3_64BIT']
         if(nctype in possible_types):
@@ -34,13 +72,6 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
             self.netcdf_type='NETCDF3_CLASSIC'
         self.filename=output
         folder=os.path.expandvars('$NCDATA')
-        """
-        for fname,filetype in self.dataset.files:
-            if(filetype=='OUTPUT'):
-                if(os.path.basename(fname)==''):
-                    folder=fname
-                else:
-                    self.filename=fname"""
         if(self.filename is None):
             try:
                 self.filename=os.path.join(folder,'core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset['DATE'][-1::-1]))
@@ -49,11 +80,23 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
                     self.filename+='_1hz'
                 self.filename+='.nc'
             except KeyError:
-                print 'Unknown DATE or FLIGHT to create filename'
-                print 'Saving as output.nc'
+                ppodd.logger.warning("""Unknown DATE or FLIGHT to create filename
+Saving as output.nc""")
                 self.filename='output.nc'
-        print 'Creating NetCDF %s' % self.filename
+        ppodd.logger.info('Creating NetCDF %s' % self.filename)
         self.coredata=Dataset(self.filename,'w',format=self.netcdf_type)
+        self.coredata.comment=self.comment
+        self.coredata.data_date=time.strftime('%Y%m%d',time.gmtime(time.time()))
+        for att in self.dataset.attributes:
+            ppodd.logger.info('Setting attribute %s' % str(att))
+            try:
+                setattr(self.coredata,att,self.dataset.attributes[att])
+            except TypeError:
+                try:
+                    if(self.dataset.attributes[att]):
+                        setattr(self.coredata,att,str(self.dataset.attributes[att]))
+                except TypeError:
+                    ppodd.logger.debug("Cant write this one")
         drstime = self.coredata.createDimension('data_point', None)
         self.tdims={}
         paralist=[]
@@ -63,8 +106,9 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         try:
             times.units='seconds since %4.4i-%2.2i-%2.2i 00:00:00 +0000' % tuple(self.dataset['DATE'][-1::-1])
         except KeyError:
-            print 'Unknown DATE'
+            ppodd.logger.warning('Unknown DATE')
             times.units='seconds since midnight'
+        ppodd.logging.debug('PARAS= %s' % str(paras))
         if (not paras):
             paras=self.input_names
         if paras=='all' or paras==['all']:
@@ -73,7 +117,6 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
             try:
                 par=self.dataset[p]
                 try:                    
-                    print p,
                     t=par.times
                     if(onehz):
                         dims=('data_point',)
@@ -103,50 +146,43 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
                     try:
                         end=max(end,np.max(t))
                         start=min(start,np.min(t))
-                        print (start,end)
                     except NameError:
                         end=np.max(t)
                         start=np.min(t)
-                        print (start,end)
-                except AttributeError as ae:
-                    # This is probably a constants_parameter with no times
-                    print p,' has no timed data, probably a constant'
+                except AttributeError:
+                    try:
+                        ln=p.long_name
+                        ppodd.logger.warning('%s has no timed data' % str(p))
+                    except AttributeError:
+                        # Not a data parameter so no worries
+                        pass
             except KeyError:
-                print 'No',p       
+                ppodd.logger.warning('No %s' % str(p))       
                              
         t0=time.time()
-        if self.dataset.starttime is not None:
-            start=self.dataset.starttime
-        if self.dataset.endtime is not None:
-            end=self.dataset.endtime
         try:
-            self.dataset.timeinterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
-            self.dataset.data_date=time.strftime('%Y%m%d',time.gmtime(time.time()))
-            self.dataset.processing_version=ppodd.version
+            self.coredata.timeinterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
         except NameError:
-            print "No start time, probably NO DATA !"
-            print "Can't write file"
+            ppodd.logger.warning("No start time, probably NO DATA ! Can't write file")
             self.coredata.close()
             del self.filename
             return
-        print start,end
         try:
             ti=timestamp((start,end))
-            print 'Start %f, end %f' % (start,end)
         except (UnboundLocalError,TypeError):
             ti=None
         if ti is None:
             raise Warning('No data to write')
         else:
             length=len(ti)
-            print 'Writing to NetCDF:%s' % self.filename
+            ppodd.logger.info('Writing to NetCDF:%s' % self.filename)
             times[:]=ti
             self.coredata.close()
             self.coredata=Dataset(self.filename,'a',format=self.netcdf_type)
             for p in paralist:
                 par=self.dataset[p]
                 para=self.coredata.variables[p]
-                print 'Writing %s' % par
+                ppodd.logger.info('Writing %s' % par)
                 f=par.frequency
                 if(onehz):
                     data=par.data.get1Hz()
@@ -158,21 +194,9 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
                         paraf=self.coredata.variables[p+'_FLAG']
                         paraf[:]=data.flagmasked(start=start,end=end,fill_value=-1)
                 except ValueError:
-                    print "Can't write %s" % par
-            for att in self.dataset.attributes:
-                print 'Setting attribute ',att
-                print 'Value = ',self.dataset.attributes[att]
-                print 'Type = ',type(self.dataset.attributes[att])
-                try:
-                    setattr(self.coredata,att,self.dataset.attributes[att])
-                except TypeError:
-                    try:
-                        if(self.dataset.attributes[att]):
-                            setattr(self.coredata,att,str(self.dataset.attributes[att]))
-                    except TypeError:
-                        print "Cant write this one"
+                    ppodd.logger.warning("Can't write %s" % par)
                 
             self.coredata.close()
-            print 'Total write time %f seconds' % (time.time()-t0)
-            print 'Written NetCDF:%s' % self.filename
+            ppodd.logger.debug('Total write time %f seconds' % (time.time()-t0))
+            ppodd.logger.info('Written NetCDF:%s' % self.filename)
 

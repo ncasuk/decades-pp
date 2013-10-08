@@ -1,0 +1,724 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd Package &mdash; ppodd 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ppodd 0.1 documentation" href="index.html" />
+    <link rel="next" title="gui Package" href="ppodd.gui.html" />
+    <link rel="prev" title="Welcome to ppodd’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ppodd.gui.html" title="gui Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ppodd’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ppodd 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ppodd-package">
+<h1>ppodd Package<a class="headerlink" href="#ppodd-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">ppodd</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ppodd.__init__"></span><p><strong>ppodd</strong> has been written as the standard post processing for core data from the <a class="reference external" href="http://www.faam.ac.uk/">FAAM</a> BAe146 recorded with the <a class="reference external" href="http://www.faam.ac.uk/index.php/new-projects/196-projectspace/450-integration-decades">DECADES</a> data acquisition system, installed from October 2013. It is also compatible with the majority of data recorded with the FAAM aircraft since 2004, but not every legacy data type is supported (yet).</p>
+<p>There is a programming interface, a command line (decades-pp), and a graphical user interface (PPODD).</p>
+<p>It is intended to be a flexible and modular system.</p>
+<p>&#64;author Dave Tiddeman</p>
+</div>
+<div class="section" id="module-ppodd.core">
+<span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-ppodd.core" title="Permalink to this headline">¶</a></h2>
+<p>Created on 4 Sep 2013</p>
+<p>ppodd.core includes all the base classes for dealing with timed aircraft data</p>
+<p>&#64;author: Dave Tiddeman</p>
+<dl class="class">
+<dt id="ppodd.core.cal_base">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">cal_base</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.core.cal_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base for all calibration modules.  Must be subclassed to do any processing,
+either directly or via fort_cal or file_read.</p>
+<dl class="method">
+<dt id="ppodd.core.cal_base.addhistory">
+<tt class="descname">addhistory</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.cal_base.addhistory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.cal_base.getinput">
+<tt class="descname">getinput</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.cal_base.getinput" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.cal_base.getoutputnames">
+<tt class="descname">getoutputnames</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.cal_base.getoutputnames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.cal_base.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.cal_base.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.cal_base.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.cal_base.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.constants_parameter">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">constants_parameter</tt><big>(</big><em>name</em>, <em>values</em>, <em>paratype='Constants'</em><big>)</big><a class="headerlink" href="#ppodd.core.constants_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>The class for describing constants</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.core.date2time">
+<tt class="descclassname">ppodd.core.</tt><tt class="descname">date2time</tt><big>(</big><em>fromdate</em><big>)</big><a class="headerlink" href="#ppodd.core.date2time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a date to a time</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.decades_dataset">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">decades_dataset</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">collections.OrderedDict</span></tt></p>
+<p>An ordered dictionary of data, constants, attribute or file parameters
+and a dictionary of processing modules</p>
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.DecadesFile">
+<tt class="descname">DecadesFile</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.DecadesFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.add_file">
+<tt class="descname">add_file</tt><big>(</big><em>filename</em>, <em>filetype=None</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.add_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a file to the dataset - the filetype tells it how to read in but doesnt do the reading</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.add_para">
+<tt class="descname">add_para</tt><big>(</big><em>paratype</em>, <em>name</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.add_para" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.core.decades_dataset.attributes">
+<tt class="descname">attributes</tt><a class="headerlink" href="#ppodd.core.decades_dataset.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the attributes as if a NetCDF</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.core.decades_dataset.cals">
+<tt class="descname">cals</tt><a class="headerlink" href="#ppodd.core.decades_dataset.cals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.clear">
+<tt class="descname">clear</tt><big>(</big><em>files=False</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.clearfiles">
+<tt class="descname">clearfiles</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.clearfiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.clearmods">
+<tt class="descname">clearmods</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.clearmods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.decades_dataset.decades_file">
+<em class="property">class </em><tt class="descname">decades_file</tt><big>(</big><em>dataset</em>, <em>filename</em>, <em>filetype=None</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.decades_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.decades_file.astuple">
+<tt class="descname">astuple</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.decades_file.astuple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.core.decades_dataset.decades_file.filename">
+<tt class="descname">filename</tt><a class="headerlink" href="#ppodd.core.decades_dataset.decades_file.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.getdata">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">getdata</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.getdata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.getfiles">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">getfiles</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.getfiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.getmods">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">getmods</tt><big>(</big><em>classes=None</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.getmods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.guesstype">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">guesstype</tt><big>(</big><em>filen</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.guesstype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.matchtimes">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">matchtimes</tt><big>(</big><em>input_names</em>, <em>paras=None</em>, <em>notparas=None</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.matchtimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finding matching times for a list of inputs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.core.decades_dataset.nocals">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">nocals</tt><a class="headerlink" href="#ppodd.core.decades_dataset.nocals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import all the calibration modules
+The names are listed in calnames</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.parse_filenames">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">parse_filenames</tt><big>(</big><em>files=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.parse_filenames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.decades_dataset.process">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts calibrate modules - so they are run in order of availability of their inputs 
+and do the processing</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.file_parameter">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">file_parameter</tt><big>(</big><em>name</em>, <em>files</em><big>)</big><a class="headerlink" href="#ppodd.core.file_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.core.constants_parameter" title="ppodd.core.constants_parameter"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.constants_parameter</span></tt></a></p>
+<p>The class for describing files</p>
+<dl class="method">
+<dt id="ppodd.core.file_parameter.add_file">
+<tt class="descname">add_file</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.core.file_parameter.add_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.file_parameter.del_file">
+<tt class="descname">del_file</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.core.file_parameter.del_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.file_read">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">file_read</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.core.file_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<p>Base class for file reading modules</p>
+<dl class="method">
+<dt id="ppodd.core.file_read.filetest">
+<tt class="descname">filetest</tt><big>(</big><em>filen</em><big>)</big><a class="headerlink" href="#ppodd.core.file_read.filetest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.file_read.fixfilename">
+<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.core.file_read.fixfilename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.file_read.getinput">
+<tt class="descname">getinput</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.file_read.getinput" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.file_read.parse_filenames">
+<tt class="descname">parse_filenames</tt><big>(</big><em>files</em><big>)</big><a class="headerlink" href="#ppodd.core.file_read.parse_filenames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.file_read.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.file_read.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.flagged_data">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">flagged_data</tt><a class="headerlink" href="#ppodd.core.flagged_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.core.timed_data" title="ppodd.core.timed_data"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.timed_data</span></tt></a></p>
+<p>Timed data with associated flag information</p>
+<dl class="method">
+<dt id="ppodd.core.flagged_data.asmasked">
+<tt class="descname">asmasked</tt><big>(</big><em>maxflag=None</em>, <em>start=None</em>, <em>end=None</em>, <em>fill_value=None</em>, <em>returntimes=False</em><big>)</big><a class="headerlink" href="#ppodd.core.flagged_data.asmasked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.flagged_data.flagmasked">
+<tt class="descname">flagmasked</tt><big>(</big><em>maxflag=None</em>, <em>start=None</em>, <em>end=None</em>, <em>fill_value=-1</em>, <em>returntimes=False</em><big>)</big><a class="headerlink" href="#ppodd.core.flagged_data.flagmasked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.flagged_data.get1Hz">
+<tt class="descname">get1Hz</tt><big>(</big><em>angle=False</em><big>)</big><a class="headerlink" href="#ppodd.core.flagged_data.get1Hz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.flagged_data.ravel">
+<tt class="descname">ravel</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.flagged_data.ravel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.fort_cal">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">fort_cal</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.core.fort_cal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<p>Base class for calibration modules that call legacy fortran</p>
+<dl class="method">
+<dt id="ppodd.core.fort_cal.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.fort_cal.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the input data into an array matching the times..
+All input parameters must have a frequency and number set or will not be accepted as inputs
+Run the fortran
+Extract ouput into timestamped parameters</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.parameter">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">parameter</tt><big>(</big><em>name</em>, <em>data=None</em>, <em>long_name=''</em>, <em>standard_name=''</em>, <em>units=''</em>, <em>frequency=1</em>, <em>number=0</em><big>)</big><a class="headerlink" href="#ppodd.core.parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.core.constants_parameter" title="ppodd.core.constants_parameter"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.constants_parameter</span></tt></a></p>
+<p>The class for all data holding parameters. Arrays of timed_data ( a data array linked to a timestamp object ) or flagged_data which also includes a flag, and meta-data</p>
+<dl class="attribute">
+<dt id="ppodd.core.parameter.attributes">
+<tt class="descname">attributes</tt><a class="headerlink" href="#ppodd.core.parameter.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.timed_data">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">timed_data</tt><a class="headerlink" href="#ppodd.core.timed_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></p>
+<p>A timed parameter must be able to...</p>
+<p>find matched times ( from two ( or more ) parameters )
+extract data from matched times 
+put data onto a contiguous time frame / masked arrays</p>
+<p>keep it simple...</p>
+<p>All times ( except GIN ) are whole seconds with multiple data points per second, same as output data, but output must be contiguous</p>
+<p>The difficulty is going from data which isn&#8217;t available every second to contiguous data and or vice versa</p>
+<p>fortran routines don&#8217;t like missing data</p>
+<p>&#8211;</p>
+<p>Could at some time be replaced by something from pandas which handles timestamps</p>
+<dl class="method">
+<dt id="ppodd.core.timed_data.asmasked">
+<tt class="descname">asmasked</tt><big>(</big><em>start=None</em>, <em>end=None</em>, <em>mask=None</em>, <em>fill_value=None</em>, <em>data=None</em>, <em>returntimes=False</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.asmasked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only for 2d 1Hz times</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.gettimes2d">
+<tt class="descname">gettimes2d</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.gettimes2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.interp1d">
+<tt class="descname">interp1d</tt><big>(</big><em>kind='linear'</em>, <em>fill_value=nan</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.interp1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.interpolated">
+<tt class="descname">interpolated</tt><big>(</big><em>times</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.interpolated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.ismatch">
+<tt class="descname">ismatch</tt><big>(</big><em>times</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.ismatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.matchtimes">
+<tt class="descname">matchtimes</tt><big>(</big><em>otherdata</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.matchtimes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.ravel">
+<tt class="descname">ravel</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.ravel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.core.timed_data.raw_data">
+<tt class="descname">raw_data</tt><a class="headerlink" href="#ppodd.core.timed_data.raw_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.core.timed_data.times2d">
+<tt class="descname">times2d</tt><a class="headerlink" href="#ppodd.core.timed_data.times2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.twod_array">
+<tt class="descname">twod_array</tt><big>(</big><em>arr=None</em>, <em>frequency=None</em>, <em>indexes1d=False</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.twod_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.core.timestamp">
+<em class="property">class </em><tt class="descclassname">ppodd.core.</tt><tt class="descname">timestamp</tt><a class="headerlink" href="#ppodd.core.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></p>
+<p>A class for time stamping data     &#8211;</p>
+<p>Could at some time be replaced by something from pandas which handles timestamps</p>
+<dl class="method">
+<dt id="ppodd.core.timestamp.asindexes">
+<tt class="descname">asindexes</tt><big>(</big><em>start=None</em><big>)</big><a class="headerlink" href="#ppodd.core.timestamp.asindexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only for 1d 1Hz</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timestamp.at_frequency">
+<tt class="descname">at_frequency</tt><big>(</big><em>frequency=None</em><big>)</big><a class="headerlink" href="#ppodd.core.timestamp.at_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resample at a different frequency</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timestamp.ismatch">
+<tt class="descname">ismatch</tt><big>(</big><em>othertimes</em><big>)</big><a class="headerlink" href="#ppodd.core.timestamp.ismatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find intersection of this and other time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timestamp.match">
+<tt class="descname">match</tt><big>(</big><em>othertimes</em><big>)</big><a class="headerlink" href="#ppodd.core.timestamp.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Match this timestamp to another time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timestamp.tosecs">
+<tt class="descname">tosecs</tt><big>(</big><em>fromdate=None</em>, <em>dateformat='%Y %m %d'</em><big>)</big><a class="headerlink" href="#ppodd.core.timestamp.tosecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unix or other time to seconds past midnight</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.humidity_formulae">
+<span id="humidity-formulae-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">humidity_formulae</span></tt> Module<a class="headerlink" href="#module-ppodd.humidity_formulae" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ppodd.humidity_formulae.calc_L_K">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">calc_L_K</tt><big>(</big><em>P</em>, <em>T</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.calc_L_K" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.dp2vp">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">dp2vp</tt><big>(</big><em>dp</em>, <em>p=</em><span class="optional">[</span><span class="optional">]</span>, <em>temp=</em><span class="optional">[</span><span class="optional">]</span>, <em>enhance=False</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.dp2vp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a dew point to a volume mixing ratio ( and vapour pressure )
+Using ITS-90 correction of Wexler&#8217;s formula
+Optional enhancement factors for non ideal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.fp2vp">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">fp2vp</tt><big>(</big><em>fp</em>, <em>p=</em><span class="optional">[</span><span class="optional">]</span>, <em>temp=</em><span class="optional">[</span><span class="optional">]</span>, <em>enhance=False</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.fp2vp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a frost point to a volume mixing ratio ( and vapour pressure )
+Using ITS-90 correction of Wexler&#8217;s formula
+Optional enhancement factors for non ideal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.mmr_vmr">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">mmr_vmr</tt><big>(</big><em>mmr</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.mmr_vmr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.ps_ice">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">ps_ice</tt><big>(</big><em>T</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.ps_ice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.ps_water">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">ps_water</tt><big>(</big><em>T</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.ps_water" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.uw2vp">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">uw2vp</tt><big>(</big><em>uw</em>, <em>p</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.uw2vp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.vmr2vp">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">vmr2vp</tt><big>(</big><em>vmr</em>, <em>p</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.vmr2vp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.vmr_mmr">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">vmr_mmr</tt><big>(</big><em>vmr</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.vmr_mmr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.vp2dp">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">vp2dp</tt><big>(</big><em>vp</em>, <em>p=</em><span class="optional">[</span><span class="optional">]</span>, <em>temp=</em><span class="optional">[</span><span class="optional">]</span>, <em>enhance=False</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.vp2dp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a volume mixing ratio to a dew point ( and vapour pressure )
+Using ITS-90 correction of Wexler&#8217;s formula
+Optional enhancement factors for non ideal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.vp2fp">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">vp2fp</tt><big>(</big><em>vp</em>, <em>p=</em><span class="optional">[</span><span class="optional">]</span>, <em>temp=</em><span class="optional">[</span><span class="optional">]</span>, <em>enhance=False</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.vp2fp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a volume mixing ratio to a frost point ( and vapour pressure )
+Using ITS-90 correction of Wexler&#8217;s formula
+Optional enhancement factors for non ideal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.vp2uw">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">vp2uw</tt><big>(</big><em>vp</em>, <em>p</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.vp2uw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.humidity_formulae.vp2vmr">
+<tt class="descclassname">ppodd.humidity_formulae.</tt><tt class="descname">vp2vmr</tt><big>(</big><em>vp</em>, <em>p</em><big>)</big><a class="headerlink" href="#ppodd.humidity_formulae.vp2vmr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.resample">
+<span id="resample-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">resample</span></tt> Module<a class="headerlink" href="#module-ppodd.resample" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ppodd.resample.createtimes">
+<tt class="descclassname">ppodd.resample.</tt><tt class="descname">createtimes</tt><big>(</big><em>times1</em><big>)</big><a class="headerlink" href="#ppodd.resample.createtimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create 1Hz times with gaps for gaps in input times of more than 0.5 sec</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.util">
+<span id="util-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">util</span></tt> Module<a class="headerlink" href="#module-ppodd.util" title="Permalink to this headline">¶</a></h2>
+<p>Created on 8 Oct 2013</p>
+<p>ppodd.util includes some useful functions for dealing with standard DECADES files</p>
+<p>&#64;author: Dave Tiddeman</p>
+<dl class="function">
+<dt id="ppodd.util.create_new_fltcons">
+<tt class="descclassname">ppodd.util.</tt><tt class="descname">create_new_fltcons</tt><big>(</big><em>const</em><big>)</big><a class="headerlink" href="#ppodd.util.create_new_fltcons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new flight constants file from the closest one found</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.util.find_file">
+<tt class="descclassname">ppodd.util.</tt><tt class="descname">find_file</tt><big>(</big><em>fltno='????'</em>, <em>date='????????'</em>, <em>rev='*'</em>, <em>ftype='CONST'</em><big>)</big><a class="headerlink" href="#ppodd.util.find_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a standard file in a standard location</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.util.fltno_date">
+<tt class="descclassname">ppodd.util.</tt><tt class="descname">fltno_date</tt><big>(</big><em>names</em>, <em>fltno='????'</em>, <em>date='????????'</em><big>)</big><a class="headerlink" href="#ppodd.util.fltno_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find flight number and date from a list of file names</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.util.ftpjob">
+<em class="property">class </em><tt class="descclassname">ppodd.util.</tt><tt class="descname">ftpjob</tt><big>(</big><em>filename</em>, <em>host='ftp.badc.rl.ac.uk'</em>, <em>login=''</em>, <em>passwd=''</em>, <em>account=''</em>, <em>to='/incoming/faam'</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.util.ftpjob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></tt></p>
+<p>FTP data and MD5 file, in a background threaded process</p>
+<dl class="method">
+<dt id="ppodd.util.ftpjob.make_md5">
+<tt class="descname">make_md5</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.util.ftpjob.make_md5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.util.ftpjob.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.util.ftpjob.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ppodd.util.revise_fltcons">
+<tt class="descclassname">ppodd.util.</tt><tt class="descname">revise_fltcons</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.util.revise_fltcons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a revised flight constants file with an incremented revision</p>
+</dd></dl>
+
+</div>
+<div class="section" id="ordereddictold-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">OrderedDictOld</span></tt> Module<a class="headerlink" href="#ordereddictold-module" title="Permalink to this headline">¶</a></h2>
+<p>This is just so that pre python 2.7 can use an OrderedDict</p>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ppodd.gui.html">gui Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#module-ppodd.gui.archive"><tt class="docutils literal"><span class="pre">archive</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#module-ppodd.gui.files"><tt class="docutils literal"><span class="pre">files</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#module-ppodd.gui.flaggedplots"><tt class="docutils literal"><span class="pre">flaggedplots</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#module-ppodd.gui.main"><tt class="docutils literal"><span class="pre">main</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#module-ppodd.gui.util"><tt class="docutils literal"><span class="pre">util</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.gui.html#module-ppodd.gui.views"><tt class="docutils literal"><span class="pre">views</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ppodd.pod.html">pod Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#id1"><tt class="docutils literal"><span class="pre">pod</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_airspd"><tt class="docutils literal"><span class="pre">p_airspd</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_cnc"><tt class="docutils literal"><span class="pre">p_cnc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_comr"><tt class="docutils literal"><span class="pre">p_comr</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_drs"><tt class="docutils literal"><span class="pre">p_drs</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_fwvs"><tt class="docutils literal"><span class="pre">p_fwvs</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_geneas"><tt class="docutils literal"><span class="pre">p_geneas</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_gin"><tt class="docutils literal"><span class="pre">p_gin</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_grflux"><tt class="docutils literal"><span class="pre">p_grflux</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_gsun"><tt class="docutils literal"><span class="pre">p_gsun</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_gwinds"><tt class="docutils literal"><span class="pre">p_gwinds</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_heiman"><tt class="docutils literal"><span class="pre">p_heiman</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_lwc"><tt class="docutils literal"><span class="pre">p_lwc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nephl1"><tt class="docutils literal"><span class="pre">p_nephl1</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nevz"><tt class="docutils literal"><span class="pre">p_nevz</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nox"><tt class="docutils literal"><span class="pre">p_nox</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_ozone1"><tt class="docutils literal"><span class="pre">p_ozone1</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_press1"><tt class="docutils literal"><span class="pre">p_press1</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_psap"><tt class="docutils literal"><span class="pre">p_psap</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_radal1"><tt class="docutils literal"><span class="pre">p_radal1</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_read_horace_gin"><tt class="docutils literal"><span class="pre">p_read_horace_gin</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readconst"><tt class="docutils literal"><span class="pre">p_readconst</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readcrio"><tt class="docutils literal"><span class="pre">p_readcrio</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readfolder"><tt class="docutils literal"><span class="pre">p_readfolder</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readm3"><tt class="docutils literal"><span class="pre">p_readm3</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readnc"><tt class="docutils literal"><span class="pre">p_readnc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readwvssii"><tt class="docutils literal"><span class="pre">p_readwvssii</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readzipped"><tt class="docutils literal"><span class="pre">p_readzipped</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_airspd"><tt class="docutils literal"><span class="pre">p_rio_airspd</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_geneas"><tt class="docutils literal"><span class="pre">p_rio_geneas</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_heiman"><tt class="docutils literal"><span class="pre">p_rio_heiman</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_lwc"><tt class="docutils literal"><span class="pre">p_rio_lwc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_neph"><tt class="docutils literal"><span class="pre">p_rio_neph</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_press"><tt class="docutils literal"><span class="pre">p_rio_press</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_psap"><tt class="docutils literal"><span class="pre">p_rio_psap</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_radal"><tt class="docutils literal"><span class="pre">p_rio_radal</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_rvsm"><tt class="docutils literal"><span class="pre">p_rio_rvsm</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_sols"><tt class="docutils literal"><span class="pre">p_rio_sols</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_sreg"><tt class="docutils literal"><span class="pre">p_rio_sreg</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_sun"><tt class="docutils literal"><span class="pre">p_rio_sun</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_temps"><tt class="docutils literal"><span class="pre">p_rio_temps</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_tpress"><tt class="docutils literal"><span class="pre">p_rio_tpress</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rvsm"><tt class="docutils literal"><span class="pre">p_rvsm</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_so2"><tt class="docutils literal"><span class="pre">p_so2</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_sols"><tt class="docutils literal"><span class="pre">p_sols</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_temps2"><tt class="docutils literal"><span class="pre">p_temps2</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_tpress"><tt class="docutils literal"><span class="pre">p_tpress</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_turb"><tt class="docutils literal"><span class="pre">p_turb</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc"><tt class="docutils literal"><span class="pre">p_twc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_cor"><tt class="docutils literal"><span class="pre">p_twc_cor</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_wvsscor"><tt class="docutils literal"><span class="pre">p_twc_wvsscor</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.write_nc"><tt class="docutils literal"><span class="pre">write_nc</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ppodd Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">ppodd</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-ppodd.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.humidity_formulae"><tt class="docutils literal"><span class="pre">humidity_formulae</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.resample"><tt class="docutils literal"><span class="pre">resample</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.util"><tt class="docutils literal"><span class="pre">util</span></tt> Module</a></li>
+<li><a class="reference internal" href="#ordereddictold-module"><tt class="docutils literal"><span class="pre">OrderedDictOld</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to ppodd&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ppodd.gui.html"
+                        title="next chapter">gui Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ppodd.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ppodd.gui.html" title="gui Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to ppodd’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">ppodd 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Dave Tiddeman.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

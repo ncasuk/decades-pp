@@ -95,6 +95,7 @@ class ToolTip( Tk.Toplevel ):
 
 
 class ScrollFrame(Tk.Frame,object):
+    """ A scrollable Tk Frame which can then be filled with other widgets """
     def __init__(self,parent,**kwargs):
         self.outer=Tk.Frame(parent,bd=2, relief=Tk.SUNKEN,**kwargs)
         yscrollbar = Tk.Scrollbar(self.outer,**kwargs)
@@ -135,85 +136,56 @@ class ScrollFrame(Tk.Frame,object):
         self.outer.pack(fill=Tk.BOTH, expand=Tk.TRUE)
 
                 
-class RedirectPrint(Queue.Queue,object):
-    def __init__(self,widget):
-        self.widget=widget
-        self.stdout=sys.stdout
-        self.stderr=sys.stderr
-        sys.stdout=self
-        sys.stderr=self
-        Queue.Queue.__init__(self)
-    def write(self,string):
-        try:
-            self.widget.insert(Tk.END,string)
-            try:
-                self.widget.yview_moveto(1.0) # Try to move the view to the last thing written
-            except:
-                pass
-            self.widget.update_idletasks()
-        except:
-            try:
-                self.put(string)
-            except:
-                self.stdout.write(string)     
-    def revert(self):
-        sys.stdout=self.stdout
-        sys.stderr=self.stderr
-
 class ScrollText(Tk.Text):
+    """ A scrollable text widget """
     def  __init__(self,parent,*args,**kwargs):
         self.scrollbar = Tk.Scrollbar(parent,**kwargs)
         self.scrollbar.pack(side=Tk.RIGHT, fill=Tk.Y)
         Tk.Text.__init__(self,parent,*args, yscrollcommand=self.scrollbar.set, **kwargs)
         self.scrollbar.config(command=self.yview)
+    def write(self,string):
+        """ 
+        Then tries to write to the widget"""
+        self.insert(Tk.END,string)
+        try:
+            self.yview_moveto(1.0) # Try to move the view to the last thing written
+        except:
+            pass
+        self.update_idletasks()
 
 class ScrollMessage(ScrollFrame):
+    """ A scrollable message widget """
     def __init__(self,parent,text,**kwargs):
         ScrollFrame.__init__(self,parent,**kwargs)
         mess=Tk.Message(self,text=text,**kwargs)
         mess.pack(fill=Tk.BOTH, expand=Tk.TRUE)
 
-
-
-class PrintLog(Queue.Queue,ScrollText,object):
+class PrintLog(Queue.Queue,ScrollText):
+    """ A scrollable text widget which writes out redirected error statements
+        To make it cope  with Threads in Tk it will put text in a Queue if it failes to write to the widget
+        and periodically write queued text to the widget.
+    """
     def __init__(self,*args,**kwargs):
-        self.stdout=sys.stdout
-        self.stderr=sys.stderr
-        sys.stdout=self
-        sys.stderr=self
         Queue.Queue.__init__(self)
         ScrollText.__init__(self,*args,**kwargs)
+        self.stderr=sys.stderr
+        sys.stderr=self
         self.after(2000, self.check_queue)
-        r="$ROUOPS"
-        rouops=os.path.expandvars(r)
-        rouops=r if r!=rouops else ''
-        try:
-            self.logfile=open(os.path.join(rouops,'ppodd_log_%s.txt' % time.strftime('%Y%m%d%H%M%S')),'w')
-        except IOError:
-            rouops=os.path.expanduser('~')
-            self.logfile=open(os.path.join(rouops,'ppodd_log_%s.txt' % time.strftime('%Y%m%d%H%M%S')),'w')
             
     def write(self,string):
-        self.logfile.write(string)
+        """ Writes first to the logfile,
+        Then tries to write to the widget, if that fails puts the text in its Queue
+        if that fails writes to the saved stdout"""
         try:
-            self.insert(Tk.END,string)
-            try:
-                self.yview_moveto(1.0) # Try to move the view to the last thing written
-            except:
-                pass
-            self.update_idletasks()
+            ScrollText.write(self,string)
         except:
             try:
                 self.put(string)
             except:
-                self.stdout.write(string)     
-
-    def revert(self):
-        sys.stdout=self.stdout
-        sys.stderr=self.stderr
-
+                print(string)     
 
     def check_queue(self):
+        """ Checks its own Queue every 200ms and writes any text to the text widget """
         changed=0
         try:
             while(changed<10):
@@ -230,9 +202,15 @@ class PrintLog(Queue.Queue,ScrollText,object):
         self.update_idletasks()
         self.after(200, self.check_queue)
 
+    def revert(self):
+        """ Sets the outputs back how they were before it was called"""
+        sys.stderr=self.stderr
+
+
 
 
 class ValidEntry(Tk.Entry,object):
+    """ An Entry widget with built in validation """
     def __init__(self,parent,*args,**kwargs):
         self.data=Tk.StringVar()
         self.lastgood=''
@@ -246,6 +224,7 @@ class ValidEntry(Tk.Entry,object):
         Tk.Entry.__init__(self,parent,*args,textvariable=self.data,validate="all",validatecommand=valcmd,**kwargs)
         
     def validate(self,V,P):
+        """ Validate enty if not forced"""
         val=True
         if(V!='forced'):
             if(V=='key'):
@@ -258,9 +237,11 @@ class ValidEntry(Tk.Entry,object):
         return val
 
     def check_key(self,P):
+        """ Validation - should be overidden """
         return True
         
     def check_good(self,P):
+        """ Validation - should be overidden """
         return True
                 
     def check_bad(self,P):

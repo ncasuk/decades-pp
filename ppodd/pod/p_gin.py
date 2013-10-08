@@ -1,7 +1,8 @@
-from ppodd.pod import *
+import ppodd
 from ppodd.core import *
 from os.path import getsize
 from ppodd.resample import createtimes
+
 class gin(cal_base):
     """ GIN processing
 
@@ -11,11 +12,9 @@ class gin(cal_base):
  Missing out times where the gap is greater than 0.5 sec ( see resample.createtimes )
               
 @author: Dave Tiddeman
-"""
+    """
     def __init__(self,dataset):
-
-        #self.name='GIN'
-        self.input_names=['DATE','GINDAT_lat','GINDAT_lon','GINDAT_alt',
+        self.input_names=['DATE','GINDAT_time1','GINDAT_lat','GINDAT_lon','GINDAT_alt',
                           'GINDAT_veln','GINDAT_vele','GINDAT_veld',
                           'GINDAT_roll','GINDAT_ptch','GINDAT_hdg',
                           'GINDAT_wand','GINDAT_trck','GINDAT_gspd',
@@ -45,24 +44,31 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
         cal_base.__init__(self,dataset)
    
     def process(self):
+        ginhdgoffset=0.0
+        if('GINHDGOFFSET' in self.dataset):
+            ginhdgoffset=self.dataset['GINHDGOFFSET'][0]                        
         if(self.dataset['GINDAT_time1'].data!=None):
             tgin=self.dataset['GINDAT_time1'].times
             #tstep=timestamp((np.round(tgin[0]),np.round(tgin[-1])))
             tstep=timestamp(createtimes(tgin))
             tout=tstep.at_frequency(32)
             sh=tout.shape
-            print 'SHAPE ',sh,(np.round(min(tgin)),np.round(max(tgin)))
             flg=self.dataset['GINDAT_status'][:]/3
+            zero=(self.dataset['GINDAT_lat']==0) & (self.dataset['GINDAT_lon']==0) & (flg<2)
+            flg[zero]=2
             flagg=timed_data(flg,tgin)        
             flagg.interp1d()
             flags=np.int8(flagg.interpolated(tout.ravel()).reshape(sh))
             for o in self.outputs:
-                print 'Interpolating ',o
+                ppodd.logger.info('Interpolating %s' % str(o))
                 if(o.name=='SECS_GIN'):
                    o.data=timed_data(tstep,tstep)
                 else:
                     name='GINDAT_'+(o.name[:-4].lower())
-                    d=self.dataset[name].data
+                    if(name=='GINDAT_hdg'):
+                        d=(ginhdgoffset+self.dataset[name].data) % 360
+                    else:
+                        d=self.dataset[name].data
                     d.interp1d()
                     o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)  
         

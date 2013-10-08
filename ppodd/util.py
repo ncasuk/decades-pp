@@ -1,39 +1,28 @@
+'''
+Created on 8 Oct 2013
+
+ppodd.util includes some useful functions for dealing with standard DECADES files
+        
+
+@author: Dave Tiddeman
+'''
 import time
 import fnmatch
-import os.path
+import os
 import re
 import datetime
 import zipfile
+import ftplib
+import netrc
+import hashlib
+import threading
+import StringIO
+import ppodd
 
-class DecadesFile(object):
-    def __init__(self,dataset,filename,filetype=None):
-        self.filetypes=dataset.filetypes
-        if(filetype):
-            self.filetype=filetype
-        else:
-            self.filetype=self.guesstype(filename)
-        self.filename=filename
-        
-    def __getfilename__(self):
-        return self.filetypes[self.filetype].fixfilename(self.__file__)
 
-    def __setfilename__(self,val):
-        self.__file__=val
-    
-    filename=property(__getfilename__,__setfilename__)
-
-    def guesstype(self,filen):
-        ans='CRIOS'
-        for n,o in self.filetypes.items():
-            for patt in o.patterns:
-                if(fnmatch.fnmatch(os.path.basename(filen),patt)):
-                    ans=n
-        return ans
-
-    def astuple(self):
-        return (self.filename,self.filetype)    
 
 def fltno_date(names,fltno='????',date='????????'):
+    """ Find flight number and date from a list of file names """
     for n in names:
         bn=os.path.basename(n)
         sr=re.search('_\d{8}_|_\d{8}$',bn)
@@ -43,28 +32,10 @@ def fltno_date(names,fltno='????',date='????????'):
         if(sr):
             fltno=re.search('[a-z]\d{3}',sr.group(0)).group(0)
     return fltno,date
-
-def parse_filenames(dataset,**kwargs):
-    if('files' in kwargs):
-        fs=kwargs.pop('files')
-    else:
-        fs=dataset.files
-    files=[]
-    for fi in fs:
-        df=DecadesFile(dataset,*fi)
-        files.append(df.filename)
-        if(df.filetype=='ZIP'):
-            if(os.path.isfile(df.filename)):
-                z=zipfile.ZipFile(df.filename)
-                files+=z.namelist()
-                z.close()
-        elif(os.path.isdir(df.filename)):
-            files+=os.listdir(df.filename)
-        
-    return fltno_date(files,**kwargs)
     
 
 def create_new_fltcons(const):
+    """ Create a new flight constants file from the closest one found"""
     fltcons=os.path.dirname(const)
     res=re.search('flight-cst_faam_\d{8}_r0_....',const)
     if(res):
@@ -95,6 +66,7 @@ def create_new_fltcons(const):
             return const
 
 def revise_fltcons(filename):
+    """ Create a revised flight constants file with an incremented revision"""
     fn=os.path.basename(filename)
     fltcons=os.path.dirname(filename)
     sr=re.search('_r\d+_',fn)
@@ -113,10 +85,10 @@ def revise_fltcons(filename):
 
 
 def find_file(fltno='????',date='????????',rev='*',ftype='CONST'):
+    """ Find a standard file in a standard location """
     d={'CONST':('flight-cst_faam_%s_r%s_%s.txt',os.path.expandvars('$FLTCONS')),
-       'NC':('core_faam_%s_v???_r%s_%s.nc',os.path.expandvars('$NCDATA')),
+       'NETCDF':('core_faam_%s_v???_r%s_%s.nc',os.path.expandvars('$NCDATA')),
        'NC1HZ':('core_faam_%s_v???_r%s_%s_1?z.nc',os.path.expandvars('$NCDATA')),
-       'CRIOS':('core_faam_%s_r%s_%s_rawdlu',os.path.expandvars('$RAWDATA')),
        'ZIP':('core_faam_%s_r%s_%s_rawdlu.zip',os.path.expandvars('$RAWCORE'))}
     dx=d[ftype]
     pattern=dx[0]  % (date,rev,fltno)
@@ -139,5 +111,72 @@ def find_file(fltno='????',date='????????',rev='*',ftype='CONST'):
     return ans
 
 
+class ftpjob(threading.Thread):
+    """ FTP data and MD5 file, in a background threaded process """
+    def __init__(self,filename,host='ftp.badc.rl.ac.uk',login='',passwd='',account='',
+                to='/incoming/faam',**kwargs):
+        self.filename=filename
+        self.text=False
+        self.host=host
+        if(self.filename.endswith('.txt')):
+            self.text=True
+        self.init_macro=[]
+        self.login=login
+        self.passwd=passwd
+        self.account=account
+        if(not(self.login)):
+            try:
+                ne=netrc.netrc()
+                auth = ne.authenticators(host)
+                if auth is not None:
+                    self.login, self.account, self.passwd = auth
+                if('init' in ne.macros):
+                    self.init_macro=ne.macros['init']                
+            except (netrc.NetrcParseError, IOError):
+                pass
+        self.to=to
+        threading.Thread.__init__(self) 
+             
+    def run(self):
+        ppodd.logger.info("ftp to %s:%s " % (self.host,self.to))
+        ftp=ftplib.FTP(self.host)
+        ftp.login(self.login, self.passwd, self.account)
+        for m in self.init_macro:
+            if m.startswith('quote '):
+                m=m[6:].strip('\n')
+                ftp.sendcmd(m)
+        ftp.cwd(self.to)
+        mode='rb'
+        if(self.text):
+            mode='r'
+        bn=os.path.basename(self.filename)
+        with open(self.filename,mode) as f:
+            if(self.text):
+                ftp.storlines('STOR '+bn,f)
+            else:
+                ftp.storbinary('STOR '+bn,f)
+        md=self.make_md5()
+        mdfile=bn[:bn.rfind('.')]+'.md5'
+        ftp.storlines('STOR '+mdfile,md)
+        ftp.quit()
+        ppodd.logger.info("FTP %s successful" % bn)
+        
+        
+        
+
+    def make_md5(self):
+        md5 = hashlib.md5()
+        chunksize=2**20
+        with open(self.filename) as f:
+            while(True):
+                chunk=f.read(chunksize)
+                if(chunk):
+                    md5.update(chunk)
+                else:
+                    break
+        return StringIO.StringIO(md5.hexdigest()+'  '+os.path.basename(self.filename)+'\n')
+
+
+    
 
    

@@ -3,6 +3,7 @@ from optparse import OptionParser
 import time
 import re
 import os
+import ppodd.core
 
 def split_up(option, opt, value, parser): 
     """ Splits up comma separated input and sets to upper case """
@@ -12,25 +13,13 @@ def split_(option, opt, value, parser):
     """ Splits up comma separated input """
     setattr(parser.values, option.dest, value.split(','))
 
-def times(option, opt, value, parser):
-    """ Converts input times to seconds past midnight """
-    t=value.split(':')
-    t=int(t[0])*3600+int(t[1])*60+int(t[2])
-    setattr(parser.values, option.dest, t)
-    
 if __name__=="__main__":    
-    usage="usage: %prog [options] constants_file input_file1:type1 input_file2:type2 .. input_filen:typen [-o output_file[:type]]"
+    usage="usage: %prog [options] files input_file1:type1 input_file2:type2 .. input_filen:typen [-o output_file[:type]]"
     parser=OptionParser(usage=usage)
     parser.add_option("-o","--output",dest="output",
            help="Output file or folder",metavar="OUTPUT",default=None)
     parser.add_option("-r","--revision",dest="revision",
            help="Output revision number",metavar="N",default=0,type='int')
-    parser.add_option("-s","--start",dest="start",
-           help="Start time",metavar="HH:MM:SS",default=None,
-           action='callback',callback=times,type='string')
-    parser.add_option("-e","--end",dest="end",
-           help="End time",metavar="HH:MM:SS",default=None,
-           action='callback',callback=times,type='string')
     parser.add_option("-p","--parameters",dest="paras",
            help="Parameters to output ",metavar="p1,p2...pn or all",default=None,
            action='callback',callback=split_,type='string')
@@ -43,55 +32,36 @@ if __name__=="__main__":
            action='callback',callback=split_up,type='string')
     parser.add_option("-1","--1hz",dest="onehz",action="store_true",
            help="Produce 1Hz file",metavar="1hz",default=False)
+    parser.add_option("-b","--both",dest="both",action="store_true",
+           help="Produce 1Hz + full file",metavar="both",default=False)
 
     (options,args)=parser.parse_args()
-    foundconst=None
-    for i in range(len(args)):
-        """ Split arguments into files and types 
-        default type is CONST (flight constants) for first argument
-        CRIO for others or CRIOS if a folder """
-        opt=args[i].split(':')
-        if (len(opt)<2):
-            if i==0:
-                opt.append('CONST')
-                foundconst=opt[0]
-            else:
-                if(os.path.basename(opt[0])==''):
-                    opt.append('CRIOS')
-                else:
-                    opt.append('CRIO')
-        else:
-            if(opt[1]=='CONST'):
-                foundconst=opt[0]
-        args[i]=tuple(opt)
-    if(foundconst!=None):
-        """ If there is a constants file create a dataset, add the files and calibrate with specified options"""
-        import ppodd
-        d=ppodd.decades_dataset()
-        for oi in args:
-            d.add_file(*oi)
+    if(args):
+        d=ppodd.core.decades_dataset()
+        for i in range(len(args)):
+            d.add_file(args[i])
+        outtype=''
         if(options.output):
             out=options.output.split(':')
-        else:
-            out=(None,)
-            """if (len(opt)<2):
-                opt.append('OUTPUT')
-            else:
-                opt[1]='OUTPUT_'+opt[1]
-            d.add_file(*opt)"""
-        d.mods=options.calmods
-        d.nomods=options.nocals
-        d.start=options.start
-        d.end=options.end
+            if(len(out)>1):
+                outtype=out[1]
+            out=out[0]
+        if(option.calmods):
+            d.cals=options.calmods
+        if(option.nocals):
+            d.nocals=options.nocals
 
         if(options.paras!='all'):
-             d.outparas=options.paras
-        #callist=d.process(write=True,calmods=options.calmods,nocals=options.nocals,
-        #                        outparas=options.paras) #,start=options.start,end=options.end)   
-        callist=d.process()
-        d.revision=options.revision
-        print options.paras
-        d.write_nc.process(*out,paras=options.paras,onehz=options.onehz)
-         
+            d.outparas=options.paras
+        d.process()
+        if(options.revision):
+            d.revision=options.revision
+        if(options.both or (not options.onehz):
+            d.write_nc.process(out,outtype,paras=options.paras)
+        if(options.both or options.onehz):
+            if(out):
+                if(options.both):
+                    out=out[:out.index('.')]+'_1hz.nc'
+            d.write_nc.process(out,outtype,paras=options.paras,onehz=True)
     else:
         parser.print_help()

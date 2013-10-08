@@ -1,20 +1,28 @@
 #!/usr/bin/env python
+"""Classes for handling the archiving of core data.
+
+@author Dave Tiddeman
+""" 
 import Tkinter as Tk
 import sys
 #from views import viewarchive
-from ppodd.core import decades_dataset
-from ppodd.util import DecadesFile,fltno_date,find_file,parse_filenames
+from ppodd.core import decades_dataset,file_parameter
+from ppodd.util import fltno_date,find_file,ftpjob
+import ppodd
 from util import *
 import os
 import zipfile
 import shutil
 from tkFileDialog import askopenfilename
 import re
-from ppodd.ftpdata import ftpjob
 from files import onefile
 
 
 class archfile(Tk.Frame,object):
+    """GUI for single archivable file.
+
+@author Dave Tiddeman
+""" 
 
     def __init__(self,parent,**kwargs):
         self.parent=parent
@@ -54,6 +62,10 @@ class archfile(Tk.Frame,object):
 
 
 class viewarchive(ScrollFrame):
+    """GUI for group of archivable files.
+
+@author Dave Tiddeman
+""" 
     def __init__(self,parent,dataset,**kwargs):
         ScrollFrame.__init__(self,parent,**kwargs)
         self.rawcore=os.path.expandvars("$RAWCORE")
@@ -92,8 +104,9 @@ class viewarchive(ScrollFrame):
         
 
     def reset_files(self):
+        """Set files back to the datasets values"""
         self.fromfile=('','')
-        for f in self.dataset.files:
+        for f in self.dataset.getfiles():
             self.check_file(*f)
         try:
             self.set_nc(self.dataset.write_nc.filename)
@@ -104,25 +117,25 @@ class viewarchive(ScrollFrame):
         
     
     def copy(self):
+        """Copy or zip raw data to zipped file in $RAWCORE"""
         f,t=self.fromfile
         if f:
             if(t=='ZIP'):
                 print 'Copy %s to %s' % (f,self.core.filename)
                 shutil.copy(f,self.core.filename)
-            elif(t=='CRIOS'):
+            elif(t=='FOLDER'):
                 print 'ZIP %s to %s' % (f,self.core.filename)
                 z=zipfile.ZipFile(self.core.filename,'w')
                 for fx in os.listdir(f):
                     z.write(os.path.join(f,fx),fx)
                 z.close()
         self.core.filename=self.core.filename
-        for i,fx in enumerate(self.dataset.files):
-            if(fx[0]==f):
-                self.dataset.files[i]=(self.core.filename,'ZIP')
+        self.dataset['ZIP']=file_parameter('ZIP',self.core.filename)
                        
 
     def check_file(self,filename,filetype):
-        if(filetype=='CRIOS'):
+        """Check which file type and set appropriate attribute"""
+        if(filetype=='FOLDER'):
             self.fromfile=(filename,filetype)
         elif(filetype=='ZIP'):
             if(self.rawcore not in filename):
@@ -135,6 +148,7 @@ class viewarchive(ScrollFrame):
             self.set_nc(filename)
 
     def set_nc(self,filename):
+        """Set netcdf filename"""
         if('1hz' in filename.lower()):
             self.nc1hz.filename=filename
         else:
@@ -142,21 +156,23 @@ class viewarchive(ScrollFrame):
 
     
     def fltno_date(self):
-        files=[(self.nc1hz.filename,'NC'),
-              (self.nc.filename,'NC'),
+        """Parse file names for flight number and date"""
+        files=[(self.nc1hz.filename,'NETCDF'),
+              (self.nc.filename,'NETCDF'),
               (self.const.filename,'CONST'),
               (self.core.filename,'ZIP'),
               self.fromfile]
         files=[item for item in files if item[0]]
-        return parse_filenames(self.dataset,files=files)
+        return self.dataset.parse_filenames(files=files)
         
 
     def filenames(self,fltno,date):
+        """Set file names to a particular flight number and date"""       
         self.core.filename=find_file(fltno,date,ftype='ZIP')
         self.const.filename=find_file(fltno,date,ftype='CONST')
-        self.nc.filename=find_file(fltno,date,ftype='NC')
+        self.nc.filename=find_file(fltno,date,ftype='NETCDF')
         self.nc1hz.filename=find_file(fltno,date,ftype='NC1HZ')
-        self.dataset.files=[]
+        self.dataset.clearfiles()
         if(self.core.there()):
             self.dataset.add_file(self.core.filename,'ZIP')
         elif(self.fromfile[0]):
@@ -166,8 +182,7 @@ class viewarchive(ScrollFrame):
 
 
     def doftp(self,filename,loc):
-        print 'ftp ',filename,loc
-        print 'host:',self.host.val,'user:',self.login.val
+        """Start an FTP job"""
         job=ftpjob(filename,host=self.host.val,login=self.login.val,
                               passwd=self.password.val,
                               to=loc)
@@ -181,7 +196,7 @@ class viewarchive(ScrollFrame):
         if(t=='ZIP' and name):
             self.copy['text']='Copy to'
             self.copy['state']=Tk.NORMAL
-        elif(t=='CRIOS' and name):
+        elif(t=='FOLDER' and name):
             self.copy['text']='Zip to'
             self.copy['state']=Tk.NORMAL
         else:
@@ -191,7 +206,7 @@ class viewarchive(ScrollFrame):
     def __getfromfile__(self):
         f=self.orig.get()
         if 'Zip' in self.copy['text']:
-            return (f,'CRIOS')
+            return (f,'FOLDER')
         elif 'Copy' in self.copy['text']:
             return (f,'ZIP')
         else:
@@ -200,15 +215,16 @@ class viewarchive(ScrollFrame):
     fromfile=property(__getfromfile__,__setfromfile__)
     
     def browse(self):
+        """Choose a file"""
         filen=askopenfilename(initialdir=os.path.expandvars('$RAWCORE'),filetypes=[('all files','.*'),
                                                                                    ('all files','*'),
                                                                                    ('zip','*.zip'),
                                                                                    ('const','flt-const*.txt'),
                                                                                    ('nc','*.nc')])
         if(filen):
-            df=DecadesFile(self.dataset,filen)
+            df=self.dataset.DecadesFile(filen)
             self.fromfile=('','')
-            self.filenames(*parse_filenames(self.dataset,files=[df.astuple()]))
+            self.filenames(*self.dataset.parse_filenames(files=[df.astuple()]))
             self.check_file(*df.astuple())
         
      
@@ -217,7 +233,7 @@ if __name__=="__main__":
     root=Tk.Tk()
     d=decades_dataset()
     try:
-        df=DecadesFile(d,sys.argv[1])
+        df=d.DecadesFile(sys.argv[1])
         d.add_file(*df.astuple())
     except IndexError:
         pass

@@ -1,7 +1,15 @@
-from ppodd.pod import *
+#from ppodd.pod import *
 from ppodd.core import *
 from ppodd.humidity_formulae import *
 class twc_wvsscor(cal_base):
+    """ Fit TWC sensor to WVSSII
+    
+    Calculates Vapour pressures from WVSSII where less than a threshold ( to screen out liquid and ice )
+    Calculate a theoretical Oxygen absorption from pressure
+    Fit the TWC detector less the oxygen correction against the WVSSII vapour pressure
+
+
+"""
     def __init__(self,dataset):
         self.wvss='WVSS_B_VMR'
         self.input_names=['PS_RVSM','TAT_DI_R',self.wvss,'TWC_DET','TWC_TSAM']
@@ -45,9 +53,7 @@ class twc_wvsscor(cal_base):
         vf=t64.flag
         #plt.plot(v,(vp1/t2)+(KO*uO*p1/(Kv*t2)),'x')
         #plt.plot(v[iuse],(vp1/t2)[iuse]+(KO*uO*p1/(Kv*t2))[iuse],'x')
-        print 'TWC_WVSSCOR ',len(iuse)
         if(len(iuse)>10):
-            print iuse.shape
             fit=np.polyfit(v[iuse],(vp1[iuse]/t2[iuse])+(KO[iuse]*uO*p1[iuse]/(Kv*t2[iuse])),1)
             import matplotlib.pyplot as plt
             plt.plot(v,(vp1/t2)+(KO*uO*p1/(Kv*t2)),'x')
@@ -56,9 +62,7 @@ class twc_wvsscor(cal_base):
             #plt.plot(t64.ravel(),ans.ravel())
             plt.plot(t64.ravel(),ans.ravel())
             plt.xlim(np.min(v[iuse]),np.max(v[iuse]))
-            print plt.xlim()
             plt.ylim(np.polyval(fit,plt.xlim()))
-            print plt.ylim()
             plt.show()
             px=dx['PS_RVSM'].data.ravel()
             px.interp1d()

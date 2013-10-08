@@ -1,0 +1,675 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gui Package &mdash; ppodd 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ppodd 0.1 documentation" href="index.html" />
+    <link rel="up" title="ppodd Package" href="ppodd.html" />
+    <link rel="next" title="pod Package" href="ppodd.pod.html" />
+    <link rel="prev" title="ppodd Package" href="ppodd.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ppodd.pod.html" title="pod Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ppodd.html" title="ppodd Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ppodd 0.1 documentation</a> &raquo;</li>
+          <li><a href="ppodd.html" accesskey="U">ppodd Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gui-package">
+<h1>gui Package<a class="headerlink" href="#gui-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">gui</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ppodd.gui"></span><p>Package of the GUI routines written with Tkinter to wrap around the core dataset and processing.</p>
+<p>&#64;author Dave Tiddeman</p>
+</div>
+<div class="section" id="module-ppodd.gui.archive">
+<span id="archive-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">archive</span></tt> Module<a class="headerlink" href="#module-ppodd.gui.archive" title="Permalink to this headline">¶</a></h2>
+<p>Classes for handling the archiving of core data.</p>
+<p>&#64;author Dave Tiddeman</p>
+<dl class="class">
+<dt id="ppodd.gui.archive.archfile">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.archive.</tt><tt class="descname">archfile</tt><big>(</big><em>parent</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.archfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>GUI for single archivable file.</p>
+<p>&#64;author Dave Tiddeman</p>
+<dl class="method">
+<dt id="ppodd.gui.archive.archfile.doftp">
+<tt class="descname">doftp</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.archive.archfile.doftp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.gui.archive.archfile.filename">
+<tt class="descname">filename</tt><a class="headerlink" href="#ppodd.gui.archive.archfile.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.archfile.there">
+<tt class="descname">there</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.archive.archfile.there" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.archive.viewarchive">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.archive.</tt><tt class="descname">viewarchive</tt><big>(</big><em>parent</em>, <em>dataset</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.gui.util.ScrollFrame" title="ppodd.gui.util.ScrollFrame"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.gui.util.ScrollFrame</span></tt></a></p>
+<p>GUI for group of archivable files.</p>
+<p>&#64;author Dave Tiddeman</p>
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.browse">
+<tt class="descname">browse</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.browse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose a file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.check_file">
+<tt class="descname">check_file</tt><big>(</big><em>filename</em>, <em>filetype</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.check_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check which file type and set appropriate attribute</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy or zip raw data to zipped file in $RAWCORE</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.doftp">
+<tt class="descname">doftp</tt><big>(</big><em>filename</em>, <em>loc</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.doftp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start an FTP job</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.filenames">
+<tt class="descname">filenames</tt><big>(</big><em>fltno</em>, <em>date</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set file names to a particular flight number and date</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.fltno_date">
+<tt class="descname">fltno_date</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.fltno_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse file names for flight number and date</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.gui.archive.viewarchive.fromfile">
+<tt class="descname">fromfile</tt><a class="headerlink" href="#ppodd.gui.archive.viewarchive.fromfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.pack">
+<tt class="descname">pack</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.reset_files">
+<tt class="descname">reset_files</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.reset_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set files back to the datasets values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.archive.viewarchive.set_nc">
+<tt class="descname">set_nc</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.gui.archive.viewarchive.set_nc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set netcdf filename</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.gui.files">
+<span id="files-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">files</span></tt> Module<a class="headerlink" href="#module-ppodd.gui.files" title="Permalink to this headline">¶</a></h2>
+<p>Classes for handling the core data file GUI.</p>
+<p>&#64;author Dave Tiddeman</p>
+<dl class="class">
+<dt id="ppodd.gui.files.onefile">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.files.</tt><tt class="descname">onefile</tt><big>(</big><em>parent</em>, <em>filename</em>, <em>filetype=None</em>, <em>bg=None</em>, <em>removable=True</em><big>)</big><a class="headerlink" href="#ppodd.gui.files.onefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.decades_file</span></tt></p>
+<p>GUI for single file.</p>
+<p>&#64;author Dave Tiddeman</p>
+<dl class="method">
+<dt id="ppodd.gui.files.onefile.changed">
+<tt class="descname">changed</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#ppodd.gui.files.onefile.changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.onefile.edit_const">
+<tt class="descname">edit_const</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.onefile.edit_const" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.gui.files.onefile.filename">
+<tt class="descname">filename</tt><a class="headerlink" href="#ppodd.gui.files.onefile.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.gui.files.onefile.filetype">
+<tt class="descname">filetype</tt><a class="headerlink" href="#ppodd.gui.files.onefile.filetype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.onefile.new_const">
+<tt class="descname">new_const</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.onefile.new_const" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.onefile.remove">
+<tt class="descname">remove</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.onefile.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.files.viewfiles">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.files.</tt><tt class="descname">viewfiles</tt><big>(</big><em>parent</em>, <em>dataset</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.gui.util.ScrollFrame" title="ppodd.gui.util.ScrollFrame"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.gui.util.ScrollFrame</span></tt></a></p>
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.add">
+<tt class="descname">add</tt><big>(</big><em>filen=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.gui.files.viewfiles.files">
+<tt class="descname">files</tt><a class="headerlink" href="#ppodd.gui.files.viewfiles.files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.find">
+<tt class="descname">find</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.find" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.move_extra">
+<tt class="descname">move_extra</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.move_extra" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.pack">
+<tt class="descname">pack</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.remove">
+<tt class="descname">remove</tt><big>(</big><em>line</em><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.reset_files">
+<tt class="descname">reset_files</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.reset_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.files.viewfiles.sync_files">
+<tt class="descname">sync_files</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.files.viewfiles.sync_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.gui.flaggedplots">
+<span id="flaggedplots-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">flaggedplots</span></tt> Module<a class="headerlink" href="#module-ppodd.gui.flaggedplots" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.gui.flaggedplots.mytoolbar">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.flaggedplots.</tt><tt class="descname">mytoolbar</tt><big>(</big><em>plotter</em><big>)</big><a class="headerlink" href="#ppodd.gui.flaggedplots.mytoolbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg</span></tt></p>
+<p>Customized Matplotlib toolbar with extra buttons</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.flaggedplots.timeSeries">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.flaggedplots.</tt><tt class="descname">timeSeries</tt><big>(</big><em>parent</em>, <em>para</em><big>)</big><a class="headerlink" href="#ppodd.gui.flaggedplots.timeSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Toplevel</span></tt></p>
+<dl class="method">
+<dt id="ppodd.gui.flaggedplots.timeSeries.doplot">
+<tt class="descname">doplot</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#ppodd.gui.flaggedplots.timeSeries.doplot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.flaggedplots.timeSeries.getdata">
+<tt class="descname">getdata</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.flaggedplots.timeSeries.getdata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.flaggedplots.timeSeries.redoplot">
+<tt class="descname">redoplot</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.flaggedplots.timeSeries.redoplot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.flaggedplots.timeSeries.redraw">
+<tt class="descname">redraw</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#ppodd.gui.flaggedplots.timeSeries.redraw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.gui.main">
+<span id="main-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">main</span></tt> Module<a class="headerlink" href="#module-ppodd.gui.main" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.gui.main.main">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.main.</tt><tt class="descname">main</tt><big>(</big><em>data=None</em>, <em>bg=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.main.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Tk</span></tt></p>
+<dl class="method">
+<dt id="ppodd.gui.main.main.archive">
+<tt class="descname">archive</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.archive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.files">
+<tt class="descname">files</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.help">
+<tt class="descname">help</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.help" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.modules">
+<tt class="descname">modules</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.modules" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.paras">
+<tt class="descname">paras</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.paras" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.quality">
+<tt class="descname">quality</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.quality" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.quit">
+<tt class="descname">quit</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.quit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.setview">
+<tt class="descname">setview</tt><big>(</big><em>viewstate='none'</em>, <em>paras=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.setview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.setviewtitle">
+<tt class="descname">setviewtitle</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.setviewtitle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.write">
+<tt class="descname">write</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.main.main.writeonehz">
+<tt class="descname">writeonehz</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.main.main.writeonehz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.gui.util">
+<span id="util-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">util</span></tt> Module<a class="headerlink" href="#module-ppodd.gui.util" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.gui.util.PrintLog">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.util.</tt><tt class="descname">PrintLog</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.PrintLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Queue.Queue</span></tt>, <a class="reference internal" href="#ppodd.gui.util.ScrollText" title="ppodd.gui.util.ScrollText"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.gui.util.ScrollText</span></tt></a></p>
+<p>A scrollable text widget which writes out redirected error statements
+To make it cope  with Threads in Tk it will put text in a Queue if it failes to write to the widget
+and periodically write queued text to the widget.</p>
+<dl class="method">
+<dt id="ppodd.gui.util.PrintLog.check_queue">
+<tt class="descname">check_queue</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.util.PrintLog.check_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks its own Queue every 200ms and writes any text to the text widget</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.PrintLog.revert">
+<tt class="descname">revert</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.util.PrintLog.revert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the outputs back how they were before it was called</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.PrintLog.write">
+<tt class="descname">write</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.PrintLog.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes first to the logfile,
+Then tries to write to the widget, if that fails puts the text in its Queue
+if that fails writes to the saved stdout</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.util.ScrollFrame">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.util.</tt><tt class="descname">ScrollFrame</tt><big>(</big><em>parent</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ScrollFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A scrollable Tk Frame which can then be filled with other widgets</p>
+<dl class="method">
+<dt id="ppodd.gui.util.ScrollFrame.forget">
+<tt class="descname">forget</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.util.ScrollFrame.forget" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ScrollFrame.pack">
+<tt class="descname">pack</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.util.ScrollFrame.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.util.ScrollMessage">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.util.</tt><tt class="descname">ScrollMessage</tt><big>(</big><em>parent</em>, <em>text</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ScrollMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.gui.util.ScrollFrame" title="ppodd.gui.util.ScrollFrame"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.gui.util.ScrollFrame</span></tt></a></p>
+<p>A scrollable message widget</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.util.ScrollText">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.util.</tt><tt class="descname">ScrollText</tt><big>(</big><em>parent</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ScrollText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Text</span></tt></p>
+<p>A scrollable text widget</p>
+<dl class="method">
+<dt id="ppodd.gui.util.ScrollText.write">
+<tt class="descname">write</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ScrollText.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Then tries to write to the widget</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.util.ToolTip">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.util.</tt><tt class="descname">ToolTip</tt><big>(</big><em>wdgt</em>, <em>msg=None</em>, <em>msgFunc=None</em>, <em>delay=1</em>, <em>follow=True</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ToolTip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Toplevel</span></tt></p>
+<p>Provides a ToolTip widget for Tkinter.
+To apply a ToolTip to any Tkinter widget, simply pass the widget to the
+ToolTip constructor</p>
+<dl class="method">
+<dt id="ppodd.gui.util.ToolTip.hide">
+<tt class="descname">hide</tt><big>(</big><em>event=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ToolTip.hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hides the ToolTip.  Usually this is caused by leaving the widget</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>event: The event that called this function</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ToolTip.move">
+<tt class="descname">move</tt><big>(</big><em>event</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ToolTip.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes motion within the widget.</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>event: The event that called this function</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ToolTip.show">
+<tt class="descname">show</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.util.ToolTip.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays the ToolTip if the time delay has been long enough</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ToolTip.spawn">
+<tt class="descname">spawn</tt><big>(</big><em>event=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ToolTip.spawn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spawn the ToolTip.  This simply makes the ToolTip eligible for display.
+Usually this is caused by entering the widget</p>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>event: The event that called this funciton</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.util.ValidEntry">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.util.</tt><tt class="descname">ValidEntry</tt><big>(</big><em>parent</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Entry</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An Entry widget with built in validation</p>
+<dl class="method">
+<dt id="ppodd.gui.util.ValidEntry.check_bad">
+<tt class="descname">check_bad</tt><big>(</big><em>P</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry.check_bad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ValidEntry.check_good">
+<tt class="descname">check_good</tt><big>(</big><em>P</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry.check_good" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation - should be overidden</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ValidEntry.check_key">
+<tt class="descname">check_key</tt><big>(</big><em>P</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry.check_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation - should be overidden</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ValidEntry.getdata">
+<tt class="descname">getdata</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry.getdata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ValidEntry.setdata">
+<tt class="descname">setdata</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry.setdata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.gui.util.ValidEntry.val">
+<tt class="descname">val</tt><a class="headerlink" href="#ppodd.gui.util.ValidEntry.val" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.util.ValidEntry.validate">
+<tt class="descname">validate</tt><big>(</big><em>V</em>, <em>P</em><big>)</big><a class="headerlink" href="#ppodd.gui.util.ValidEntry.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate enty if not forced</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.gui.views">
+<span id="views-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">views</span></tt> Module<a class="headerlink" href="#module-ppodd.gui.views" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.gui.views.onemodule">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.views.</tt><tt class="descname">onemodule</tt><big>(</big><em>parent</em>, <em>module</em>, <em>selectable=True</em>, <em>bg=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.onemodule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></tt></p>
+<dl class="method">
+<dt id="ppodd.gui.views.onemodule.inview">
+<tt class="descname">inview</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.onemodule.inview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.onemodule.outview">
+<tt class="descname">outview</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.onemodule.outview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.views.onepara">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.views.</tt><tt class="descname">onepara</tt><big>(</big><em>parent</em>, <em>para</em>, <em>selectable=False</em>, <em>bg=None</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.onepara" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">Tkinter.Frame</span></tt></p>
+<dl class="method">
+<dt id="ppodd.gui.views.onepara.show">
+<tt class="descname">show</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.onepara.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.views.viewmodules">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.views.</tt><tt class="descname">viewmodules</tt><big>(</big><em>parent</em>, <em>modules</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewmodules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.gui.util.ScrollFrame" title="ppodd.gui.util.ScrollFrame"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.gui.util.ScrollFrame</span></tt></a></p>
+<dl class="method">
+<dt id="ppodd.gui.views.viewmodules.deselectall">
+<tt class="descname">deselectall</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewmodules.deselectall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewmodules.getselected">
+<tt class="descname">getselected</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewmodules.getselected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewmodules.selectall">
+<tt class="descname">selectall</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewmodules.selectall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewmodules.setselected">
+<tt class="descname">setselected</tt><big>(</big><em>mods</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewmodules.setselected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewmodules.settitle">
+<tt class="descname">settitle</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewmodules.settitle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.gui.views.viewparas">
+<em class="property">class </em><tt class="descclassname">ppodd.gui.views.</tt><tt class="descname">viewparas</tt><big>(</big><em>parent</em>, <em>paralist</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewparas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.gui.util.ScrollFrame" title="ppodd.gui.util.ScrollFrame"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.gui.util.ScrollFrame</span></tt></a></p>
+<dl class="method">
+<dt id="ppodd.gui.views.viewparas.deselectall">
+<tt class="descname">deselectall</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewparas.deselectall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewparas.getselected">
+<tt class="descname">getselected</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewparas.getselected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewparas.selectall">
+<tt class="descname">selectall</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewparas.selectall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.gui.views.viewparas.setselected">
+<tt class="descname">setselected</tt><big>(</big><em>paras</em><big>)</big><a class="headerlink" href="#ppodd.gui.views.viewparas.setselected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gui Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-ppodd.gui.archive"><tt class="docutils literal"><span class="pre">archive</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.gui.files"><tt class="docutils literal"><span class="pre">files</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.gui.flaggedplots"><tt class="docutils literal"><span class="pre">flaggedplots</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.gui.main"><tt class="docutils literal"><span class="pre">main</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.gui.util"><tt class="docutils literal"><span class="pre">util</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.gui.views"><tt class="docutils literal"><span class="pre">views</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ppodd.html"
+                        title="previous chapter">ppodd Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ppodd.pod.html"
+                        title="next chapter">pod Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ppodd.gui.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ppodd.pod.html" title="pod Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ppodd.html" title="ppodd Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ppodd 0.1 documentation</a> &raquo;</li>
+          <li><a href="ppodd.html" >ppodd Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Dave Tiddeman.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

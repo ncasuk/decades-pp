@@ -5,6 +5,7 @@ from ppodd.core import decades_dataset
 from views import viewparas,viewmodules
 from archive import viewarchive
 from files import viewfiles
+import ppodd
 
 
 class main(Tk.Tk):
@@ -21,6 +22,7 @@ class main(Tk.Tk):
         filemenu.add_command(label="Archive",command=self.archive)
         filemenu.add_command(label="Files",command=self.files)
         filemenu.add_command(label="Write",command=self.write)
+        filemenu.add_command(label="Write 1hz",command=self.writeonehz)
         filemenu.add_separator()
         filemenu.add_command(label="Exit",command=self.quit)
         menubar=Tk.Menu(self,bg=self.cget('bg'))
@@ -37,6 +39,12 @@ class main(Tk.Tk):
         self.viewtitle=Tk.Label(self,text='',bg=self.cget('bg'))
         self.logpane=Tk.Frame(self,bg=self.cget('bg'))
         self.log=PrintLog(self.logpane,bg=self.cget('bg'))
+        import logging
+        ch = logging.StreamHandler(self.log)
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        ppodd.logger.addHandler(ch)
         self.log.pack()
         self.viewtitle.pack()
         self.viewpane.pack()
@@ -52,7 +60,7 @@ class main(Tk.Tk):
         self.viewtitle['text']=title
 
     def quit(self):
-        print "QUIT"
+        ppodd.logger.info("QUIT")
         Tk.Tk.quit(self)
         self.destroy()
 
@@ -175,10 +183,10 @@ Help:
         self.setviewtitle('Files')
         self.setview('files')
     def write(self):
-        print "Write\n"
+        ppodd.logger.info("Write\n")
         self.data.write_nc.process(paras=self.paras)
     def writeonehz(self):
-        print "Write\n"
+        ppodd.logger.info("Write\n")
         self.data.write_nc.process(onehz=True,paras=self.paras)
     def modules(self):
         self.setviewtitle('Modules')
@@ -187,7 +195,7 @@ Help:
         self.setviewtitle('All Parameters')
         self.setview('paras')
     def process(self):
-        print "Process\n"
+        ppodd.logger.info("Process\n")
         try:
             self.mods=self.modview.getselected()
         except AttributeError:
@@ -196,8 +204,6 @@ Help:
             self.paras=self.paraview.getselected()
         except AttributeError:
             pass
-        print 'Paras=',self.paras
-        print 'Modules=',self.mods
         self.data.mods=self.mods
         if(self.viewstate=='files'):
             self.data.files=self.fileview.files
@@ -206,13 +212,13 @@ Help:
            self.viewstate='oldparas'
            self.setview('paras')
     def quality(self):
-        print "Quality\nNot implemented fully\nIDL version\n"
+        ppodd.logger.warning("Quality\nNot implemented fully\nIDL version\n")
         try:
             idlcomm="idl -quiet -e \"!path=!path+':$MRF_IDL' & checkf,'"+self.data.write_nc.filename+"'\""
             import subprocess
             subp = subprocess.Popen(idlcomm, shell = True)
         except AttributeError:
-            print "Data hasn't been written can't run IDL quality checking"
+            ppodd.logger.warning("Data hasn't been written can't run IDL quality checking")
 
 
            

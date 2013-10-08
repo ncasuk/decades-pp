@@ -1,4 +1,4 @@
-from ppodd.pod import *
+#from ppodd.pod import *
 from ppodd.core import *
 import struct
 import os
@@ -375,14 +375,15 @@ Param  Freq  Name  Units     Full name
  1023     1  CLRF  W M-2     CORR LOWER RED FLUX 
  1024     1  CLIR  W M-2     CORR LOWER I/R FLUX """
 
-class readm3(file_reader):
+class readm3(file_read):
+    """
+Routine for reading in M3 data
+"""
     def __init__(self,dataset):
-        #self.name='READM3'
-        self.input_names=[]
-        self.filetype='M3'
+        self.input_names=['M3']
         self.outputs=[]
-        file_reader.__init__(self,dataset)
         self.patterns=('*raw_data.dat','*raw_hddr.dat','*raw_data.dat;*','*raw_hddr.dat;*')
+        file_read.__init__(self,dataset)
         
     def fixfilename(self,filename):
         return filename[:filename.find('.dat')-5]
@@ -437,7 +438,6 @@ class readm3(file_reader):
         spare=2*self.iqrsiz-dsize-self.paras[0]['Other']
         dtype.append(('Horace_Spare','|S%i' % spare))
         self.time=self.get_time()
-        print dtype,self.dat,len(self.time)
         self.data=np.memmap(self.dat,dtype=dtype,mode='r',shape=len(self.time))
         for p in self.paras:
             n='Horace_'+p['Shortname']
@@ -470,17 +470,7 @@ class readm3(file_reader):
     def get_timex(self):
         return np.arange(self.issrtt[0],self.isendt[self.isectn-1]+1,1)
 
-    def paradesc(self): #,descfile=None):
-        """
-        if(descfile==None):
-            descfile=os.path.join(os.path.dirname(__file__),'MFDPARDESC.DAT')
-        lines=[]
-        try:
-            desc=open(descfile)
-            lines=desc.readlines()
-            desc.close()
-        except:
-            pass"""
+    def paradesc(self): 
         lines=mfdpardesc.split('\n')
         for i in range(self.npara):
             self.paras[i]['Name']='PARAMETER %i' % self.paras[i]['Numb']

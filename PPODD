@@ -2,7 +2,6 @@
 from ppodd.gui.main import *
 from ppodd.core import decades_dataset
 from optparse import OptionParser
-from ppodd.util import DecadesFile
 
 def split_up(option, opt, value, parser): 
     """ Splits up comma separated input and sets to upper case """
@@ -25,12 +24,6 @@ if __name__=="__main__":
            help="Output file or folder",metavar="OUTPUT",default="")
     parser.add_option("-r","--revision",dest="revision",
            help="Output revision number",metavar="N",default=0,type='int')
-    #parser.add_option("-s","--start",dest="start",
-    #       help="Start time",metavar="HH:MM:SS",default=None,
-    #       action='callback',callback=times,type='string')
-    #parser.add_option("-e","--end",dest="end",
-    #       help="End time",metavar="HH:MM:SS",default=None,
-    #       action='callback',callback=times,type='string')
     parser.add_option("-p","--parameters",dest="paras",
            help="Parameters to output ",metavar="p1,p2...pn or all",default=None,
            action='callback',callback=split_,type='string')
@@ -49,7 +42,7 @@ if __name__=="__main__":
         default type is CONST (flight constants) for first argument
         CRIO for others or CRIOS if a folder """
         opt=args[i].split(':')
-        df=DecadesFile(d,*opt)
+        df=d.DecadesFile(*opt)
         d.add_file(*df.astuple())
     if(options.output!=""):
         opt=options.output.split(':')

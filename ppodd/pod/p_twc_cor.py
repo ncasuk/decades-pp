@@ -1,4 +1,5 @@
-from ppodd.pod import *
+#from ppodd.pod import *
+import ppodd
 from ppodd.core import *
 from ppodd.humidity_formulae import *
 class twc_cor(cal_base):
@@ -14,25 +15,29 @@ class twc_cor(cal_base):
     """
     def __init__(self,dataset):
         self.input_names=['PS_RVSM','TAT_DI_R','TDEW_GE','TWC_DET','TWC_TSAM']
-        self.outputs=[parameter('TWC_TDEWx',units='K',frequency=64,number=725,long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air)')
-                     ,parameter('TWC_EVAPx',units='gram kg-1',frequency=64,number=572,long_name='Total water specific humidity from the TWC avaporator instrument')]
+        #self.outputs=[parameter('TWC_TDEWx',units='K',frequency=64,number=725,long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air)')
+        #             ,parameter('TWC_EVAPx',units='gram kg-1',frequency=64,number=572,long_name='Total water specific humidity from the TWC avaporator instrument')]
+        self.outputs=[constants_parameter('TWC_GE_FIT',[])]
         #self.name='TWC_COR'
         self.version=1.00
         cal_base.__init__(self,dataset)
         
+    def __repr__(self):
+        return 'TWC fit to GE'
+        
     def process(self):
         dx=self.dataset
         match=dx.matchtimes(self.input_names)
-        p1=dx['PS_RVSM'].data.ismatch(match)[:,0]
+        p1=dx['PS_RVSM'].data.ismatch(match).get1Hz()
         p1f=p1.flag==0
-        t1=dx['TAT_DI_R'].data.ismatch(match)[:,0]
+        t1=dx['TAT_DI_R'].data.ismatch(match).get1Hz()
         t1f=t1.flag==0
         F=0.93
         t2=dx['TWC_TSAM'].data.ismatch(match)[:]
         t2f=t2.flag==0
-        v=dx['TWC_DET'].data.ismatch(match)[:,0]
+        v=dx['TWC_DET'].data.ismatch(match).get1Hz()
         vf=v.flag==0
-        ge=dx['TDEW_GE'].data.ismatch(match)[:,0]
+        ge=dx['TDEW_GE'].data.ismatch(match).get1Hz()
         gef=ge.flag==0
         over=ge>278.0
         under=ge<=273-15.0
@@ -52,10 +57,9 @@ class twc_cor(cal_base):
         vf=t64.flag
         #plt.plot(v,(vp1/t2)+(KO*uO*p1/(Kv*t2)),'x')
         #plt.plot(v[iuse],(vp1/t2)[iuse]+(KO*uO*p1/(Kv*t2))[iuse],'x')
-        print 'TWC_COR ',len(iuse)
         if(len(iuse)>10):
-            print iuse.shape
             fit=np.polyfit(v[iuse],(vp1[iuse]/t2[iuse])+(KO[iuse]*uO*p1[iuse]/(Kv*t2[iuse])),1)
+            self.outputs[0].data=list(fit)
             import matplotlib.pyplot as plt
             plt.plot(v,(vp1/t2)+(KO*uO*p1/(Kv*t2)),'x')
             plt.plot(v[iuse],(vp1/t2)[iuse]+(KO*uO*p1/(Kv*t2))[iuse],'x')
@@ -63,9 +67,7 @@ class twc_cor(cal_base):
             #plt.plot(t64.ravel(),ans.ravel())
             plt.plot(t64.ravel(),ans.ravel())
             plt.xlim(np.min(v[iuse]),np.max(v[iuse]))
-            print plt.xlim()
             plt.ylim(np.polyval(fit,plt.xlim()))
-            print plt.ylim()
             plt.ion()
             plt.title('TWC vs GE')
             px=dx['PS_RVSM'].data.ravel()
@@ -83,5 +85,5 @@ class twc_cor(cal_base):
             dp=np.zeros(sh)
             mmr=t64
             vf[:]=3
-        self.outputs[0].data=flagged_data(dp,t64.times,flags=vf)
-        self.outputs[1].data=flagged_data(mmr,t64.times,flags=vf)
+        #self.outputs[0].data=flagged_data(dp,t64.times,flags=vf)
+        #self.outputs[1].data=flagged_data(mmr,t64.times,flags=vf)

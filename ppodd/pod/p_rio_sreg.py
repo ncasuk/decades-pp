@@ -1,6 +1,9 @@
-from ppodd.pod import *
+#from ppodd.pod import *
 from ppodd.core import *
 class rio_sreg(cal_base):
+    """
+Routine to calculate signal register from Decades parameters
+"""
     def __init__(self,dataset):
         self.input_names=['CALCABT','PRTAFT_heimann_calib_flag','PRTAFT_deiced_temp_flag','CORCON_cabin_t']
         self.outputs=[parameter('SREG',units='bits',frequency=2,number=27,long_name='Signal register')

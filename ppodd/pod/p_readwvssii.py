@@ -1,20 +1,21 @@
-from ppodd.pod import *
+#from ppodd.pod import *
 from ppodd.core import *
+import ppodd
 import csv
 import os.path
 from os import listdir
 import struct
 from resample import createtimes
-class readwvssii(file_reader):
+class readwvssii(file_read):
+    """
+Routine for reading in WVSSII data
+"""
 
     def __init__(self,dataset):
-        print '_init_READwvssII'
-        #self.name='READWVSSII'
-        self.input_names=['DATE']
-        self.filetype='WVSS'
+        self.input_names=['WVSSII','DATE']
         self.outputs=[]
-        file_reader.__init__(self,dataset)
         self.patterns=('WVSS*.txt',)
+        file_read.__init__(self,dataset)
         
     def fixfilename(self,filename):
         if os.path.isdir(filename):
@@ -23,11 +24,9 @@ class readwvssii(file_reader):
             return os.path.dirname(filename)
 
     def readfile(self,filename):
-        converttime = lambda x: int(x[:14]+x[15:])
         dx=self.dataset['DATE']
         start=np.datetime64('%4.4d%2.2d%2.2d' % (dx[2],dx[1],dx[0]))
         converttime = lambda x: (np.float_(np.datetime64(x[:8]+'-'+x[8:10]+':'+x[10:12]+':'+x[12:])-start))/1e6
-        print 'Open WVSSII file '+filename
         dirname=os.path.dirname(filename)
         file_type=os.path.basename(filename)[0:7]
         dtype=[]
@@ -48,11 +47,7 @@ class readwvssii(file_reader):
 
         raw=np.genfromtxt(filename,dtype=dtype,converters={0:converttime})
         time=timestamp(raw['Time'])
-        time2=timestamp(creattimes(time))
         for o in outputs: 
              o.data=timed_data(raw[o.long_name],time)
-#            w=timed_data(raw[o.long_name],time)
-#            w.interp1d()
-#            o.data=timed_data(w.interpolated(time2),time2)
         self.outputs=getattr(self,'outputs',[])+outputs
                

@@ -1,203 +1,42 @@
-import numpy as np
-from ppodd.core import *
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ppodd.OrderedDictOld import OrderedDict
-    
-def getmodules():
-    """ Gets a list of all the c_*.py files in this folder """
-    import os.path
-    import fnmatch
-    import sys
-    ldir=sorted(os.listdir(os.path.dirname(__file__)))
-    for fil in ldir:
-        if fnmatch.fnmatch(fil,'p_*.py'):
-            yield (os.path.basename(fil))[:-3]
+"""**pod** is the package containing all the standard processing routines.  Routines are assumed to be in modules named p_* with * being the class name of the routine.
+
+All classes are added to a dictionary called modules.  If ppodd.pod.modules is altered before a decades_dataset is created then this altered set of modules is what will be used.
+
+
+@author Dave Tiddeman
+""" 
+import os,fnmatch,sys,inspect
+import ppodd
+from ppodd.core import cal_base
 
 def is_calmodule(mod):
-    """ Checks whether it is a calibration module, by making sure it has a 'process' member """
+    """ Checks whether it is a calibration module, by making sure it has a 'run' member """
     import inspect
     ans=False
     if inspect.isclass(mod):
-        if issubclass(mod,cal_base):
-            for n,typ in inspect.getmembers(mod):
-                if n=='process':
-                    ans=True
+        for n,typ in inspect.getmembers(mod):
+            if n=='run':
+                ans=True
     return ans
 
-def get_ps(dataset):
-    mods=OrderedDict()
-    for i in __mods__:
-        mod=__import__(i,globals(),locals())
-        mods[i[2:].upper()]=getattr(mod,i[2:])(dataset)
-    return mods
-
-class cal_base(object):
-    """ Base for all calibration modules """
-    def __init__(self,dataset):
-        """ Sub class should initialise the version inputs outputs and name as a minimum """
-        self.dataset=dataset
-        self.version=1.0
-        self.name=self.__class__.__name__.upper()
-        self.history=''
-        
-
-    def get_inputs(self):
-        return [i.get_para() for i in self.input_names]
-        
-    def run(self):
-        self.process()
-        for o in self.outputs:
-            self.dataset.update({o.name:o})
-        self.addhistory()
-
-    def process(self):
-        pass
-    
-    def addhistory(self):
-        if(len(self.outputs)>0):
-            self.dataset.history+='\n%s\n  Inputs=%s ,\n  Outputs=%s \n\n' % (self.name,str(self.input_names),str(self.outputs))
-            self.history+='INPUTS\n'
-            for i in self.input_names:
-                try:
-                    f=self.dataset[i].frequency
-                    self.history+='  Parameter %s\n' % i
-                except:
-                    self.history+='  Constants %s=' % i
-                    for c in self.dataset[i][:]:
-                        try:
-                            self.history+='%e,' % c
-                        except TypeError:
-                            self.history+='%s,' % str(c)
-                    self.history+='\n'
-            self.history+='\n\nOUTPUTS\n'
-            for o in self.outputs:
-                print o
-                self.history+=repr(o)+','+str(o)+'\n'
-                
-                
-    def __repr__(self):
-        return self.name
-
-class file_reader(cal_base):
-    """ Base class for file reading modules """
-    def __init__(self,dataset):
-        cal_base.__init__(self,dataset)
-        self.patterns=('.*','*')
-        if(not(self.__doc__)):
-            self.__doc__='Routine for reading in %s data' % self.filetype
-    def process(self):
-        self.files=[]
-        for filename,filetype in self.dataset.files:
-            if(filetype==self.filetype):
-                self.files.append(filename)
-        for filename in self.files:
-            self.readfile(filename)  
-
-    def fixfilename(self,filename):
-        return filename
-
-    
-            
-        
-             
-class fort_cal(cal_base):
-    """ Base class for calibration modules that call legacy fortran """
-    def __init__(self,dataset):
-        import os.path
-        cal_base.__init__(self,dataset)
-        self.pout=np.empty(len(self.outputs),dtype=np.int32,order='F')
-        self.frqout=np.empty(len(self.outputs),dtype=np.int32,order='F')
-        for i,p in enumerate(self.outputs):
+def getstandardmodule():
+    for f in os.listdir(os.path.dirname(__file__)):
+        if(f.startswith('p_') and f.endswith('.py')):
+            m=f[:-3]
             try:
-                self.frqout[i]=p.frequency
-            except AttributeError:
-                self.frqout[i]=1
-            self.pout[i]=p.number
-        self.noutall=np.sum(self.frqout)
-        self.fortname=getattr(self,'fortname',self.name) # Use the name as fortran module name unless explicitly set
-        try:
-            fdir=os.path.join(os.path.dirname(__file__),'fortran_modules')
-            with open(os.path.join(fdir,'c_'+self.fortname.lower()+'.for'),'r') as fmod:
-                comments=''
-                for fline in fmod:
-                    if(fline.startswith('C') or fline.startswith('!')):
-                        comments+=fline[1:]
-                    elif(fline.startswith('      SUBROUTINE')):
-                        break
-                try:
-                    self.__doc__+=comments
-                except TypeError:
-                    self.__doc__=comments
-        except IOError:
-            pass            
-    
-    
-    def process(self):
-        """ Get the input data into an array matching the times..
-        All input parameters must have a frequency and number set or will not be accepted as inputs
-        Run the fortran
-        Extract ouput into timestamped parameters     """
-        from c_runmod import c_runmod as run_old_module
-        frqin=[]
-        pin=[]
-        inputs=[]
-        constants=[]
-        const=[]
-        match=self.dataset.matchtimes(self.input_names,paras=inputs,notparas=constants)
-        for c in constants:
-            const.extend(c[:])
-        for p in inputs:
-            frqin.append(p.frequency)
-            pin.append(p.number)
-        constants=np.array(const,dtype=np.float32,order='F')    # Constants array
-        frqin=np.array(frqin,dtype=np.int32,order='F')           # Input frequencies
-        pin=np.array(pin,dtype=np.int32,order='F')               # Input parameter numbers
-        length=len(match)
-        if(length>0):
-            """If there are data with any matching times"""
-            din=np.empty((length,np.sum(frqin)),dtype=np.float32,order='F') # Input data
-            flagin=np.zeros((length,np.sum(frqin)),dtype=np.int8,order='F') # Input flags
-            ofs=0
-            # Arrange inputs
-            for i,p in enumerate(inputs):
-                if(frqin[i]==1):
-                    s=ofs
-                else:
-                    s=slice(ofs,ofs+frqin[i])    
-                try:    
-                    din[:,s]=p.data.ismatch(match).raw_data
-                except ValueError:
-                    print 'S=',s
-                    print 'Data',p.data.shape
-                    print 'Match',match.shape
-                    print p.data.ismatch(match).raw_data.shape
-                    print din[:,s].shape
-                    raise ValueError
-                try:
-                    flagin[:,s]=p.data.flag.ismatch(match).raw_data 
-                except:
-                    pass
-                ofs+=frqin[i]
-            # Call FORTRAN
-            print 'Calling fortran %s' % self.fortname
-            dout,flagout=run_old_module(self.fortname,constants,
-                                        pin,frqin,din,flagin,
-                                        self.pout,self.frqout,self.noutall)
+                pod=__import__('pod.'+m)
+                cls=getattr(getattr(pod,m),m[2:])
+                yield cls
+            except ImportError:
+                ppodd.logger.warning('No module %s in %s' % (m[2:],m))
 
-            # Arrange ouputs
-            ofs=0
-            for i,p in enumerate(self.outputs):
-                frq=self.frqout[i]
-                if(frq==1):
-                    s=ofs
-                else:
-                    s=slice(ofs,ofs+frq)
-                p.data=flagged_data(dout[:,s],match,flagout[:,s])
-                ofs+=frq
-        cal_base.process(self)    
-        
-__mods__=[m for m in getmodules()]
+def addmodule(cls):
+    if(is_calmodule(cls)):
+        modules[cls.__name__.upper()]=cls
+    else:
+        ppodd.logger.warning('%s is not a calibration module (no run member) - not added' % cls.__name__.upper())
 
+modules={}
+for m in getstandardmodule():
+    addmodule(m)
 

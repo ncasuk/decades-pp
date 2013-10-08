@@ -1,32 +1,18 @@
-from ppodd.pod import *
-from ppodd.core import *
-from ppodd.util import *
-import os
-import zipfile
+from ppodd.core import file_read,constants_parameter
+import ppodd
 import dateutil.parser
 
-class readconst(file_reader):
+class readconst(file_read):
+    """
+Routine for reading in CONST data
+"""
     def __init__(self,dataset):
         #self.name='READCONST'
-        self.input_names=[]
-        self.filetype='CONST'
+        self.input_names=['CONST']
+        #self.filetype='CONST'
         self.outputs=[]
-        file_reader.__init__(self,dataset)
         self.patterns=('flight-cst*.txt',)
-
-    def process(self):
-        file_reader.process(self)
-        if not self.files:
-            self.parse_filenames()
-              
-    def parse_filenames(self):
-        fltno,date=parse_filenames(self.dataset)
-        if('FLIGHT' not in self.dataset and fltno!='????'):
-            self.outputs.append(constants_parameter('FLIGHT',fltno))
-        if('DATE' not in self.dataset and date!='????????'):
-            print 'DATE=',date
-            dt=dateutil.parser.parse(date)
-            self.outputs.append(constants_parameter('DATE',[dt.day,dt.month,dt.year]))
+        file_read.__init__(self,dataset)
         
     def readfile(self,filename):
         f=open(filename)
@@ -45,17 +31,18 @@ class readconst(file_reader):
                         dt=dateutil.parser.parse(cdate)
                         self.outputs.append(constants_parameter('DATE',[dt.day,dt.month,dt.year]))
                     except:
-                        print "Can't parse Date %s" % cdate
+                        ppodd.logger.warning("READCONST:Can't parse Date %s" % cdate)
                 elif(l.startswith('! Revision ')):
                     rev=l.replace('! Revision ','',1).split(' - ')
                     self.revision={'number':int(rev[0]),'date':rev[1]}
+                    #self.dataset.attributes['revision']=int(rev[0])
+                    self.dataset.add_para('Attribute','revision',int(rev[0]))
             else:
                 if('!' in l):
                     l=l[0:l.index('!')].strip()
                 if(l.startswith('NO')):
                     mod=l.replace('NO','',1)
-                    print 'NO "%s"' % mod
-                    self.dataset.nocals.update([mod])                 
+                    self.dataset.nocals.append(mod)                 
                 else:
                     values=l.split()
                     name=values[0]

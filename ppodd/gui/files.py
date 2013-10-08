@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""Classes for handling the core data file GUI.
+
+@author Dave Tiddeman
+""" 
 import Tkinter as Tk
 from tkFileDialog import askopenfilename
 import os
@@ -16,13 +20,16 @@ import shutil
 
 
         
-class onefile(Tk.Frame,DecadesFile):
+class onefile(Tk.Frame,decades_dataset.decades_file):
+    """GUI for single file.
+
+@author Dave Tiddeman
+""" 
     def __init__(self, parent, filename,filetype=None,bg=None,removable=True):
         Tk.Frame.__init__(self,parent,bg=bg)
-        
         self.typ=Tk.StringVar()
         self.label=Tk.StringVar()
-        DecadesFile.__init__(self,parent.dataset,filename,filetype)
+        decades_dataset.decades_file.__init__(self,parent.dataset,filename,filetype)
         self.parent=parent
         if(self.filetype=='CONST'):
             self.constedit=Tk.Button(self,text='Edit',command=self.edit_const,bg=bg)
@@ -45,7 +52,7 @@ class onefile(Tk.Frame,DecadesFile):
  
 
     def __setfilename__(self,val):
-        DecadesFile.__setfilename__(self,val)
+        decades_dataset.decades_file.__setfilename__(self,val)
         self.label.set(self.filename)
         try:
             if os.path.isfile(self.filename):
@@ -58,7 +65,7 @@ class onefile(Tk.Frame,DecadesFile):
             pass
             
 
-    filename=property(DecadesFile.__getfilename__,__setfilename__)
+    filename=property(decades_dataset.decades_file.__getfilename__,__setfilename__)
 
     def remove(self):
         self.parent.remove(self)
@@ -106,13 +113,12 @@ class viewfiles(ScrollFrame):
         self.findButton=Tk.Button(self.extra,text='Find Constants',command=self.find,**kwargs)
         self.findButton.grid(column=1,row=0)
         self.initialdir=None
-        if(self.dataset.files):
-            self.initialdir=os.path.dirname(self.dataset.files[0][0])
         self.filetypes=[('all files','.*'),('all files','*')]
-        x=DecadesFile(self.dataset,'')
-        for f in x.filetypes:
-            for p in x.filetypes[f].patterns:
+        for f in self.dataset.filetypes:
+            for p in self.dataset.filetypes[f].patterns:
                 self.filetypes.append((f,p))
+            if(f in self.dataset):
+                self.initialdir=os.path.dirname(list(self.dataset[f].data)[0])
 
 
     def pack(self,**kwargs):
@@ -139,10 +145,12 @@ class viewfiles(ScrollFrame):
         self.move_extra()
             
     def sync_files(self):
-        self.dataset.files=self.files
+        self.dataset.clearfiles()
+        for name,ftype in self.files:
+            self.dataset.add_file(name,ftype)
 
     def find(self):
-        fltno,date=parse_filenames(self.dataset)
+        fltno,date=self.dataset.parse_filenames()
         const=find_file(fltno,date)
         if(const):
             self.add(const)
@@ -152,7 +160,7 @@ class viewfiles(ScrollFrame):
         while self.filex:
             f=self.filex.pop()
             f.grid_forget()
-        self.files=self.dataset.files
+        self.files=self.dataset.getfiles()
 
     def move_extra(self):
         self.extra.grid_configure(column=0,row=len(self.filex))
@@ -184,7 +192,7 @@ if __name__=="__main__":
     root=Tk.Tk()
     d=decades_dataset()
     try:
-        df=DecadesFile(d,sys.argv[1])
+        df=d.DecadesFile(sys.argv[1])
         d.add_file(*df.astuple())
     except IndexError:
         pass

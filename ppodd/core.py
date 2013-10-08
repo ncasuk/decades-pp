@@ -1,26 +1,24 @@
 '''
 Created on 4 Sep 2013
 
-All the base classes for dealing with timed aircraft data
-    decades_dataset
-    which is a dictionary of 
-        parameters or constants_parameters
-        
-    The data for each parameter is timed_data ( a data array linked to a timestamp object )
-    or flagged_data which also includes a flag
-    
-    cal_base which is the base class for all calibration modules, which has subclasses 
-        file_reader - for reading file inputs, and
-        fort_cal - for running legacy fortran code
-        or it can be subclassed directly for processing in a purely pythonic way.
+ppodd.core includes all the base classes for dealing with timed aircraft data
         
     
+    
+            
 
 @author: Dave Tiddeman
 '''
 import time
 import numpy as np
 from scipy.interpolate import interp1d
+import fnmatch
+import os
+import zipfile
+import ppodd
+
+
+
 try:
     from collections import OrderedDict
 except ImportError:
@@ -28,23 +26,47 @@ except ImportError:
 
 class constants_parameter:
     """ The class for describing constants """
-    def __init__(self,name,values):
+    def __init__(self,name,values,paratype='Constants'):
         self.name=name
         self.data=values
-    def __getitem__(self,sl):
-        return self.data[sl]
+        self.type=paratype
+    def __getitem__(self,*args):
+        return self.data.__getitem__(*args)
+    def __getslice__(self,*args):
+        return self.data.__getslice__(*args)
+    #def __getitem__(self,sl):
+    #    return self.data[sl]
     def __str__(self):
-        return self.name+'(Constant)'
+        return self.name+'('+self.type+')'
     def __repr__(self):
-        return self.name
+        return repr(self.data)
 
-class parameter:
-    """ The class for all parameters """
+
+class file_parameter(constants_parameter):
+    """ The class for describing files """
+    def __init__(self,name,files):
+        constants_parameter.__init__(self,name,set(files),'Files')
+
+    def add_file(self,filename):
+        self.data.update(filename)
+
+    def del_file(self,filename):
+        self.data.remove(filename)
+
+    def __getslice__(self,*args):
+        ppodd.logger.debug("Can't slice set of files")
+        return self.data
+        
+    def __getitem__(self,*args):
+        ppodd.logger.debug("Can't index set of files")
+        return self.data
+
+class parameter(constants_parameter):
+    """ The class for all data holding parameters. Arrays of timed_data ( a data array linked to a timestamp object ) or flagged_data which also includes a flag, and meta-data"""
     def __init__(self,name,data=None,long_name='',
                   standard_name='',units='',
                   frequency=1,number=0):
-        self.name=name
-        self.data=data
+        constants_parameter.__init__(self,name,data,'Data')
         if(long_name):
             self.long_name=long_name
         else:
@@ -53,14 +75,8 @@ class parameter:
         self.units=units
         self.frequency=frequency
         self.number=number
-    def __repr__(self):
-        return self.name
     def __str__(self):
         return self.long_name+'('+self.units+')'
-    def __getitem__(self,*args):
-        return self.data.__getitem__(*args)
-    def __getslice__(self,*args):
-        return self.data.__getslice__(*args)
     def __getatts__(self):
         ans=dict(vars(self))
         try:
@@ -75,98 +91,153 @@ class parameter:
         return getattr(self.data,name)
     
 class decades_dataset(OrderedDict):
-    """ A dataset made up of a dictionary of parameters, and information about files etc """
+    """An ordered dictionary of data, constants, attribute or file parameters
+        and a dictionary of processing modules
+    """
     def __init__(self,*args,**kwargs):
-        self.files=[]
-        self.atts={}
         self.history=''
-        self.atts['conventions']='CF-1.0'
-        self.atts['source']='FAAM BAe-146 Aircraft Data'
-        self.atts['references']='http://www.faam.ac.uk'
-        self.atts['institution']='FAAM'
-        self.atts['format_version']='1.0'
-        self.atts['revision']=0
-        self.usedmods=[]
         self.modules=OrderedDict()
-        self.mods=[]
-        self.nomods=set()
         self.outparas=None
-        self.start=None
-        self.end=None
-        self.notlist=[]
-        self.starttime=None
-        self.endtime=None
         self.filetypes={}
         self.nocals=()
         """ Import all the calibration modules
         The names are listed in calnames
         """
-        #self.calnames=[]
-        """
-        for m in self.getmodules():
-            exec 'from %s import %s' % (m,m)
-            if self.is_calmodule(eval('%s' % m)):
-                exec 'self.modules["%s"]=%s(self)' % (m[2:].upper(),m)"""
-        import ppodd.pod
-        self.modules=ppodd.pod.get_ps(self)
-        for m in self.modules.values():
-            try:
-                self.filetypes[m.filetype]=m
-            except AttributeError:
-                pass
+        self.getmods()
         from ppodd.pod.write_nc import write_nc
         self.write_nc=write_nc(self)
         OrderedDict.__init__(self,*args,**kwargs)
+        self.add_para('Attribute','conventions','CF-1.0')
+        self.add_para('Attribute','source','FAAM BAe-146 Aircraft Data')
+        self.add_para('Attribute','references','http://www.faam.ac.uk')
+        self.add_para('Attribute','institution','FAAM')
+        self.add_para('Attribute','format_version','1.0')
+        self.add_para('Attribute','revision',0)
+        
+    def add_para(self,paratype,name,*args,**kwargs):
+        if(paratype=='Data'):
+            self[name]=parameter(name,*args,**kwargs)
+        elif(paratype=='Files'):
+            if(name in self):
+                self[name].add_file(args)
+            else:
+                self[name]=file_parameter(name,args)
+        else:
+            self[name]=constants_parameter(name,*args,paratype=paratype)
+        
 
-    def getmodules(self):
-        """ Gets a list of all the c_*.py files in this folder """
-        import os.path
-        import fnmatch
-        import sys
-        ldir=sorted(os.listdir(os.path.dirname(__file__)))
-        for fil in ldir:
-            if fnmatch.fnmatch(fil,'c_*.py'):
-                yield (os.path.basename(fil))[:-3]
+    def getfiles(self):
+        files=[]
+        for ft in self.filetypes:
+            if(ft in self):
+                for fn in self[ft].data:
+                    files.append((fn,ft))
+        return files
 
-    def is_calmodule(self,mod):
-        """ Checks whether it is a calibration module, by making sure it has a 'process' member """
-        import inspect
-        ans=False
-        if inspect.isclass(mod):
-            if issubclass(mod,cal_base):
-                for n,typ in inspect.getmembers(mod):
-                    if n=='process':
-                        ans=True
+    def clearfiles(self):
+        for f in self.filetypes:
+            if(f in self):
+                del self[f]
+
+    def parse_filenames(self,files=None,**kwargs):
+        from ppodd.util import fltno_date
+        if(files):
+            fs=files
+        else:
+            fs=self.getfiles()
+        files=[]
+        for fi in fs:
+            df=self.DecadesFile(*fi)
+            files.append(df.filename)
+            if(df.filetype=='ZIP'):
+                if(os.path.isfile(df.filename)):
+                    z=zipfile.ZipFile(df.filename)
+                    files+=z.namelist()
+                    z.close()
+            elif(os.path.isdir(df.filename)):
+                files+=os.listdir(df.filename)
+            
+        return fltno_date(files,**kwargs)
+
+    def DecadesFile(self,*args,**kwargs):
+        return decades_dataset.decades_file(self,*args,**kwargs)
+        
+
+    class decades_file(object):
+        def __init__(self,dataset,filename,filetype=None):
+            if(not filetype):
+                if(':' in filename):
+                    filename,filetype=filename.split(':')
+                else:
+                    filetype=dataset.guesstype(filename)
+            self.filetypes=dataset.filetypes
+            self.filetype=filetype
+            self.filename=filename
+            
+        def __getfilename__(self):
+            return self.filetypes[self.filetype].fixfilename(self.__file__)
+
+        def __setfilename__(self,val):
+            self.__file__=val
+        
+        filename=property(__getfilename__,__setfilename__)
+        
+        def astuple(self):
+            return (self.filename,self.filetype)    
+
+    def guesstype(self,filen):
+        ans='FOLDER'
+        for n,o in self.filetypes.items():
+            if(o.filetest(filen)):
+                ans=n
         return ans
 
 
+    def getmods(self,classes=None):
+        if(not classes):
+            import ppodd.pod
+            classes=ppodd.pod.modules
+        for m in classes:
+            self.modules[m]=classes[m](self)
+
+    def clearmods(self):
+        for m in self.modules.values():
+            m.__init__(self)
+
+    def clear(self,files=False):
+        for p in self:
+            if self[p].type !='Files' or files:
+                del self[p]
+
 
     def __getatts__(self):
-        ans=self.atts
+        """ Get the attributes as if a NetCDF """
+        ans={}
+        for n in self:
+            if self[n].type=='Attribute' or self[n].type=='Constants':
+                ans[n]=self[n].data
         ans['history']=self.history
+        ans['processing_version']=ppodd.version
+        ans['files']=''
+        for f,t in self.getfiles():
+            ans['files']+=os.path.basename(f)+':'+t+'\n'
         try:
-            ans['files']=''
-            for f,t in self.files:
-                #ans['files']+=f+':'+self.files[f]+'\n'
-                ans['files']+=f+':'+t+'\n'
+            dt=time.gmtime(date2time(self['DATE'][:]))
+            ans['Title']='Data from %s on %s' % (self['FLIGHT'][:],time.strftime('%d-%b-%Y',dt))
         except KeyError:
             pass
-        if 'Title' not in ans:
-            try:
-                dt=time.gmtime(date2time(self['DATE'][:]))
-                ans['Title']='Data from %s on %s' % (self['FLIGHT'][:],time.strftime('%d-%b-%Y',dt))
-            except KeyError:
-                pass
         return ans
 
     attributes=property(__getatts__) 
              
-    def add_file(self,filename,filetype):
+
+    def add_file(self,filename,filetype=None):
         """ Add a file to the dataset - the filetype tells it how to read in but doesnt do the reading """
-        if(filetype in self.filetypes):
-            self.files.append((filename,filetype))
+        df=self.DecadesFile(filename,filetype)
+        if(df.filetype in self.filetypes):
+            self.add_para('Files',df.filetype,df.filename)
         else:
-            raise ValueError('Unknown Filetype %s' % filetype)
+            raise ValueError('No known reader for filetype %s' % df.filetype)
 
     def matchtimes(self,input_names,paras=None,notparas=None):
         """ Finding matching times for a list of inputs """  
@@ -179,7 +250,6 @@ class decades_dataset(OrderedDict):
             try:
                 frqin=p.frequency
                 paras.append(p)
-                print p,len(paras),frqin
                 if paras[-1].data is not None:
                     if(len(paras)==1):
                         match=paras[0].data.times
@@ -193,76 +263,99 @@ class decades_dataset(OrderedDict):
         return match
 
     def __setnocals__(self,x):
-        self.__nocals__=set(x)
+        for m in self.modules:
+            if(m in x):
+                self.modules[m].runstate='ignore'
+            else:
+                self.modules[m].runstate='ready'
+        for y in x:
+            if y not in self.modules:
+                ppodd.logger.warning('%s module not in dataset' % y)
+
         
     def __getnocals__(self):
-        return self.__nocals__
+        nocals=[]
+        for m in self.modules:
+            if self.modules[m].runstate=='ignore':
+                nocals.append(m)
+        return nocals
         
     nocals=property(__getnocals__,__setnocals__)
+
+    def __setcals__(self,x):
+        for m in self.modules:
+            if(m in x):
+                self.modules[m].runstate='ready'
+            else:
+                self.modules[m].runstate='ignore'
+        for y in x:
+            if y not in self.modules:
+                ppodd.logger.warning('%s module not in dataset' % y)
+
+        
+    def __getcals__(self):
+        cals=[]
+        for m in self.modules:
+            if self.modules[m].runstate!='ignore':
+                cals.append(m)
+        return cals
+        
+    cals=property(__getcals__,__setcals__)
+    
+    def getdata(self,*args):
+        if(not args):
+            self.process()
+            return self
+        d={}
+        for p in args:
+            if(p in self):
+                d[p]=self[p]
+            else:
+                for m in self.modules:
+                    if(p in self.modules[m].getoutputnames()):
+                        self.modules[m].run()
+            if(p in self):
+                d[p]=self[p]
+            else:
+                runone=True
+                while(runone):
+                    runone=False
+                    for m in self.modules:
+                        if(len(self.modules[m].outputs)==0 and self.modules[m].runstate=='ready'):
+                            self.modules[m].run()
+                            if(self.modules[m].runstate=='success'):
+                                runone=True
+                        if(p in self):
+                            d[p]=self[p]
+                            runone=False
+                            break
+                if(p not in self):
+                    pass
+        return d
+
+
  
     def process(self):
         """ Sorts calibrate modules - so they are run in order of availability of their inputs 
         and do the processing """
-        self.starttime=self.start
-        self.endtime=self.end
-        cals=[]
-        if(not(self.mods)):
-            calmods=self.modules.keys()
-        else:
-            calmods=self.mods
-        for c in calmods:
-            if(c in self.modules.keys()):
-                cals.append(self.modules[c])
-            else:
-                print 'Warning:Module C_%s not available' % c
-        notadded=cals            
-        self.usedmods=[]
-        self.notlist=[]
         finished=False
-        self.nocals=self.nomods
-        while(len(notadded)>0):
-            """ Keep going while more modules to add """
-            for cal in notadded:
+        while(not finished):
+            """ Keep going while more modules to run """
+            finished=True
+            for cal in self.modules.values():
                 """ For each unrun module """
-                paras=self.keys()
-                if (self.outparas):
+                if(cal.runstate=='ready'):
+                    cal.run()
+                    if cal.runstate=='success':
+                        finished=False
+                if (self.outparas and not finished):
                     """ If all output parameters are present then we have finished """
                     finished=True
                     for i in self.outparas:
-                        if(i not in paras):
+                        if(i not in self):
                             finished=False
-                ok=False
-                if(not(finished)):
-                    """ Load the modules """
-                    c=cal
-                    inp=c.input_names
-                    ok=True
-                    """ Run the module if not listed in self.nocals and have all the inputs """
-                    if c.name in self.nocals:
-                        ok=False
-                    for i in inp:
-                        if(i not in paras):
-                            ok=False                
-                if(ok):
-                    """ Run the module... Only run WRITE_NC if write is True """
-                    print 'PROCESSING .. '+c.name
-                    #if ((c.name=='WRITE_NC') & write) or (c.name!='WRITE_NC'):                        
-                    self.usedmods.append(c)
-                    c.run()
-                else:
-                    """ Not running the module this time add to dataset.notlist """
-                    self.notlist.append(cal)             
-            if((sorted(self.notlist)==sorted(notadded)) or finished):    # probably need some sort of loop
-                """ If we have failed to run anything in the last loop, or we know we have finished """
-                for cal in self.notlist:
-                    c=cal
-                    """  If we haven't run the module add it to the nocals list """
-                    self.nocals.update([c.name])
-                break # Break out of the loop as we have finished
-            notadded=self.notlist
-            self.notlist=[]
-        print "*** Finished Processing ***"
-        return self.usedmods
+        ppodd.logger.info("*** Finished Processing ***")
+        self.clearmods()
 
 
 
@@ -280,7 +373,10 @@ def date2time(fromdate):
     return fm
 
 class timestamp(np.ndarray):
-    """ A class for time stamping data """
+    """ A class for time stamping data     --
+    
+    Could at some time be replaced by something from pandas which handles timestamps
+    """
     def __new__(cls,times=None,fromdate=None,dtype='f8'):
         """Create new timestamp"""
         if(isinstance(times,tuple)):
@@ -360,6 +456,9 @@ class timed_data(np.ndarray):
     
     fortran routines don't like missing data
     
+    --
+    
+    Could at some time be replaced by something from pandas which handles timestamps
     
     """
     def __new__(cls,data,times):
@@ -519,14 +618,211 @@ class flagged_data(timed_data):
                                 fill_value=fill_value,returntimes=returntimes)
         return ans
 
-    def get1Hz(self):
+    def get1Hz(self,angle=False):
         if(self.frequency>1):
             flags=np.amin(self.flag,axis=1)
             times=self.times
             weight=np.atleast_2d(flags).transpose()==self.flag
-            data=np.average(self,axis=1,weights=weight)
+            if(angle):
+                x=np.sum(np.cos(np.radians(self))*weight,axis=1)
+                y=np.sum(np.sin(np.radians(self))*weight,axis=1)
+                data=np.degrees(np.arctan2(y,x)) % 360
+            else:
+                data=np.average(self,axis=1,weights=weight)
             return flagged_data(data,times,flags)
         else:
             return self
 
+class cal_base(object):
+    """ Base for all calibration modules.  Must be subclassed to do any processing,
+        either directly or via fort_cal or file_read.
+"""
+    def __init__(self,dataset):
+        """ Sub class should initialise the version inputs outputs and name as a minimum """
+        self.dataset=dataset
+        self.version=1.0
+        self.runstate='ready'
+        self.history=''
+        self.name=self.__class__.__name__.upper()
+
+    def getinput(self):
+        if(self.input_names):
+            self.inputs=self.dataset.getdata(*self.input_names)
+        else:
+            self.inputs={}
+        return (len(self.inputs)==len(self.input_names))
+
+    def getoutputnames(self):
+        return [o.name for o in self.outputs]      
+
+    def run(self):
+        if(self.runstate=='ready'):
+            self.runstate='running'
+            if(self.getinput()):
+                self.process()
+                for o in self.outputs:
+                    self.dataset[o.name]=o
+                self.runstate='success'
+                self.addhistory()
+            else:
+                self.runstate='fail'
+
+    def process(self):
+        pass
+                
+    def addhistory(self):
+        if(len(self.outputs)>0):
+            self.dataset.history+='\n%s\n  Inputs=%s ,\n  Outputs=%s \n\n' % (self.name,str(self.input_names),str(self.outputs))
+            self.history+='INPUTS\n'
+            for i in self.input_names:
+                try:
+                    f=self.dataset[i].frequency
+                    self.history+='  Parameter %s\n' % i
+                except:
+                    self.history+='  Constants %s=' % i
+                    for c in self.dataset[i].data:
+                        try:
+                            self.history+='%e,' % c
+                        except TypeError:
+                            self.history+='%s,' % str(c)
+                    self.history+='\n'
+            self.history+='\n\nOUTPUTS\n'
+            for o in self.outputs:
+                self.history+=repr(o)+','+str(o)+'\n'
+                
+                
+    def __repr__(self):
+        return self.name
+
+
+
+class file_read(cal_base):
+    """ Base class for file reading modules """
+    def __init__(self,dataset):
+        cal_base.__init__(self,dataset)
+        self.patterns=getattr(self,'patterns',('.*','*'))
+        self.dataset.filetypes[self.input_names[0]]=self
+            
+    def getinput(self):
+        ans=cal_base.getinput(self)
+        try:
+            self.parse_filenames(self.inputs[self.input_names[0]].data)
+        except (KeyError,IndexError):
+            pass
+        return ans
+
+    def filetest(self,filen):
+        ans=False
+        for patt in self.patterns:
+            if fnmatch.fnmatch(os.path.basename(filen),patt):
+                ans=True
+        return ans
+        
+    def parse_filenames(self,files):
+        from ppodd.util import fltno_date
+        import dateutil.parser
+        fltno,date=fltno_date(files)
+        if('FLIGHT' not in self.dataset and fltno!='????'):
+            self.dataset['FLIGHT']=constants_parameter('FLIGHT',fltno)
+        if('DATE' not in self.dataset and date!='????????'):
+            dt=dateutil.parser.parse(date)
+            self.dataset['DATE']=constants_parameter('DATE',[dt.day,dt.month,dt.year])
+ 
+    
+    def process(self):
+        for filename in self.inputs[self.input_names[0]].data:
+            try:
+                self.readfile(filename)
+            except IOError as IOE:
+                ppodd.logger.warning(IOE)  
+
+    def fixfilename(self,filename):
+        return filename
+
+    def __repr__(self):        
+        return self.name+' reads '+self.input_names[0]+' files'
+                
+        
+             
+class fort_cal(cal_base):
+    """ Base class for calibration modules that call legacy fortran """
+    def __init__(self,dataset):
+        import os.path
+        cal_base.__init__(self,dataset)
+        self.pout=np.empty(len(self.outputs),dtype=np.int32,order='F')
+        self.frqout=np.empty(len(self.outputs),dtype=np.int32,order='F')
+        for i,p in enumerate(self.outputs):
+            try:
+                self.frqout[i]=p.frequency
+            except AttributeError:
+                self.frqout[i]=1
+            self.pout[i]=p.number
+        self.noutall=np.sum(self.frqout)
+        self.fortname=getattr(self,'fortname',self.name) # Use the name as fortran module name unless explicitly set
+    
+    
+    def process(self):
+        """ Get the input data into an array matching the times..
+        All input parameters must have a frequency and number set or will not be accepted as inputs
+        Run the fortran
+        Extract ouput into timestamped parameters     """
+        from pod.c_runmod import c_runmod as run_old_module
+        frqin=[]
+        pin=[]
+        inputs=[]
+        constants=[]
+        const=[]
+        match=self.dataset.matchtimes(self.input_names,paras=inputs,notparas=constants)
+        for c in constants:
+            const.extend(c[:])
+        for p in inputs:
+            frqin.append(p.frequency)
+            pin.append(p.number)
+        constants=np.array(const,dtype=np.float32,order='F')    # Constants array
+        frqin=np.array(frqin,dtype=np.int32,order='F')           # Input frequencies
+        pin=np.array(pin,dtype=np.int32,order='F')               # Input parameter numbers
+        length=len(match)
+        if(length>0):
+            """If there are data with any matching times"""
+            din=np.empty((length,np.sum(frqin)),dtype=np.float32,order='F') # Input data
+            flagin=np.zeros((length,np.sum(frqin)),dtype=np.int8,order='F') # Input flags
+            ofs=0
+            # Arrange inputs
+            for i,p in enumerate(inputs):
+                if(frqin[i]==1):
+                    s=ofs
+                else:
+                    s=slice(ofs,ofs+frqin[i])    
+                try:    
+                    din[:,s]=p.data.ismatch(match).raw_data
+                except ValueError:
+                    ppodd.logger.debug('S=',s)
+                    ppodd.logger.debug( 'Data',p.data.shape)
+                    ppodd.logger.debug( 'Match',match.shape)
+                    ppodd.logger.debug( p.data.ismatch(match).raw_data.shape)
+                    ppodd.logger.debug( din[:,s].shape)
+                    raise ValueError
+                try:
+                    flagin[:,s]=p.data.flag.ismatch(match).raw_data 
+                except:
+                    pass
+                ofs+=frqin[i]
+            ppodd.logger.info('Calling fortran %s' % self.fortname)
+            dout,flagout=run_old_module(self.fortname,constants,
+                                        pin,frqin,din,flagin,
+                                        self.pout,self.frqout,self.noutall)
+
+            ofs=0
+            for i,p in enumerate(self.outputs):
+                frq=self.frqout[i]
+                if(frq==1):
+                    s=ofs
+                else:
+                    s=slice(ofs,ofs+frq)
+                p.data=flagged_data(dout[:,s],match,flagout[:,s])
+                ofs+=frq
+        cal_base.process(self)    
+
+    def __repr__(self):        
+        return self.name+' runs fortran '+self.fortname
 

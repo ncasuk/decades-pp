@@ -1,17 +1,19 @@
-from ppodd.pod import *
+#from ppodd.pod import *
 from ppodd.core import *
 import numpy as np
 from netCDF4 import Dataset
 from os.path import getsize
-class readnc(file_reader):
+class readnc(file_read):
+    """
+Routine for reading in NETCDF data
+"""
     def __init__(self,dataset):
         #self.name='READNC'
-        self.input_names=[]
-        self.filetype='NC'
+        self.input_names=['NETCDF']
         self.outputs=[]
         self.data=None
-        file_reader.__init__(self,dataset)
         self.patterns=('*.nc',)
+        file_read.__init__(self,dataset)
    
     def readfile(self,filename):
         self.outputs=[]
