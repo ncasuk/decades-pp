@@ -21,7 +21,7 @@ setup(name = "ppodd",
     packages = ['ppodd','ppodd.gui','ppodd.pod'],
     package_data = {'ppodd.pod' : ["c_runmod.so","fortran_modules/*.for","fortran_modules/makefile"] },
     include_package_data=True,
-    scripts = ["processdd","PPODD"],
+    scripts = ["PPODD"],
     long_description = """Post-processing of decades data.""", 
     cmdclass={'build': prebuild}   
 ) 

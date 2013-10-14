@@ -142,19 +142,18 @@ Help:
             self.data.files=self.fileview.files  
         elif(self.viewstate=='modules'):
             self.modview.forget()
-            self.mods=self.modview.getselected()
-            del self.modview            
+            self.mods=self.modview.getselected()      
         elif(self.viewstate=='archive'):
             self.archiveview.forget()  
         if(viewstate=='paras'):
             selectable=False
-            if(not paras):
+            if(paras==None):
                 paras=[self.data[p] for p in self.data]
                 selectable=True
             else:
                 viewstate='specialparas'
             self.paraview=viewparas(self.viewpane,paras,selectable=selectable,bg=self.cget('bg'))
-            if(self.paras!=None):
+            if self.paras!=None and paras==None:
                 self.paraview.setselected(self.paras)
             self.paraview.pack()
         elif(viewstate=='files'):

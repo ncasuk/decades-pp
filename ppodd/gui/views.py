@@ -20,10 +20,14 @@ class onepara(Tk.Frame):
         Tk.Frame.__init__(self,parent,bg=bg)
         self.checked=Tk.BooleanVar()
         self.para=para
+        try:
+            name=para.name
+        except AttributeError:
+            name=str(para)
         if(selectable):
-            self.label=Tk.Checkbutton(self,text=para.name,var=self.checked,bg=bg)
+            self.label=Tk.Checkbutton(self,text=name,var=self.checked,bg=bg)
         else:
-            self.label=Tk.Label(self,text=para.name,bg=bg)
+            self.label=Tk.Label(self,text=name,bg=bg)
         self.label.pack(side=Tk.LEFT,expand=1)
         self.showbutton=Tk.Button(self,text='Show',command=self.show,bg=bg)
         self.showbutton.pack(side=Tk.LEFT)
@@ -86,7 +90,7 @@ class onemodule(Tk.Frame):
         self.inputs.pack(side=Tk.LEFT)
         self.label.pack(side=Tk.LEFT,expand=1)
         self.outputs.pack(side=Tk.LEFT)
-        self.outtooltip=ToolTip(self.outputs,msg=str(module.outputs))
+        self.outtooltip=ToolTip(self.outputs,msg=str(module.getoutputnames()))
         self.tooltip=ToolTip(self.label,msg=module.__doc__)
         self.pack(fill=Tk.X,expand=1)
 

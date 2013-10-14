@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ppodd.gui.main import *
+import ppodd
 from ppodd.core import decades_dataset
 from optparse import OptionParser
 
@@ -11,19 +11,22 @@ def split_(option, opt, value, parser):
     """ Splits up comma separated input """
     setattr(parser.values, option.dest, value.split(','))
 
-def times(option, opt, value, parser):
-    """ Converts input times to seconds past midnight """
-    t=value.split(':')
-    t=int(t[0])*3600+int(t[1])*60+int(t[2])
-    setattr(parser.values, option.dest, t)
+def split_types(option, opt, value, parser): 
+    """ Splits up comma separated input """
+    writetypes=['1hz','full']
+    ans=set()
+    for v in value.split(','):
+        if(v.lower() in writetypes):
+            ans.update([v.lower()])
+    setattr(parser.values, option.dest, ans)
 
-if __name__=="__main__":   
-    usage="usage: %prog [options] constants_file input_file1:type1 input_file2:type2 .. input_filen:typen [-o output_file[:type]]"
+if __name__=="__main__":    
+    usage="usage: %prog [options] input_file1[:type1] input_file2[:type2] .. input_filen[:typen]"
     parser=OptionParser(usage=usage)
+    parser.add_option("-w","--write",dest="write",action='callback',callback=split_types,
+           help="Output file types - if not writing open GUI",metavar="full, and or 1hz",default=None,type='string')
     parser.add_option("-o","--output",dest="output",
-           help="Output file or folder",metavar="OUTPUT",default="")
-    parser.add_option("-r","--revision",dest="revision",
-           help="Output revision number",metavar="N",default=0,type='int')
+           help="Output file or folder - if not writing open GUI",metavar="output",default=None)
     parser.add_option("-p","--parameters",dest="paras",
            help="Parameters to output ",metavar="p1,p2...pn or all",default=None,
            action='callback',callback=split_,type='string')
@@ -34,25 +37,52 @@ if __name__=="__main__":
            help="Don't run these modules ",
            metavar="mod1,mod2..modn",default=[],
            action='callback',callback=split_up,type='string')
+    parser.add_option("-l","--logfile",dest="logfile",
+           help="Log file",metavar="filename",default=None,type='string')
+    parser.add_option("--nctype",dest="nctype",
+           help="NetCDF type of output",metavar="NCTYPE",default="NETCDF3",type='string')
+
     (options,args)=parser.parse_args()
-    foundconst=None
     d=decades_dataset()
-    for i in range(len(args)):
-        """ Split arguments into files and types 
-        default type is CONST (flight constants) for first argument
-        CRIO for others or CRIOS if a folder """
-        opt=args[i].split(':')
-        df=d.DecadesFile(*opt)
-        d.add_file(*df.astuple())
-    if(options.output!=""):
-        opt=options.output.split(':')
-        if (len(opt)<2):
-            opt.append('OUTPUT')
-        else:
-            opt[1]='OUTPUT_'+opt[1]
-        d.add_file(*opt)
-    d.revision=options.revision
-    colour='honeydew'
-    m=main(data=d,bg=colour)
-    Tk.mainloop()
+    if(options.logfile):
+        ppodd.logfile(options.logfile)
+        print "log to ",options.logfile
+    if(args):
+        for fi in args:
+            d.add_file(fi)
+            print "add_file",fi
+    if(options.output):
+        if(not options.write):
+            options.write=set(['full'])
+    if(options.write and args):
+        if(not(options.logfile)):
+            ppodd.logfile()
+            print "log to default"
+        if(options.calmods):
+            print "Use these mods ",options.calmods
+            d.cals=options.calmods
+        if(options.nocals):
+            print "Dont use these mods ",options.nocals
+            d.nocals=options.nocals
+        if(options.paras!=['all']):
+            print "Outparas",options.paras
+            d.outparas=options.paras
+        d.process()
+        print "process"
+        if 'full' in options.write:
+            d.write_nc.process(options.output,options.nctype,paras=options.paras)
+            print "write full ",options.output,options.nctype
+        if '1hz' in options.write:
+            if(options.output):
+                if ('full' in options.write) and ('.' in options.output):
+                    options.output=options.output[:options.output.index('.')]+'_1hz.nc'
+            d.write_nc.process(options.output,options.nctype,paras=options.paras,onehz=True)
+            print "write 1 Hz",options.output,options.nctype
+    else:
+        import Tkinter as Tk
+        from ppodd.gui.main import main
+        print "GUI"
+        colour='honeydew'
+        m=main(data=d,bg=colour)
+        Tk.mainloop()
 

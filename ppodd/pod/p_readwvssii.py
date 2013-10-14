@@ -5,7 +5,6 @@ import csv
 import os.path
 from os import listdir
 import struct
-from resample import createtimes
 class readwvssii(file_read):
     """
 Routine for reading in WVSSII data

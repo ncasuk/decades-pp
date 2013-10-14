@@ -1,4 +1,3 @@
-#from ppodd.pod import *
 from ppodd.core import *
 class ozone1(fort_cal):
     """

@@ -8,7 +8,6 @@ class readnc(file_read):
 Routine for reading in NETCDF data
 """
     def __init__(self,dataset):
-        #self.name='READNC'
         self.input_names=['NETCDF']
         self.outputs=[]
         self.data=None
@@ -19,6 +18,9 @@ Routine for reading in NETCDF data
         self.outputs=[]
         self.file=Dataset(filename)
         self.var=self.file.variables
+        for a in self.file.ncattrs():
+            self.outputs.append(constants_parameter(a,getattr(self.file,a),'Attribute'))
+        natt=len(self.outputs)
         for v in self.var:
             newpar=True
             if v.endswith('_FLAG'):
@@ -33,7 +35,7 @@ Routine for reading in NETCDF data
                     if(n!='_FillValue'):
                         setattr(p,n,self.var[v].getncattr(n))
                 self.outputs.append(p)
-        for o in self.outputs:
+        for o in self.outputs[natt:]:
             data=np.squeeze(self.var[o.name][:])
             try:
                 m=data.mask
@@ -52,7 +54,6 @@ Routine for reading in NETCDF data
                 o.data=flagged_data(data,self.time,flag)
             else:
                 o.data=timed_data(data,self.time)
-    
 
         
 

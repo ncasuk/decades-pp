@@ -99,7 +99,6 @@ class decades_dataset(OrderedDict):
         self.modules=OrderedDict()
         self.outparas=None
         self.filetypes={}
-        self.nocals=()
         """ Import all the calibration modules
         The names are listed in calnames
         """
@@ -202,7 +201,8 @@ class decades_dataset(OrderedDict):
 
     def clearmods(self):
         for m in self.modules.values():
-            m.__init__(self)
+            if(m.runstate!='ignore'):
+                m.__init__(self)
 
     def clear(self,files=False):
         for p in self:
@@ -505,6 +505,18 @@ class timed_data(np.ndarray):
         if(type(result)==type(self)):
             result.times=self.times[tindex]
         return result
+    def __setitem__(self,index,value):
+        """ 
+        """
+        np.ndarray.__setitem__(self,index,value)
+        try:
+            np.ndarray.__setitem__(self.times,index,value.times)
+        except AttributeError:
+            pass
+    def timesort(self):
+        i1=np.arange(self.shape[0])
+        i2=np.argsort(self.times)
+        self[i1]=self[i2]            
     def gettimes2d(self):
         if(self.frequency==None):
             return self.times
@@ -573,12 +585,25 @@ class timed_data(np.ndarray):
             d=(d,times)
         return d
         
+    def get1Hz(self,angle=False):
+        if(self.frequency>1):
+            times=self.times
+            if(angle):
+                x=np.sum(np.cos(np.radians(self)),axis=1)
+                y=np.sum(np.sin(np.radians(self)),axis=1)
+                data=np.degrees(np.arctan2(y,x)) % 360
+            else:
+                data=np.average(self,axis=1)
+            return timed_data(data,times)
+        else:
+            return self
+        
 
 class flagged_data(timed_data):
     """ Timed data with associated flag information """
     def __new__(cls,data,timestamp,flags,maxflag=3):
         obj = timed_data.__new__(cls,data,timestamp)
-        obj.flag=flags # timed_data(flags,timestamp)  
+        obj.flag=np.asarray(flags) # timed_data(flags,timestamp)  
         obj.maxflag=maxflag
         return obj
     def __array_finalize__(self, obj):
@@ -605,6 +630,15 @@ class flagged_data(timed_data):
         if(type(result)==type(self)):
             result.flag=self.flag[index]
         return result
+    def __setitem__(self,index,value):
+        """ 
+        """
+        timed_data.__setitem__(self,index,value)
+        try:
+            np.ndarray.__setitem__(self.flag,index,value.flag)
+        except AttributeError:
+            pass
+
     def asmasked(self,maxflag=None,start=None,end=None,fill_value=None,returntimes=False):
         if maxflag is None:
             maxflag=self.maxflag
@@ -659,10 +693,10 @@ class cal_base(object):
         if(self.runstate=='ready'):
             self.runstate='running'
             if(self.getinput()):
+                self.runstate='success' # can be altered by process if problems..
                 self.process()
                 for o in self.outputs:
                     self.dataset[o.name]=o
-                self.runstate='success'
                 self.addhistory()
             else:
                 self.runstate='fail'
