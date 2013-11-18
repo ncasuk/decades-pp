@@ -133,7 +133,7 @@ FORTRAN routine C_SOLS
 """
     def __init__(self,dataset):
         self.input_names=['CALUP1S', 'CALUP2S', 'CALUIRS', 'CALLP1S', 'CALLP2S', 'CALLIRS', 
-                          'LOWBBR_utc_time', 
+                          'SECS', 
                           'UPPBBR_radiometer_1_sig', 'UPPBBR_radiometer_2_sig', 'UPPBBR_radiometer_3_sig', 
                           'UPPBBR_radiometer_1_zero', 'UPPBBR_radiometer_2_zero', 'UPPBBR_radiometer_3_zero', 
                           'UPPBBR_radiometer_1_temp', 'UPPBBR_radiometer_2_temp', 'UPPBBR_radiometer_3_temp',

@@ -58,7 +58,7 @@ DEC$ IDENT 'V1.02'
 
 """
     def __init__(self,dataset):
-        self.input_names=['GELIMS', 'CALGE', 'CORCON_utc_time','CORCON_ge_dew','CORCON_ge_cont']
+        self.input_names=['GELIMS', 'CALGE', 'SECS','CORCON_ge_dew','CORCON_ge_cont']
         self.outputs=[parameter('TDEW_GE',units='degK',frequency=4,number=529,long_name='Dew point from the General Eastern instrument.')]
         #self.name='RIO_GENEAS'
         self.fortname='GENEAS'

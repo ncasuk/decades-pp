@@ -21,7 +21,7 @@ def split_types(option, opt, value, parser):
     setattr(parser.values, option.dest, ans)
 
 if __name__=="__main__":    
-    usage="usage: %prog [options] input_file1[:type1] input_file2[:type2] .. input_filen[:typen]"
+    usage="usage: %prog [options] [input_file1[:type1] input_file2[:type2] .. input_filen[:typen]]"
     parser=OptionParser(usage=usage)
     parser.add_option("-w","--write",dest="write",action='callback',callback=split_types,
            help="Output file types - if not writing open GUI",metavar="full, and or 1hz",default=None,type='string')

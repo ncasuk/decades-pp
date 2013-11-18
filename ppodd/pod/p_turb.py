@@ -3,7 +3,7 @@ from ppodd.core import *
 class turb(fort_cal):
     """
 FORTRAN routine C_TURB
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
          ROUTINE      C_TURB
 
          PURPOSE      To calibrate and apply designated correction factors to
@@ -113,13 +113,9 @@ FORTRAN routine C_TURB
            779  TASD  32Hz  ms-1
            780  TASW  32Hz  ms-1
            781  TPSP  32Hz  mb
- 
-         TURBULENCE PROBE CONSTANT KEYWORDS
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 """
+
     def __init__(self,dataset):
         self.input_names=['AOA_A0', 'AOA_A1', 'AOSS_B0', 'AOSS_B1', 'TOLER', 'TASCOR1', 'ALPH0', 'ALPH1', 'BET0', 'BET1', 'IAS_RVSM', 'TAT_DI_R', 'TAT_ND_R', 'PS_RVSM', 'Q_RVSM', 'PALT_RVS', 'P0_S10', 'PA_TURB', 'PB_TURB', 'TBPC', 'TBPD']
         self.outputs=[parameter('AOA',units='degree',frequency=32,number=548,long_name='Angle of attack from the turbulence probe (positive, flow upwards wrt a/c axes)')

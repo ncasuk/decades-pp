@@ -112,6 +112,9 @@ class decades_dataset(OrderedDict):
         self.add_para('Attribute','institution','FAAM')
         self.add_para('Attribute','format_version','1.0')
         self.add_para('Attribute','revision',0)
+        self.add_para('Data','SECS',long_name='Seconds past midnight',number=515,
+                                              units='s') # This is a place holder for a seconds past midnight value
+                                                         # which is actually the time of each timed parameter.
         
     def add_para(self,paratype,name,*args,**kwargs):
         if(paratype=='Data'):
@@ -126,6 +129,7 @@ class decades_dataset(OrderedDict):
         
 
     def getfiles(self):
+        """Get all the specified files as a list of tuples"""
         files=[]
         for ft in self.filetypes:
             if(ft in self):
@@ -134,11 +138,13 @@ class decades_dataset(OrderedDict):
         return files
 
     def clearfiles(self):
+        """Remove any input file specifications"""
         for f in self.filetypes:
             if(f in self):
                 del self[f]
 
     def parse_filenames(self,files=None,**kwargs):
+        """Parse filenames in list for flight number and date"""
         from ppodd.util import fltno_date
         if(files):
             fs=files
@@ -159,10 +165,12 @@ class decades_dataset(OrderedDict):
         return fltno_date(files,**kwargs)
 
     def DecadesFile(self,*args,**kwargs):
+        """A decades file object for setting file types etc"""
         return decades_dataset.decades_file(self,*args,**kwargs)
         
 
     class decades_file(object):
+        """A decades file class for setting file types etc"""
         def __init__(self,dataset,filename,filetype=None):
             if(not filetype):
                 if(':' in filename):
@@ -251,12 +259,13 @@ class decades_dataset(OrderedDict):
                 frqin=p.frequency
                 paras.append(p)
                 if paras[-1].data is not None:
-                    if(len(paras)==1):
-                        match=paras[0].data.times
-                    else:
+                    try:
                         match=paras[-1].data.matchtimes(match)
+                    except NameError:
+                        match=paras[-1].data.times
                 else:
-                    match=timestamp([])
+                    if(p.name!='SECS'):
+                        match=timestamp([])
             except AttributeError:
                 # If there is no frequency add to notparas list (probably constant) 
                 notparas.append(p)
@@ -274,6 +283,7 @@ class decades_dataset(OrderedDict):
 
         
     def __getnocals__(self):
+        """Which calibration modules to avoid"""
         nocals=[]
         for m in self.modules:
             if self.modules[m].runstate=='ignore':
@@ -294,6 +304,7 @@ class decades_dataset(OrderedDict):
 
         
     def __getcals__(self):
+        """Which calibration modules to use"""
         cals=[]
         for m in self.modules:
             if self.modules[m].runstate!='ignore':
@@ -741,6 +752,8 @@ class file_read(cal_base):
         ans=cal_base.getinput(self)
         try:
             self.parse_filenames(self.inputs[self.input_names[0]].data)
+            if(not ans):
+                ans=cal_base.getinput(self)
         except (KeyError,IndexError):
             pass
         return ans
@@ -827,8 +840,11 @@ class fort_cal(cal_base):
                     s=ofs
                 else:
                     s=slice(ofs,ofs+frqin[i])    
-                try:    
-                    din[:,s]=p.data.ismatch(match).raw_data
+                try:
+                    if(p.name=='SECS'):
+                        din[:,s]=match
+                    else:   
+                        din[:,s]=p.data.ismatch(match).raw_data
                 except ValueError:
                     ppodd.logger.debug('S=',s)
                     ppodd.logger.debug( 'Data',p.data.shape)

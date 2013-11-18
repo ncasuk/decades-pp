@@ -386,7 +386,7 @@ Routine for reading in M3 data
         file_read.__init__(self,dataset)
         
     def fixfilename(self,filename):
-        return filename[:filename.find('.dat')-5]
+        return filename[:filename.find('_raw')+4]
         
     def readfile(self,filename):
         hddr='_hddr.dat'

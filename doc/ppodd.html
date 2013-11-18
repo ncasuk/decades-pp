@@ -62,6 +62,11 @@
 <p>There is a programming interface, a command line (decades-pp), and a graphical user interface (PPODD).</p>
 <p>It is intended to be a flexible and modular system.</p>
 <p>&#64;author Dave Tiddeman</p>
+<dl class="function">
+<dt id="ppodd.__init__.logfile">
+<tt class="descclassname">ppodd.__init__.</tt><tt class="descname">logfile</tt><big>(</big><em>filename=None</em><big>)</big><a class="headerlink" href="#ppodd.__init__.logfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-ppodd.core">
 <span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-ppodd.core" title="Permalink to this headline">¶</a></h2>
@@ -122,7 +127,8 @@ and a dictionary of processing modules</p>
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.DecadesFile">
 <tt class="descname">DecadesFile</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.DecadesFile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A decades file object for setting file types etc</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.add_file">
@@ -144,7 +150,8 @@ and a dictionary of processing modules</p>
 <dl class="attribute">
 <dt id="ppodd.core.decades_dataset.cals">
 <tt class="descname">cals</tt><a class="headerlink" href="#ppodd.core.decades_dataset.cals" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Which calibration modules to use</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.clear">
@@ -154,7 +161,8 @@ and a dictionary of processing modules</p>
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.clearfiles">
 <tt class="descname">clearfiles</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.clearfiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Remove any input file specifications</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.clearmods">
@@ -165,6 +173,7 @@ and a dictionary of processing modules</p>
 <dt id="ppodd.core.decades_dataset.decades_file">
 <em class="property">class </em><tt class="descname">decades_file</tt><big>(</big><em>dataset</em>, <em>filename</em>, <em>filetype=None</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.decades_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A decades file class for setting file types etc</p>
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.decades_file.astuple">
 <tt class="descname">astuple</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.decades_file.astuple" title="Permalink to this definition">¶</a></dt>
@@ -177,6 +186,13 @@ and a dictionary of processing modules</p>
 
 </dd></dl>
 
+<dl class="attribute">
+<dt id="ppodd.core.decades_dataset.filetypes">
+<tt class="descclassname">decades_dataset.</tt><tt class="descname">filetypes</tt><em class="property"> = None</em><a class="headerlink" href="#ppodd.core.decades_dataset.filetypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import all the calibration modules
+The names are listed in calnames</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.getdata">
 <tt class="descclassname">decades_dataset.</tt><tt class="descname">getdata</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.getdata" title="Permalink to this definition">¶</a></dt>
@@ -185,7 +201,8 @@ and a dictionary of processing modules</p>
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.getfiles">
 <tt class="descclassname">decades_dataset.</tt><tt class="descname">getfiles</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.getfiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get all the specified files as a list of tuples</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.getmods">
@@ -206,14 +223,14 @@ and a dictionary of processing modules</p>
 <dl class="attribute">
 <dt id="ppodd.core.decades_dataset.nocals">
 <tt class="descclassname">decades_dataset.</tt><tt class="descname">nocals</tt><a class="headerlink" href="#ppodd.core.decades_dataset.nocals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Import all the calibration modules
-The names are listed in calnames</p>
+<dd><p>Which calibration modules to avoid</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.parse_filenames">
 <tt class="descclassname">decades_dataset.</tt><tt class="descname">parse_filenames</tt><big>(</big><em>files=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#ppodd.core.decades_dataset.parse_filenames" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse filenames in list for flight number and date</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="ppodd.core.decades_dataset.process">
@@ -349,6 +366,11 @@ put data onto a contiguous time frame / masked arrays</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="ppodd.core.timed_data.get1Hz">
+<tt class="descname">get1Hz</tt><big>(</big><em>angle=False</em><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.get1Hz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="ppodd.core.timed_data.gettimes2d">
 <tt class="descname">gettimes2d</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.gettimes2d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -386,6 +408,11 @@ put data onto a contiguous time frame / masked arrays</p>
 <dl class="attribute">
 <dt id="ppodd.core.timed_data.times2d">
 <tt class="descname">times2d</tt><a class="headerlink" href="#ppodd.core.timed_data.times2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.core.timed_data.timesort">
+<tt class="descname">timesort</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.core.timed_data.timesort" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">

@@ -1,7 +1,9 @@
 [Dolphin]
 AdditionalInfo=3
-Timestamp=2011,11,16,14,47,21
+SortOrder=1
+Sorting=2
+Timestamp=2013,11,11,9,59,12
 ViewMode=1
 
 [Settings]
-ShowDotFiles=true
+ShowDotFiles=false

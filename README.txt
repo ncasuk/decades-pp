@@ -20,7 +20,7 @@ make                                         # build fortran libraries
 Running from command line
 -------------------------
 
-processdd data/flight-cst_faam_r0_xxxxxxxx_bxxx.txt data/bxxx_raw:M3 -o data/core_faam_xxxxxxxx_v001_r0_bxxx.nc  # calibrate data
+PPODD -o data/core_faam_xxxxxxxx_v001_r0_bxxx.nc data/flight-cst_faam_r0_xxxxxxxx_bxxx.txt data/bxxx_raw:M3 -o data/core_faam_xxxxxxxx_v001_r0_bxxx.nc  # calibrate data
 
 or
 
