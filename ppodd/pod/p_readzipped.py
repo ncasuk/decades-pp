@@ -46,7 +46,7 @@ a temporary file and read in
                 fout.write(z.read(name)) 
                 fout.close()
             except IOError as ioe:
-                ppodd.logger.warning(ioe,'"'+name+'"')   
+                ppodd.logger.warning(str(ioe)+' "'+name+'"')   
         z.close()
         self.dataset.tempfolder=tempfolder
         readfolder.readfile(self,tempfolder)

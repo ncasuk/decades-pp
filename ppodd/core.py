@@ -105,7 +105,7 @@ class decades_dataset(OrderedDict):
         self.getmods()
         from ppodd.pod.write_nc import write_nc
         self.write_nc=write_nc(self)
-        OrderedDict.__init__(self,*args,**kwargs)
+        OrderedDict.__init__(self)
         self.add_para('Attribute','conventions','CF-1.0')
         self.add_para('Attribute','source','FAAM BAe-146 Aircraft Data')
         self.add_para('Attribute','references','http://www.faam.ac.uk')
@@ -115,6 +115,8 @@ class decades_dataset(OrderedDict):
         self.add_para('Data','SECS',long_name='Seconds past midnight',number=515,
                                               units='s') # This is a place holder for a seconds past midnight value
                                                          # which is actually the time of each timed parameter.
+        for ar in args:
+            self.add_file(ar)
         
     def add_para(self,paratype,name,*args,**kwargs):
         if(paratype=='Data'):
@@ -522,8 +524,9 @@ class timed_data(np.ndarray):
         np.ndarray.__setitem__(self,index,value)
         try:
             np.ndarray.__setitem__(self.times,index,value.times)
-        except AttributeError:
+        except (ValueError,AttributeError):
             pass
+            
     def timesort(self):
         i1=np.arange(self.shape[0])
         i2=np.argsort(self.times)
@@ -717,7 +720,8 @@ class cal_base(object):
                 
     def addhistory(self):
         if(len(self.outputs)>0):
-            self.dataset.history+='\n%s\n  Inputs=%s ,\n  Outputs=%s \n\n' % (self.name,str(self.input_names),str(self.outputs))
+            self.dataset.history+='\n%s\n  Inputs=%s ,\n  Outputs=%s \n\n' % (self.name,
+                str(self.input_names).replace("'",""),str(self.getoutputnames()).replace("'",""))
             self.history+='INPUTS\n'
             for i in self.input_names:
                 try:

@@ -27,11 +27,12 @@ WVSSII interoplation to 1Hz from it's approximate 0.4Hz, and decode from serial 
         
     def process(self):
         if(self.dataset[self.input_names[0]].data!=None):
-            times=self.dataset[self.input_names[0]].times+self.dataset[self.input_names[0]]/1000.0
-            data=(np.array([np.array(y) for y in np.char.split(self.dataset[self.input_names[1]])])).astype(np.float)
-            tx=np.array([times+1,times,times-1,times-2,times-3]).ravel()
+            times=self.dataset[self.input_names[0]].times
+            tx=np.unique(np.expand_dims(times.astype(np.int),1)+[-1,0,1]) # spread data times to interpolate to over every second
             tx.sort()
-            tx=tx.astype(np.int)
+            tx=timestamp(tx)
+            times+=self.dataset[self.input_names[0]]/1000.0  # Real time to nearest millisecond
+            data=(np.array([np.array(y) for y in np.char.split(self.dataset[self.input_names[1]])])).astype(np.float)
             for i,o in enumerate(self.outputs):
                 d=timed_data(data[:,i],times)
                 inter=d.interp1d()

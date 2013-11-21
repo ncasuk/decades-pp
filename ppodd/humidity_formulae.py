@@ -49,8 +49,9 @@ def fp2vp(fp,p=[],temp=[],enhance=False):
     Using ITS-90 correction of Wexler's formula
     Optional enhancement factors for non ideal 
     """
+    fp=np.atleast_1d(fp)
     k=np.array([-5.8666426e3,2.232870244e1,1.39387003e-2,-3.4262402e-5,2.7040955e-8,6.7063522e-1],dtype='f8')
-    lnes=np.zeros(len(fp),dtype='f8')
+    lnes=np.zeros(fp.shape,dtype='f8')
     for i in range(5):
         lnes=lnes+k[i]*(fp**(i-1))
     lnes+=k[5]*np.log(fp)
@@ -60,8 +61,8 @@ def fp2vp(fp,p=[],temp=[],enhance=False):
         B=np.array([-9.4868712e1,7.2392075e-1,-2.1963437e-3,2.4668279e-6],dtype='f8')
         if(len(temp)==0):
             temp=fp
-        alpha=np.zeros(len(fp),dtype='f8')
-        beta=np.zeros(len(fp),dtype='f8')
+        alpha=np.zeros(fp.shape,dtype='f8')
+        beta=np.zeros(fp.shape,dtype='f8')
         for i in range(4):
             alpha=alpha+(A[i]*(temp**i))
             beta=beta+(B[i]*(temp**i))
@@ -76,6 +77,7 @@ def dp2vp(dp,p=[],temp=[],enhance=False):
     Using ITS-90 correction of Wexler's formula
     Optional enhancement factors for non ideal 
     """
+    dp=np.atleast_1d(dp)
     g=np.array([-2.8365744e3,-6.028076559e3,1.954263612e1,-2.737830188e-2, 
        1.6261698e-5,7.0229056e-10,-1.8680009e-13,2.7150305],dtype='f8')
     lnes=np.log(dp)*g[7]
@@ -85,8 +87,8 @@ def dp2vp(dp,p=[],temp=[],enhance=False):
         A=np.array([-1.6302041e-1,1.8071570e-3,-6.7703064e-6,8.5813609e-9],dtype='f8')
         B=np.array([-5.9890467e1,3.4378043e-1,-7.7326396e-4,6.3405286e-7],dtype='f8')
         if(len(temp)==0) : temp=fp
-        alpha=np.zeros(len(fp))
-        beta=np.zeros(len(fp))
+        alpha=np.zeros(fp.shape)
+        beta=np.zeros(fp.shape)
         for i in range(4) :
             alpha=alpha+(A[i]*(temp**i))
             beta=beta+(B[i]*(temp**i))
@@ -102,10 +104,11 @@ def vp2fp(vp,p=[],temp=[],enhance=False):
     Using ITS-90 correction of Wexler's formula
     Optional enhancement factors for non ideal 
     """  
+    vp=np.atleast_1d(vp)
     c=np.array([2.1257969e2,-1.0264612e1,1.4354796e-1,0],dtype='f8')
     d=np.array([1,-8.2871619e-2,2.3540411e-3,-2.4363951e-5],dtype='f8')
-    c1=np.zeros(len(vp),dtype='f8')
-    d1=np.zeros(len(vp),dtype='f8')
+    c1=np.zeros(vp.shape,dtype='f8')
+    d1=np.zeros(vp.shape,dtype='f8')
     if(enhance and len(p)>0):
         if(len(temp)==0):
             lnes=alog(vp*1e2)
@@ -116,8 +119,8 @@ def vp2fp(vp,p=[],temp=[],enhance=False):
             temp=fp
         A=np.array([-6.0190570e-2,7.3984060e-4,-3.0897838e-6,4.3669918e-9],dtype='f8')
         B=np.array([-9.4868712e1,7.2392075e-1,-2.1963437e-3,2.4668279e-6],dtype='f8')
-        alpha=np.zeros(len(vp))
-        beta=np.zeros(len(vp))
+        alpha=np.zeros(vp.shape)
+        beta=np.zeros(vp.shape)
         for i in range(4):
             alpha=alpha+(A[i]*(temp**i))
             beta=beta+(B[i]*(temp**i))
@@ -139,10 +142,11 @@ def vp2dp(vp,p=[],temp=[],enhance=False):
     Using ITS-90 correction of Wexler's formula
     Optional enhancement factors for non ideal 
     """  
+    vp=np.atleast_1d(vp)
     c=np.array([2.0798233e2,-2.0156028e1,4.6778925e-1,-9.2288067e-6],dtype='f8')
     d=np.array([1,-1.3319669e-1,5.6577518e-3,-7.5172865e-5],dtype='f8')
-    c1=np.zeros(len(vp))
-    d1=np.zeros(len(vp))
+    c1=np.zeros(vp.shape)
+    d1=np.zeros(vp.shape)
     if(enhance and len(p)>0) :
         if(len(temp)==0) :
             lnes=np.log(vp*100)
@@ -153,8 +157,8 @@ def vp2dp(vp,p=[],temp=[],enhance=False):
             temp=fp
         A=np.array([-1.6302041e-1,1.8071570e-3,-6.7703064e-6,8.5813609e-9],dtype='f8')
         B=np.array([-5.9890467e1,3.4378043e-1,-7.7326396e-4,6.3405286e-7],dtype='f8')
-        alpha=np.zeros(len(vp))
-        beta=np.zeros(len(vp))
+        alpha=np.zeros(vp.shape)
+        beta=np.zeros(vp.shape)
         for i in range(4) :
             alpha=alpha+(A[i]*(temp**i))
             beta=beta+(B[i]*(temp**i))
