@@ -708,10 +708,14 @@ class cal_base(object):
             self.runstate='running'
             if(self.getinput()):
                 self.runstate='success' # can be altered by process if problems..
-                self.process()
-                for o in self.outputs:
-                    self.dataset[o.name]=o
-                self.addhistory()
+                try:
+                    ppodd.logger.debug('Running...%s' % self.name)
+                    self.process()
+                    for o in self.outputs:
+                        self.dataset[o.name]=o
+                    self.addhistory()
+                except:
+                    self.runstate='fail'
             else:
                 self.runstate='fail'
 
@@ -850,11 +854,10 @@ class fort_cal(cal_base):
                     else:   
                         din[:,s]=p.data.ismatch(match).raw_data
                 except ValueError:
-                    ppodd.logger.debug('S=',s)
-                    ppodd.logger.debug( 'Data',p.data.shape)
-                    ppodd.logger.debug( 'Match',match.shape)
-                    ppodd.logger.debug( p.data.ismatch(match).raw_data.shape)
-                    ppodd.logger.debug( din[:,s].shape)
+                    ppodd.logger.error('Problem with input %s in %s' % (p.name,self.name))
+                    ppodd.logger.debug('S=%s' % s)
+                    ppodd.logger.debug('Data Shape %s' % str(match.shape))
+                    ppodd.logger.debug('DIN Shape %s' % str(din[:,s].shape))
                     raise ValueError
                 try:
                     flagin[:,s]=p.data.flag.ismatch(match).raw_data 

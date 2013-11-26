@@ -14,7 +14,7 @@ class fortbuild(distbuild):
 
 
 setup(name = "ppodd",
-    version = "002",
+    version = "003",
     description = "Post Processing of Decades Data",
     author = "Dave Tiddeman",
     author_email = "dave.tiddeman@metoffice.gov.uk",

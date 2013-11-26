@@ -50,9 +50,11 @@ Routine for reading in CRIO data
         deffile=os.path.join(dirname,sorted(deffiles)[-1])
         ppodd.logger.info('Using definition file = %s' % deffile)
         defin=csv.reader(open(deffile,'rb'),delimiter=',')
-        conv={'text':'S','unsigned_int':'>u','signed_int':'>i','double':'>f','single_float':'>f'
-             ,'>unsigned_int':'>u','>signed_int':'>i','>double':'>f','>single_float':'>f'
-             ,'<unsigned_int':'<u','<signed_int':'<i','<double':'<f','<single_float':'<f'}
+        conv={'text':'S'}
+        for en in {'':'>','>':'>','<':'<'}.items():
+            for ty in {'unsigned_int':'u','int':'i','signed_int':'i','double':'f','single_float':'f',
+                       'float':'f','single':'f','double_float':'f','boolean':'u','f':'f','i':'i','u':'u'}.items():
+                conv[en[0]+ty[0]]=en[1]+ty[1]
         label=''
         outputs=[]
         dt=[]
@@ -80,11 +82,13 @@ Routine for reading in CRIO data
                                 dt.append((para,conv[row[3]]+row[2],(f,)))
                             else:
                                 dt.append((para,conv[row[3]]+row[2]))
-        except ValueError:
+        except Exception as e:
             ppodd.logger.warning('Invalid CRIO definition %s' % deffile)
+            ppodd.logger.warning(str(e))
             return
         data=np.zeros((0,),dtype=dt)
         for fil in sorted(bins):
+            ppodd.logger.info('Reading %s ' % fil)
             filen=os.path.join(dirname,fil)
             statinfo = os.stat(filen)
             size=statinfo.st_size

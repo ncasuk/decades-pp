@@ -150,14 +150,14 @@ class ftpjob(threading.Thread):
         if(self.text):
             mode='r'
         bn=os.path.basename(self.filename)
+        md=self.make_md5()
+        mdfile=bn[:bn.rfind('.')]+'.md5'
+        ftp.storlines('STOR '+mdfile,md)
         with open(self.filename,mode) as f:
             if(self.text):
                 ftp.storlines('STOR '+bn,f)
             else:
                 ftp.storbinary('STOR '+bn,f)
-        md=self.make_md5()
-        mdfile=bn[:bn.rfind('.')]+'.md5'
-        ftp.storlines('STOR '+mdfile,md)
         ftp.quit()
         ppodd.logger.info("FTP %s successful" % bn)
         
