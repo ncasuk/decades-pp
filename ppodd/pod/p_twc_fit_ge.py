@@ -14,7 +14,6 @@ class twc_fit_ge(cal_base):
     def __init__(self,dataset):
         self.input_names=['PS_RVSM','TAT_DI_R','TWC_DET','TWC_TSAM','GE_VP','SAT_VP_W']
         self.outputs=[constants_parameter('TWC_FIT_GE',[])]
-        #self.name='TWC_COR'
         self.version=1.00
         cal_base.__init__(self,dataset)
         
@@ -47,6 +46,7 @@ class twc_fit_ge(cal_base):
             print 'FIT=',fit
             self.outputs[0].data=list(fit)
             import matplotlib.pyplot as plt
+            plt.ion()
             plt.figure()
             plt.plot(v,(vp1/t2)+(KO*uO*p1/(Kv*t2)),'bx')
             plt.plot(v[iuse],(vp1/t2)[iuse]+(KO*uO*p1/(Kv*t2))[iuse],'gx')
@@ -54,6 +54,6 @@ class twc_fit_ge(cal_base):
             plt.plot(v,ans,'r')
             plt.xlim(np.min(v[iuse]),np.max(v[iuse]))
             plt.ylim(np.polyval(fit,plt.xlim()))
-            plt.ion()
             plt.title('TWC vs GE fit=%f + %f*x' % (fit[1],fit[0]))
+            
 

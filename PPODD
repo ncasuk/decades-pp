@@ -79,10 +79,8 @@ if __name__=="__main__":
             d.write_nc.process(options.output,options.nctype,paras=options.paras,onehz=True)
             print "write 1 Hz",options.output,options.nctype
     else:
-        import Tkinter as Tk
         from ppodd.gui.main import main
         print "GUI"
         colour='honeydew'
         m=main(data=d,bg=colour)
-        Tk.mainloop()
 

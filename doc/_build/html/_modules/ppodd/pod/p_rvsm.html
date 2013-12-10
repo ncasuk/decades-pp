@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_rvsm &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_rvsm</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="rvsm"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_rvsm.rvsm">[docs]</a><span class="k">class</span> <span class="nc">rvsm</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_RVSM</span>
+
+<span class="sd"> ROUTINE          C_RVSM SUBROUTINE FORTVAX</span>
+<span class="sd">     </span>
+<span class="sd"> PURPOSE          Computes static pressure, pitot-static pressure, and pressure</span>
+<span class="sd">                  height from the 146 RVSM altitude and airspeed data.</span>
+
+<span class="sd"> DESCRIPTION      RVSM altitude is available in ARINC-429 message 203 and is</span>
+<span class="sd">                  recorded as by the DRS as a 16 bit signed word, with the </span>
+<span class="sd">                  LSB representing 4 feet.</span>
+
+<span class="sd">                  RVSM computed airspeed is available in ARINC-429 message</span>
+<span class="sd">                  206 and is recorded by the DRS as a 16 bit signed word, with</span>
+<span class="sd">                  the LSB representing 1/32 kt, but always zero.</span>
+
+<span class="sd">                  These values should be within the system accuracy</span>
+<span class="sd">                  specification and do not require calibration.</span>
+
+<span class="sd">                  Note that altitude is updated by the RVSM at about 20 Hz</span>
+<span class="sd">                  and airspeed is updated at about 10 Hz.  Both signals are</span>
+<span class="sd">                  sampled by the DRS at 32 Hz so there will be multiple</span>
+<span class="sd">                  values and aliasing effects.</span>
+
+<span class="sd"> METHOD           For each DRS parameter to be calibrated:</span>
+<span class="sd">                  1. If data is FFFF or FFFE or out of range then flag 3</span>
+<span class="sd">                  2. Decode the altitude and use the tables in NASA TN D-822</span>
+<span class="sd">                     to back compute the static pressure.</span>
+<span class="sd">                  3. Decode the airspeed and use fundamental equations to </span>
+<span class="sd">                     compute pitot-static pressure.</span>
+<span class="sd">                  4. Check the results for being within acceptable values.</span>
+<span class="sd">                  5. Set data flag bits (16+17) 0: Good data</span>
+<span class="sd">                                                1: Data of lower quality</span>
+<span class="sd">                                                2: Probably faulty, exceed lims</span>
+<span class="sd">                                                3: Data absent or invalid.</span>
+
+<span class="sd">                  Flagging - If a value can&#39;t be computed, due to missing data</span>
+<span class="sd">                  missing constants, divide be zeroes, etc, a value of 0 is</span>
+<span class="sd">                  used, flagged with a three.  If a value is outside its </span>
+<span class="sd">                  limits for range, it is flagged with a two.</span>
+<span class="sd">                  If there are no problems with the data it is flagged with 0.</span>
+<span class="sd">                  Any flags on input data are propagated through subsequent </span>
+<span class="sd">                  calculations.</span>
+
+<span class="sd">                  Note that routine does not currently apply position error</span>
+<span class="sd">                  corrections, nor interpolate missing data.</span>
+
+<span class="sd"> VERSION          1.00  23/07/03  W.D.N.JACKSON</span>
+
+<span class="sd"> ARGUMENTS        Inputs:</span>
+<span class="sd">                    DRS para 222 RVAL 32 Hz RVSM altitude</span>
+<span class="sd">                        para 223 RVAS 32 Hz RVSM computed airspeed</span>
+
+<span class="sd">                  Outputs:</span>
+<span class="sd">                    Derived para 576 SPR  mb 32 Hz Static pressure</span>
+<span class="sd">                            para 577 PSP  mb 32 Hz Pitot-static pressure</span>
+<span class="sd">                            para 578 PHGT m  32 Hz Pressure height</span>
+
+<span class="sd">                  Flags:</span>
+<span class="sd">                    Missing/corrupt data output as 0 flagged 3.</span>
+<span class="sd">                    Out of range derived data flagged 2.</span>
+
+<span class="sd"> SUBPROGRAMS      S_PSP, ALT2PRESS, ISETFLG </span>
+
+<span class="sd"> REFERENCES       NASA Technical Note D-822, Aug 1961, Tables of airspeed,</span>
+<span class="sd">                  altitude, and mach number.</span>
+
+<span class="sd">                  Interface Control Document, Air Data Display Unit, ISS</span>
+<span class="sd">                  1G-80130-22.</span>
+
+<span class="sd"> CHANGES          V1.00 23/07/03  WDNJ Original version</span>
+<span class="sd">                  V1.01 23/10/03  WDNJ Now replicates data when missing</span>
+<span class="sd">                  V1.02 11/12/03  WDNJ Fixes bug if initial data missing</span>
+<span class="sd">                  V1.03 11/03/04  DAT Flags data outside altitude range 3</span>
+<span class="sd">                  V1.04 17/03/04  WDNJ Now handles negative heights correctly</span>
+<span class="sd">                                       and uses more accurate flagging criteria</span>
+
+<span class="sd">*******************************************************************************</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;Horace_RVAL&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_RVAS&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;PS_RVSM&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;hPa&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">576</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Static pressure from the aircraft RVSM (air data) system&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;Q_RVSM&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;hPa&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">577</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Pitot static pressure inverted from RVSM (air data) system indicated airspeed&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;PALT_RVS&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">578</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Pressure altitude from the aircraft RVSM (air data) system&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;RVSM&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,9 +1,6 @@
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
-import matplotlib.image as mpimg
-from PIL import Image
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 import Tkinter as Tk
+from matplotlib.widgets import Button
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
 class timeSeries(Tk.Toplevel):
@@ -26,6 +23,8 @@ class timeSeries(Tk.Toplevel):
             toolbar.update()
             self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
             self.title(self.para.name)
+            import matplotlib
+            print matplotlib.get_backend()
             if(self.gotflags):
                 self.flag.trace("w",self.redraw)
         except Exception as e:

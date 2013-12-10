@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_turb &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_turb</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="turb"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_turb.turb">[docs]</a><span class="k">class</span> <span class="nc">turb</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_TURB</span>
+
+<span class="sd">         ROUTINE      C_TURB</span>
+
+<span class="sd">         PURPOSE      To calibrate and apply designated correction factors to</span>
+<span class="sd">                      angle of attack (AOA), angle of sideslip (AOSS) and the</span>
+<span class="sd">                      centre-static differential pressure (to derive TAS)).</span>
+
+<span class="sd">         DESCRIPTION  Calibration of AOA and AOSS is assumed to be of the form:</span>
+<span class="sd">                      </span>
+<span class="sd">                      PA/q = a0(M) + a1(M)*alpha</span>
+<span class="sd">                      PB/q = b0(M) + b1(M)*beta</span>
+<span class="sd">                      where q is the pitot(dynamic) pressure.</span>
+<span class="sd">                      Calculations follow the scheme described in BAES doc</span>
+<span class="sd">                      ADE-46S-R-463-34 1233 (Page 78 of 116).</span>
+<span class="sd">                      Initial value of pitot pressure is taken from RVSM and</span>
+<span class="sd">                      used to calculate first guess AOA and AOSS. These are</span>
+<span class="sd">                      to derive corrections to the centre-port along with </span>
+<span class="sd">                      separate calculation of static position error in the</span>
+<span class="sd">                      centre-port measurement. AOA and AOSS are recalculated</span>
+<span class="sd">                      with iteration continuing until specified tolerance is</span>
+<span class="sd">                      achieved or max.iteration count exceeded. Corrected</span>
+<span class="sd">                      centre-port pressure is then used to calculate TAS</span>
+<span class="sd">                      (currently only the dry value) using:</span>
+
+<span class="sd">                      TAS = Corrtn.fac * 340.294*M*SQRT(T/288.15)</span>
+
+<span class="sd">         VERSION      1.01   Phil Brown 24/5/2004</span>
+
+<span class="sd">         CHANGES      1.02   Phil Brown 11/6/2004</span>
+<span class="sd">                             Logic changed to reproduce PVWAVE test version</span>
+<span class="sd">                             MRFB:[BROWN.PVWAVE]TURB.PRO at this date</span>
+<span class="sd">                      1.03   Phil Brown 28/6/2004</span>
+<span class="sd">                             Check flags and values following return of calls</span>
+<span class="sd">                             to S_MACH. Unacceptable causes C_TURB to return</span>
+<span class="sd">                             its default values of output parameters (flag 3)</span>
+<span class="sd">                      1.04   Phil Brown 2/7/04</span>
+<span class="sd">                             Uses G_MACH routine to calculate Mach no. and</span>
+<span class="sd">                             avoid complications due to flagging.</span>
+<span class="sd">                      1.05   Phil Brown 08/07/04</span>
+<span class="sd">                             Uses simpler Mach-dependent PE.Corrtn derived</span>
+<span class="sd">                             empirically from B001-012 s&amp;l legs.</span>
+<span class="sd">                      1.06   Phil Brown 09/07/04</span>
+<span class="sd">                             No position error correction currently applied</span>
+<span class="sd">                             to P0 differential pressure.</span>
+<span class="sd">                      1.07   Phil Brown 26/08/04</span>
+<span class="sd">                             Change sign of AOSS. Cals were done against INS</span>
+<span class="sd">                             drift angle (-ve for +ve AOSS).</span>
+<span class="sd">                      1.08   Phil Brown 27/8/04</span>
+<span class="sd">                             AOSS calcs revert to original, but assumed to use</span>
+<span class="sd">                             new fit coefficients for B0 and B1</span>
+<span class="sd">                      1.09   26/01/06 Phil Brown</span>
+<span class="sd">                             Min/max limits provided for AoA, AoSS and TAS for</span>
+<span class="sd">                             flagging purposes.</span>
+<span class="sd">                      1.10   20/06/06 Phil Brown</span>
+<span class="sd">                             Takes additional input of non-deiced temp, used as</span>
+<span class="sd">                             alternative when de-iced is flagged 2 or more.</span>
+<span class="sd">                      1.11   24/10/06 Phil Brown</span>
+<span class="sd">                             Fix bug setting flag on TTND to zero before use.</span>
+<span class="sd">                             Define 4 additional flight constants to apply</span>
+<span class="sd">                             fudge factors to the calculated AoA / AoSS</span>
+<span class="sd">                             These have the form:</span>
+<span class="sd">                             AoA_new = AoA * ALPH1 + ALPH0</span>
+<span class="sd">                             AoSS_new= AoSS * BET1 + BET0</span>
+<span class="sd">                      1.12   08/10/2010 Axel Wellpott</span>
+<span class="sd">                             added line &quot;DATA TAS/-9999./&quot;</span>
+<span class="sd">                             Missing TAS data values were set to -999.</span>
+<span class="sd">                             and not to -9999. as specified in the netcdf</span>
+<span class="sd">                             files.</span>
+
+<span class="sd">         SUBROUTINES: S10_PECORR, ITSTFLG, ISETFLG, G_MACH</span>
+
+<span class="sd">         FILES        </span>
+
+<span class="sd">         REFERENCES </span>
+
+<span class="sd">         CONSTANTS </span>
+<span class="sd">           RCONST(1-3) Coefficients of 2nd order polynomial in Mach to </span>
+<span class="sd">                       calculate AOA offset, A0 </span>
+<span class="sd">           RCONST(4-6) Coefficients of 2nd order polynomial in Mach to </span>
+<span class="sd">                       calculate AOA sensitivity, A1 </span>
+<span class="sd">           RCONST(7-9) Coefficients of 2nd order polynomial in Mach to </span>
+<span class="sd">                       calculate AOSS offset, B0 </span>
+<span class="sd">           RCONST(10-12) Coefficients of 2nd order polynomial in Mach to </span>
+<span class="sd">                       calculate AOSS sensitivity, B1</span>
+<span class="sd">           RCONST(13)  Tolerance for AOA/AOSS iteration</span>
+<span class="sd">           RCONST(14)  True Airspeed correction factor (fudge factor to </span>
+<span class="sd">                       remove residual along-heading wind errors).</span>
+<span class="sd">           RCONST(15-16) Coefficients of linear correction to calculated AoA</span>
+<span class="sd">           RCONST(17-18) Coefficients of linear correction to calculated AoSS</span>
+<span class="sd">  </span>
+<span class="sd">         INPUT PARAMETERS</span>
+<span class="sd">           516  IAS   32Hz</span>
+<span class="sd">           520  TTDI  32Hz</span>
+<span class="sd">           525  TTND  32Hz</span>
+<span class="sd">           576  SPR   32Hz</span>
+<span class="sd">           577  PSP   32Hz</span>
+<span class="sd">           578  PHGT  32Hz</span>
+<span class="sd">           773  TBP0  32Hz</span>
+<span class="sd">           774  TBPA  32Hz</span>
+<span class="sd">           775  TBPB  32Hz</span>
+<span class="sd">           776  TBPC  32Hz</span>
+<span class="sd">           777  TBPD  32Hz</span>
+
+<span class="sd">         OUTPUT PARAMETERS</span>
+<span class="sd">           </span>
+<span class="sd">           548  AOA   32Hz  deg</span>
+<span class="sd">           549  AOSS  32Hz  deg</span>
+<span class="sd">           779  TASD  32Hz  ms-1</span>
+<span class="sd">           780  TASW  32Hz  ms-1</span>
+<span class="sd">           781  TPSP  32Hz  mb</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;AOA_A0&#39;</span><span class="p">,</span> <span class="s">&#39;AOA_A1&#39;</span><span class="p">,</span> <span class="s">&#39;AOSS_B0&#39;</span><span class="p">,</span> <span class="s">&#39;AOSS_B1&#39;</span><span class="p">,</span> <span class="s">&#39;TOLER&#39;</span><span class="p">,</span> <span class="s">&#39;TASCOR1&#39;</span><span class="p">,</span> <span class="s">&#39;ALPH0&#39;</span><span class="p">,</span> <span class="s">&#39;ALPH1&#39;</span><span class="p">,</span> <span class="s">&#39;BET0&#39;</span><span class="p">,</span> <span class="s">&#39;BET1&#39;</span><span class="p">,</span> <span class="s">&#39;IAS_RVSM&#39;</span><span class="p">,</span> <span class="s">&#39;TAT_DI_R&#39;</span><span class="p">,</span> <span class="s">&#39;TAT_ND_R&#39;</span><span class="p">,</span> <span class="s">&#39;PS_RVSM&#39;</span><span class="p">,</span> <span class="s">&#39;Q_RVSM&#39;</span><span class="p">,</span> <span class="s">&#39;PALT_RVS&#39;</span><span class="p">,</span> <span class="s">&#39;P0_S10&#39;</span><span class="p">,</span> <span class="s">&#39;PA_TURB&#39;</span><span class="p">,</span> <span class="s">&#39;PB_TURB&#39;</span><span class="p">,</span> <span class="s">&#39;TBPC&#39;</span><span class="p">,</span> <span class="s">&#39;TBPD&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;AOA&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;degree&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">548</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Angle of attack from the turbulence probe (positive, flow upwards wrt a/c axes)&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;AOSS&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;degree&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">549</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Angle of sideslip from the turbulence probe (positive, flow from left)&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TAS&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m s-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">779</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;True airspeed (dry-air) from turbulence probe&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TASW&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;MS-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">780</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TURB PROBE WET TAS&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;PSP_TURB&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;hPa&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">781</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Pitot-static pressure from centre-port measurements corrrected for AoA and AoSS&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;TURB&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

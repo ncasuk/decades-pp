@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_gwinds &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_gwinds</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="gwinds"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_gwinds.gwinds">[docs]</a><span class="k">class</span> <span class="nc">gwinds</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_GWINDS</span>
+
+<span class="sd"> ROUTINE          C_GWINDS SUBROUTINE FORTVAX</span>
+
+<span class="sd"> PURPOSE          Computes raw winds from TAS, vanes, and INS data</span>
+
+<span class="sd"> DESCRIPTION      Computes values of the three wind components, using true</span>
+<span class="sd">                  airspeed, angle of attack and sideslip, and INS velocity,</span>
+<span class="sd">                  attitude, and attitude rate information. Note that at this</span>
+<span class="sd">                  stage the INS data have not been corrected for drift, so</span>
+<span class="sd">                  these are &#39;raw&#39; winds, which will normally be corrected</span>
+<span class="sd">                  later as part of the interactive renavigation processing. </span>
+<span class="sd">                  Once errors have been evaluated for the three INS velocity</span>
+<span class="sd">                  components, they can be applied directly to the three wind</span>
+<span class="sd">                  components; the wind components do not need to be recomputed </span>
+<span class="sd">                  from scratch.  To show that the winds are &#39;raw&#39; all values</span>
+<span class="sd">                  of U, V and W are increased by 1000 m/s by this routine.  </span>
+<span class="sd">                  This makes it easy to see that normal (flagged 0 or 1) data</span>
+<span class="sd">                  are &#39;raw&#39;, but it may not be enough to say unabiguously </span>
+<span class="sd">                  whether data that are already bad (flagged 2 or 3) are &#39;raw&#39;</span>
+<span class="sd">                  or &#39;corrected&#39;.</span>
+
+<span class="sd">                  The processing will handle the case that the INS is mounted</span>
+<span class="sd">                  off the boom axis, provided its position is specified in</span>
+<span class="sd">                  the flight constants file, using the INSPOSN keyword.  If</span>
+<span class="sd">                  the INS position is not specified then it is assumed to be</span>
+<span class="sd">                  in the nose bay, 7.06m behind the vanes, but on the axis of</span>
+<span class="sd">                  the boom.  All data is assumed to be at 32 Hz.</span>
+<span class="sd">                  </span>
+<span class="sd">                  This routine will not be called if there is no True</span>
+<span class="sd">                  Airspeed, or no INS information (with the exception of roll</span>
+<span class="sd">                  rate).  If there is no information from the angle of attack</span>
+<span class="sd">                  and sideslip vanes, winds will be computed using values of</span>
+<span class="sd">                  zero for these angles flagged with</span>
+<span class="sd">                  1&#39;s.  If there is no roll rate available (this wasn&#39;t</span>
+<span class="sd">                  recorded for the Ferranti 1012 INS), a value of 0 is used. </span>
+<span class="sd">                  This doesn&#39;t matter if the INS is located on the boom axis,</span>
+<span class="sd">                  since in this case roll rate has no effect on winds.</span>
+<span class="sd">                  </span>
+<span class="sd">                  The output vertical wind takes the worst flag present on the</span>
+<span class="sd">                  AOA, VZ, TAS and pitch data.  The output horizontal wind</span>
+<span class="sd">                  components take the worst flag present on the AOSS, VN, VE,</span>
+<span class="sd">                  TAS, and heading data.  This is suitable when the</span>
+<span class="sd">                  aircraft is not banking and reflects the fact that good</span>
+<span class="sd">                  horizontal winds can be found even when the vertical</span>
+<span class="sd">                  velocity is bad.  However this flagging scheme fails to </span>
+<span class="sd">                  reflect coupling between the vertical and horizontal</span>
+<span class="sd">                  measurement when the aircraft is banking.</span>
+<span class="sd">                  In addition horizontal wind components greater</span>
+<span class="sd">                  than 100 m/s and vertical components greater than 25 m/s</span>
+<span class="sd">                  are flagged with 2&#39;s, and if the change between adjacent</span>
+<span class="sd">                  samples (at 32 Hz) is greater than 1 m/s a flag of 2 is</span>
+<span class="sd">                  also applied.</span>
+
+<span class="sd">                  Input parameters (all at 32 Hz except 515):</span>
+
+<span class="sd">                  Para 515   Time, secs</span>
+<span class="sd">                  Para 779   Turb.probe dry true airspeed, m s-1</span>
+<span class="sd">                  Para 548   Angle of attack, deg</span>
+<span class="sd">                  Para 549   Angle of side slip, deg</span>
+<span class="sd">                  Para 558   INS velocity north, m s-1</span>
+<span class="sd">                  Para 559   INS velocity east, m s-1</span>
+<span class="sd">                  Para 557   INS vertical velocity, m s-1</span>
+<span class="sd">                  Para 560   INS roll, deg</span>
+<span class="sd">                  Para 561   INS pitch, deg</span>
+<span class="sd">                  Para 562   INS heading, deg</span>
+<span class="sd">                  Para 567   INS roll rate, deg s-1 (optional)</span>
+<span class="sd">                  Para 565   INS pitch rate, deg s-1</span>
+<span class="sd">                  Para 566   INS yaw rate, deg s-1</span>
+
+<span class="sd">                  Constants:</span>
+
+<span class="sd">                  RCONST(1)  Distance of vanes ahead of INS, m (optional)</span>
+<span class="sd">                  RCONST(2)  Distance of vanes to port of INS, m (optional)</span>
+<span class="sd">                  RCONST(3)  Distance of vanes above INS, m (optional)</span>
+
+<span class="sd">                  Output parameters (all at 32 Hz):</span>
+
+<span class="sd">                  Para 714   Northward wind component + 1000, m s-1</span>
+<span class="sd">                  Para 715   Eastward wind component + 1000, m s-1</span>
+<span class="sd">                  Para 716   Vertical wind component + 1000, m s-1</span>
+<span class="sd">            </span>
+<span class="sd"> VERSION          1.00  10-5-93  W.D.N.JACKSON</span>
+
+<span class="sd"> ARGUMENTS        IRAW(64,512) I*4 IN  Up to 64 samples for up to 512 DRS pars</span>
+<span class="sd">                  IFRQ(512)    I*4 IN  Sample rate of each DRS par (0-64)</span>
+<span class="sd">                  RCONST(64)   R*4 IN  Inputs constants</span>
+<span class="sd">                  RDER(64,1024)R*4 OUT Output array of up to 64 samples for</span>
+<span class="sd">                                       each of 1024 parameters</span>
+
+<span class="sd"> CHANGES          1.01  20-04-98 W.D.N.JACKSON</span>
+<span class="sd">                  Error in computation of airspeed corrected. </span>
+<span class="sd">                  1.02  14-06-2004 Phil Brown</span>
+<span class="sd">                  AoA and AoSS now compulsory input parameters to ensure</span>
+<span class="sd">                  this routine gets called after C_TURB</span>
+<span class="sd">                  1.03  09/07/04 Phil Brown</span>
+<span class="sd">                  Input TAS parameter is now 779 (Turb.probe dry TAS)</span>
+<span class="sd">                  1.04  25/08/04 Phil Brown</span>
+<span class="sd">                  Temporary. Suspend rate-of-change checking on winds.</span>
+<span class="sd">                  1.05  29/11/04 Phil Brown</span>
+<span class="sd">                  Temporary. Check flagging of RU,RV,RW when returned to try</span>
+<span class="sd">                  to suppress FLTINV errors.</span>
+<span class="sd">                  1.06  05/09/07 Dave Tiddeman</span>
+<span class="sd">                  Will use GIN inputs if available rather than INU</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;INSPOSN&#39;</span><span class="p">,</span> <span class="s">&#39;SECS_GIN&#39;</span><span class="p">,</span> 
+        <span class="s">&#39;TAS&#39;</span><span class="p">,</span> <span class="s">&#39;VELN_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;VELE_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;VELD_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;ROLL_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;PTCH_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;HDG_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;ROLR_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;PITR_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;HDGR_GIN&#39;</span><span class="p">,</span> 
+        <span class="s">&#39;AOA&#39;</span><span class="p">,</span> <span class="s">&#39;AOSS&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;V_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m s-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">714</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Northward wind component from turbulence probe and GIN&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;U_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m s-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">715</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Eastward wind component from turbulence probe and GIN&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;W_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m s-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">716</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Vertical wind component from turbulence probe and GIN&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;GWINDS&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

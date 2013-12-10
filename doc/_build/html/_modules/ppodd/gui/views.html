@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.gui.views &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.gui.views</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">Tkinter</span> <span class="kn">as</span> <span class="nn">Tk</span>
+<span class="kn">from</span> <span class="nn">tkFileDialog</span> <span class="kn">import</span> <span class="n">askopenfilename</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">from</span> <span class="nn">util</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ppodd.util</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="n">decades_dataset</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">tkMessageBox</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+
+<div class="viewcode-block" id="onepara"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.onepara">[docs]</a><span class="k">class</span> <span class="nc">onepara</span><span class="p">(</span><span class="n">Tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">para</span><span class="p">,</span><span class="n">selectable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">Tk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checked</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">BooleanVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="o">=</span><span class="n">para</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">para</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">para</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">selectable</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Checkbutton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="n">var</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">checked</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showbutton</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s">&#39;Show&#39;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showbutton</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tooltip</span><span class="o">=</span><span class="n">ToolTip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">para</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stooltip</span><span class="o">=</span><span class="n">ToolTip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">showbutton</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">para</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">BOTH</span><span class="p">)</span>
+
+<div class="viewcode-block" id="onepara.show"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.onepara.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">flaggedplots</span> <span class="kn">import</span> <span class="n">timeSeries</span>
+            <span class="n">ts</span><span class="o">=</span><span class="n">timeSeries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tkMessageBox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="p">),</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="o">.</span><span class="n">data</span><span class="p">),</span><span class="n">master</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">tkMessageBox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="p">),</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">para</span><span class="p">)</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n\n</span><span class="s">No information&#39;</span><span class="p">,</span><span class="n">master</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+   </div></div>
+<div class="viewcode-block" id="viewparas"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewparas">[docs]</a><span class="k">class</span> <span class="nc">viewparas</span><span class="p">(</span><span class="n">ScrollFrame</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">paralist</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectable</span><span class="o">=</span><span class="bp">False</span>
+        <span class="k">if</span><span class="p">(</span><span class="s">&#39;selectable&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">selectable</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;selectable&#39;</span><span class="p">)</span>
+        <span class="n">ScrollFrame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paras</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paralist</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paras</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">onepara</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">selectable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">selectable</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+<div class="viewcode-block" id="viewparas.getselected"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewparas.getselected">[docs]</a>    <span class="k">def</span> <span class="nf">getselected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ans</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paras</span><span class="p">:</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">get</span><span class="p">()):</span>
+                <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">para</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span>             </div>
+<div class="viewcode-block" id="viewparas.setselected"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewparas.setselected">[docs]</a>    <span class="k">def</span> <span class="nf">setselected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">paras</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paras</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">px</span> <span class="ow">in</span> <span class="n">paras</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">repr</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">para</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)</span><span class="o">==</span><span class="nb">repr</span><span class="p">(</span><span class="n">px</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">):</span> <span class="c"># To catch cases when </span>
+                                                    <span class="c"># of 2 parameters, 2 strings or a mixture</span>
+                    <span class="n">p</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="viewparas.selectall"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewparas.selectall">[docs]</a>    <span class="k">def</span> <span class="nf">selectall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paras</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="viewparas.deselectall"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewparas.deselectall">[docs]</a>    <span class="k">def</span> <span class="nf">deselectall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paras</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="onemodule"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.onemodule">[docs]</a><span class="k">class</span> <span class="nc">onemodule</span><span class="p">(</span><span class="n">Tk</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">module</span><span class="p">,</span><span class="n">selectable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">Tk</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checked</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">BooleanVar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">=</span><span class="n">module</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">selectable</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Checkbutton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="n">module</span><span class="p">),</span><span class="n">var</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">checked</span><span class="p">,</span><span class="n">justify</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="n">module</span><span class="p">),</span><span class="n">justify</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s">&#39;In&#39;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inview</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intooltip</span><span class="o">=</span><span class="n">ToolTip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">input_names</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="o">=</span><span class="s">&#39;Out&#39;</span><span class="p">,</span><span class="n">command</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outview</span><span class="p">,</span><span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">LEFT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outtooltip</span><span class="o">=</span><span class="n">ToolTip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">getoutputnames</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tooltip</span><span class="o">=</span><span class="n">ToolTip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span><span class="n">msg</span><span class="o">=</span><span class="n">module</span><span class="o">.</span><span class="n">__doc__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">Tk</span><span class="o">.</span><span class="n">X</span><span class="p">,</span><span class="n">expand</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="onemodule.inview"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.onemodule.inview">[docs]</a>    <span class="k">def</span> <span class="nf">inview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">paras</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input_names</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">paras</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">paras</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">settitle</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">)</span><span class="o">+</span><span class="s">&#39; Inputs&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">paraview</span><span class="p">(</span><span class="s">&#39;paras&#39;</span><span class="p">,</span><span class="n">paras</span><span class="o">=</span><span class="n">paras</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="onemodule.outview"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.onemodule.outview">[docs]</a>    <span class="k">def</span> <span class="nf">outview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">settitle</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">)</span><span class="o">+</span><span class="s">&#39; Outputs&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">paraview</span><span class="p">(</span><span class="s">&#39;paras&#39;</span><span class="p">,</span><span class="n">paras</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="viewmodules"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewmodules">[docs]</a><span class="k">class</span> <span class="nc">viewmodules</span><span class="p">(</span><span class="n">ScrollFrame</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="n">modules</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paraview</span><span class="o">=</span><span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectable</span><span class="o">=</span><span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span>
+        <span class="k">if</span><span class="p">(</span><span class="s">&#39;paraview&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">paraview</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;paraview&#39;</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="s">&#39;selectable&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">selectable</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;selectable&#39;</span><span class="p">)</span>
+        <span class="n">ScrollFrame</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parent</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlist</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">onemodule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">selectable</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+<div class="viewcode-block" id="viewmodules.settitle"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewmodules.settitle">[docs]</a>    <span class="k">def</span> <span class="nf">settitle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">title</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">settitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span></div>
+<div class="viewcode-block" id="viewmodules.getselected"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewmodules.getselected">[docs]</a>    <span class="k">def</span> <span class="nf">getselected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ans</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlist</span><span class="p">:</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">get</span><span class="p">()):</span>
+                <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">module</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ans</span>             </div>
+<div class="viewcode-block" id="viewmodules.setselected"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewmodules.setselected">[docs]</a>    <span class="k">def</span> <span class="nf">setselected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mods</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlist</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">mx</span> <span class="ow">in</span> <span class="n">mods</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">repr</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">module</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">)</span><span class="o">==</span><span class="nb">repr</span><span class="p">(</span><span class="n">mx</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">):</span> <span class="c"># To catch cases  </span>
+                                                    <span class="c"># of 2 modules, 2 strings or a mixture</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="viewmodules.selectall"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewmodules.selectall">[docs]</a>    <span class="k">def</span> <span class="nf">selectall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlist</span><span class="p">:</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="viewmodules.deselectall"><a class="viewcode-back" href="../../../ppodd.gui.html#ppodd.gui.views.viewmodules.deselectall">[docs]</a>    <span class="k">def</span> <span class="nf">deselectall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlist</span><span class="p">:</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">checked</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+        
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

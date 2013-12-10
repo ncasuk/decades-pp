@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to ppodd’s documentation! &mdash; ppodd 0.1 documentation</title>
+    <title>Welcome to ppodd’s documentation! &mdash; ppodd  documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ppodd 0.1 documentation" href="#" />
+    <link rel="top" title="ppodd  documentation" href="#" />
     <link rel="next" title="ppodd Package" href="ppodd.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="ppodd.html" title="ppodd Package"
              accesskey="N">next</a> |</li>
-        <li><a href="#">ppodd 0.1 documentation</a> &raquo;</li> 
+        <li><a href="#">ppodd  documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,11 +57,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ppodd.html">ppodd Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ppodd.html#id1"><tt class="docutils literal"><span class="pre">ppodd</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppodd.html#module-ppodd.OrderedDictOld"><tt class="docutils literal"><span class="pre">OrderedDictOld</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ppodd.html#module-ppodd.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ppodd.html#module-ppodd.humidity_formulae"><tt class="docutils literal"><span class="pre">humidity_formulae</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ppodd.html#module-ppodd.resample"><tt class="docutils literal"><span class="pre">resample</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ppodd.html#module-ppodd.util"><tt class="docutils literal"><span class="pre">util</span></tt> Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ppodd.html#ordereddictold-module"><tt class="docutils literal"><span class="pre">OrderedDictOld</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ppodd.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ppodd.gui.html">gui Package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.gui.html#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
@@ -76,6 +76,8 @@
 <li class="toctree-l3"><a class="reference internal" href="ppodd.pod.html">pod Package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#id1"><tt class="docutils literal"><span class="pre">pod</span></tt> Package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_airspd"><tt class="docutils literal"><span class="pre">p_airspd</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_calc_svp"><tt class="docutils literal"><span class="pre">p_calc_svp</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_calc_vp"><tt class="docutils literal"><span class="pre">p_calc_vp</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_cnc"><tt class="docutils literal"><span class="pre">p_cnc</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_comr"><tt class="docutils literal"><span class="pre">p_comr</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_drs"><tt class="docutils literal"><span class="pre">p_drs</span></tt> Module</a></li>
@@ -89,20 +91,22 @@
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_lwc"><tt class="docutils literal"><span class="pre">p_lwc</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nephl1"><tt class="docutils literal"><span class="pre">p_nephl1</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nevz"><tt class="docutils literal"><span class="pre">p_nevz</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nevzorov"><tt class="docutils literal"><span class="pre">p_nevzorov</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_nox"><tt class="docutils literal"><span class="pre">p_nox</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_ozone"><tt class="docutils literal"><span class="pre">p_ozone</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_ozone1"><tt class="docutils literal"><span class="pre">p_ozone1</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_press1"><tt class="docutils literal"><span class="pre">p_press1</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_psap"><tt class="docutils literal"><span class="pre">p_psap</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_radal1"><tt class="docutils literal"><span class="pre">p_radal1</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_read_crios"><tt class="docutils literal"><span class="pre">p_read_crios</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_read_gindat"><tt class="docutils literal"><span class="pre">p_read_gindat</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_read_horace_gin"><tt class="docutils literal"><span class="pre">p_read_horace_gin</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_read_wvss"><tt class="docutils literal"><span class="pre">p_read_wvss</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readconst"><tt class="docutils literal"><span class="pre">p_readconst</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readcrio"><tt class="docutils literal"><span class="pre">p_readcrio</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readfolder"><tt class="docutils literal"><span class="pre">p_readfolder</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readm3"><tt class="docutils literal"><span class="pre">p_readm3</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readnc"><tt class="docutils literal"><span class="pre">p_readnc</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readwvssii"><tt class="docutils literal"><span class="pre">p_readwvssii</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_readzipped"><tt class="docutils literal"><span class="pre">p_readzipped</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_airspd"><tt class="docutils literal"><span class="pre">p_rio_airspd</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_geneas"><tt class="docutils literal"><span class="pre">p_rio_geneas</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_heiman"><tt class="docutils literal"><span class="pre">p_rio_heiman</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_rio_lwc"><tt class="docutils literal"><span class="pre">p_rio_lwc</span></tt> Module</a></li>
@@ -122,9 +126,11 @@
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_temps2"><tt class="docutils literal"><span class="pre">p_temps2</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_tpress"><tt class="docutils literal"><span class="pre">p_tpress</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_turb"><tt class="docutils literal"><span class="pre">p_turb</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc"><tt class="docutils literal"><span class="pre">p_twc</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_cor"><tt class="docutils literal"><span class="pre">p_twc_cor</span></tt> Module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_wvsscor"><tt class="docutils literal"><span class="pre">p_twc_wvsscor</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_calc"><tt class="docutils literal"><span class="pre">p_twc_calc</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_fit_ge"><tt class="docutils literal"><span class="pre">p_twc_fit_ge</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_fit_wvss"><tt class="docutils literal"><span class="pre">p_twc_fit_wvss</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_horace"><tt class="docutils literal"><span class="pre">p_twc_horace</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.p_twc_rio"><tt class="docutils literal"><span class="pre">p_twc_rio</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ppodd.pod.html#module-ppodd.pod.write_nc"><tt class="docutils literal"><span class="pre">write_nc</span></tt> Module</a></li>
 </ul>
 </li>
@@ -195,11 +201,11 @@
         <li class="right" >
           <a href="ppodd.html" title="ppodd Package"
              >next</a> |</li>
-        <li><a href="#">ppodd 0.1 documentation</a> &raquo;</li> 
+        <li><a href="#">ppodd  documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Dave Tiddeman.
+        &copy; Copyright 2013, Author.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

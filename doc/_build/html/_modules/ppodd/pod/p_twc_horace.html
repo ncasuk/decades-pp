@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_twc_horace &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_twc_horace</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="twc_horace"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_twc_horace.twc_horace">[docs]</a><span class="k">class</span> <span class="nc">twc_horace</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_TWC</span>
+
+<span class="sd"> ROUTINE	    C_TWC   subroutine fortvax/fort77</span>
+
+<span class="sd"> PURPOSE	    To calibrate DRS pars. 70-78 into TARDIS parameters 664-672</span>
+<span class="sd">	</span>
+<span class="sd"> DESCRIPTION       The same algorithm is used for all nine parameters. First</span>
+<span class="sd">		    check to see if the right frequency has been set. Find</span>
+<span class="sd">		    the flag of the raw data. Work out the derived parameter,</span>
+<span class="sd">		    #665-#671, values of RCONST are used in a polynomial</span>
+<span class="sd">		    fit. For #664(Detector) and #672(status word) the raw</span>
+<span class="sd">		    data is converted from an integer to a real. Then the </span>
+<span class="sd">		    derived data is tested to see if it lies between the</span>
+<span class="sd">		    accepted envelope of values for that parameter. The flag</span>
+<span class="sd">		    is set to 2 if it lies outside the envelope. If any</span>
+<span class="sd">		    other tests are failed the derived parameter is set to</span>
+<span class="sd">		    -9999.0 with the flag at 3. At the end, with all the</span>
+<span class="sd">		    parameters calculated,  a rate of change check is made. </span>
+<span class="sd">		    This looks at the values set in RATE_CHANGE.</span>
+
+<span class="sd">		    Derived data limits and rate of change limits;</span>
+
+<span class="sd">		    DRS  TARDIS   min    max   rate/change   units</span>
+<span class="sd">		    par   par</span>
+<span class="sd">		    70    664     0      4094       -         DRS</span>
+<span class="sd">                   71    665     314    383      10.0         K</span>
+<span class="sd">                   72    666     323    388       3.0         K</span>
+<span class="sd">                   73    667     289    343       2.0         K</span>
+<span class="sd">                   74    668     378    393       5.0         K</span>
+<span class="sd">                   75    669     0.3    6.6       0.5         A</span>
+<span class="sd">                   76    670     0.3    6.6       0.5         A</span>
+<span class="sd">                   77    671     0.4E-3 1.1E-3    0.05E-3     A</span>
+<span class="sd">                   78    672     0      4095       -         DRS</span>
+
+<span class="sd"> VERSION 	    1.00 080190 M.J.GLOVER</span>
+
+<span class="sd"> ARGUMENTS         IRAW(64,512) I*4  IN   Raw data for the parameters</span>
+<span class="sd">		    IFRQ(512)    I*4  IN   Frequencies of the data</span>
+<span class="sd">		    RCONST(64)   R*4  IN   Constants required by routine,(1-32)</span>
+<span class="sd">		    RDER(64,1024)R*4  OUT  Tardis parameters</span>
+<span class="sd">	</span>
+<span class="sd"> COMMON	    None.</span>
+<span class="sd">                 </span>
+<span class="sd"> SUBPROGRAMS	    ISETFLG (linked automatically)</span>
+
+<span class="sd"> FILES		    None.</span>
+<span class="sd">	</span>
+<span class="sd"> REFERENCES	    MRF2 Specification for Total Water Hygrometer 4 Dec 1989</span>
+
+<span class="sd"> CHANGES           V1.01  10/06/94  W.D.N.JACKSON / S.J.MOSS</span>
+<span class="sd">                   Modified to correctly compute evaporator currents when the</span>
+<span class="sd">                   modified TWC instrument is flown (ie for A188 onwards).  In</span>
+<span class="sd">                   this case DRS parameters 173 and 174 are also used.  If</span>
+<span class="sd">                   the CALHTR1 and CALHTR2 keywords in the flight constants </span>
+<span class="sd">                   file have four values then processing for the modified </span>
+<span class="sd">                   probe is used; if they have two values then the old</span>
+<span class="sd">                   processing is used.  Note that parameters 173 and 174 are</span>
+<span class="sd">                   optional for this routine and CALIBRATE does not insist</span>
+<span class="sd">                   that they are present.  Also note that when this routine is</span>
+<span class="sd">                   used for flights before A188 CALIBRATE issues a warning</span>
+<span class="sd">                   that some of the constants are absent; this can be ignored.</span>
+
+<span class="sd">###############################################################################</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;CALTNOS&#39;</span><span class="p">,</span> <span class="s">&#39;CALTSAM&#39;</span><span class="p">,</span> <span class="s">&#39;CALTAMB&#39;</span><span class="p">,</span> <span class="s">&#39;CALTSRC&#39;</span><span class="p">,</span> <span class="s">&#39;CALHTR1&#39;</span><span class="p">,</span> <span class="s">&#39;CALHTR2&#39;</span><span class="p">,</span> <span class="s">&#39;CALISRC&#39;</span><span class="p">,</span> 
+                          <span class="s">&#39;SECS&#39;</span><span class="p">,</span><span class="s">&#39;Horace_TWCD&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_TNOS&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_TSAM&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_TAMB&#39;</span><span class="p">,</span> 
+                          <span class="s">&#39;Horace_TSRC&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_HTR1&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_HTR2&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_ISRC&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_STAT&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;Horace_EV1C&#39;</span><span class="p">,</span><span class="s">&#39;Horace_EV2C&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TWC_DET&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;bits&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">664</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Raw data from the TWC probe Lyman alpha detector&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TNOS_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;DEG K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">665</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC NOSE TEMP&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TWC_TSAM&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">666</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Sample temperature in Kelvin from the TWC evaporator probe&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TAMB_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;DEG K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">667</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC AMBIENT TEMP&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TSRC_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;DEG K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">668</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC SOURCE TEMP&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;HTR1_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;AMPS&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">669</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC EVAP1 CURRENT&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;HTR2_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;AMPS&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">670</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC EVAP2 CURRENT&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;ISRC_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;AMPS&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">671</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC SOURCE CURRENT&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;STAT_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;RBITS&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">672</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;TWC STATUS WORD&#39;</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fortname</span><span class="o">=</span><span class="s">&#39;TWC&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

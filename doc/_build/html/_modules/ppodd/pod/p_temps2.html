@@ -1,0 +1,237 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_temps2 &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_temps2</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="temps2"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_temps2.temps2">[docs]</a><span class="k">class</span> <span class="nc">temps2</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_TEMPS2</span>
+
+<span class="sd"> ROUTINE          C_TEMPS2 SUBROUTINE FORTVAX</span>
+<span class="sd">     </span>
+<span class="sd"> PURPOSE          Produces calibrated deiced and non-deiced temperatures</span>
+
+<span class="sd"> DESCRIPTION      Calculates indicated and true air temperatures in K for the</span>
+<span class="sd">                  Deiced and Non-Deiced temperature sensors as follows:</span>
+
+<span class="sd">                  519 - Indicated Air Temperature  from Deiced     [K] at 32Hz</span>
+<span class="sd">                  520 - True Air Temperature       from Deiced     [K] at 32Hz</span>
+<span class="sd">                  524 - Indicated Air Temperature  from Non-deiced [K] at 32Hz</span>
+<span class="sd">                  525 - True Air Temperature       from Non-deiced [K] at 32Hz</span>
+
+<span class="sd">                  Note that this module only processes data recorded on the</span>
+<span class="sd">                  146 which only uses one parameter per temperature.</span>
+<span class="sd">                </span>
+<span class="sd">                  The Deiced Temperature is recorded on the DRS at 32Hz as </span>
+<span class="sd">                  parameter 10 and the Non-deiced Temperature is recorded on </span>
+<span class="sd">                  the DRS as parameter 23.</span>
+
+<span class="sd">                  Indicated Air Temperature is derived by application of </span>
+<span class="sd">                  the appropriate second order calibration coefficients to the</span>
+<span class="sd">                  raw data.</span>
+
+<span class="sd">                  A correction for heating from the deicing heater is made to</span>
+<span class="sd">                  the deiced indicated air temperature if the heater is </span>
+<span class="sd">                  switched on, as indicated by bit 5 of the signal register</span>
+<span class="sd">                  (parameter 27) being clear.  This heating correction is</span>
+<span class="sd">                  obtained from graphs of Temperature vs Machno in Rosemount</span>
+<span class="sd">                  Technical Reports 7597 &amp; 7637.  If Machno is less than</span>
+<span class="sd">                  0.1 the data is flagged 1, because the Rosemount graph is </span>
+<span class="sd">                  invalid below 0.1, and if Machno below 0.05, a value of 0.05</span>
+<span class="sd">                  is use to ensure a valid logarithm.  The algorithm used for</span>
+<span class="sd">                  heating correction is:</span>
+
+<span class="sd">             (exp(exp(1.171+(log(Machno)+2.738)*(-0.000568*(s+q)-0.452))))*0.1 </span>
+
+<span class="sd">                  where: s=static pressure       [mbs]</span>
+<span class="sd">                         q=pitot static pressure [mbs]</span>
+
+
+<span class="sd">                  True Air Temperature is derived as:</span>
+
+<span class="sd">                  TAT[K] = (Indicated Air Temperature[K]) /</span>
+<span class="sd">                                (1.0 +(0.2 * MACHNO * MACHNO * TRECFTR))</span>
+
+<span class="sd">                  where: MACHNO  is computed by scientific subroutine S_MACH.</span>
+<span class="sd">                         TRECFTR is the Temperature recovery factor - used to</span>
+<span class="sd">                                 compensate for effects of kinetic heating.</span>
+<span class="sd">                                 This is supplied as a constant from the</span>
+<span class="sd">                                 flight constants file to this routine.</span>
+
+<span class="sd">                                 It can be calculated from flight results of</span>
+<span class="sd">                                 slow/fast runs as:</span>
+
+<span class="sd">                   (Tindfast-Tindslow)/(Ffast*Tindslow-Fslow*Tindfast)</span>
+
+<span class="sd">                                 where: Tind = indicated temperature [K]</span>
+<span class="sd">                                        F    = 0.2 * Machno * Machno</span>
+
+<span class="sd">                  Flagging:</span>
+
+<span class="sd">                  Both deiced and non-deiced temperature calculations follow</span>
+<span class="sd">                  a similar scheme for error flagging, with worst case flags</span>
+<span class="sd">                  being propagated through the calculations.  Sources of error</span>
+<span class="sd">                  flags are: </span>
+
+<span class="sd">                      Absence of calibration constants    - flag 3</span>
+<span class="sd">                      Absence of recovery factor constant - flag 3</span>
+<span class="sd">                      Static pressure errors              - Parameter 576 flag</span>
+<span class="sd">                      Pitot pressure errors               - Parameter 577 flag</span>
+<span class="sd">                      Max/min/rate of change errors       - flag 2</span>
+<span class="sd">                      Mach No less than 0.1               - flag 1</span>
+
+<span class="sd">                  Not all the above errors need affect all measurements.  For</span>
+<span class="sd">                  instance pressure errors will not affect Indicated Air</span>
+<span class="sd">                  Temperatures, unless the deicing heater is on.  Note that</span>
+<span class="sd">                  this module cannot be called if any of the raw (not derived)</span>
+<span class="sd">                  parameters are missing.  Also note that no raw data on which</span>
+<span class="sd">                  this module can be used will be carrying flags (only raw</span>
+<span class="sd">                  data transcribed on the Gould computer can carry flags).  If</span>
+<span class="sd">                  any temperature has a flag of three, its value is set to</span>
+<span class="sd">                  0.0 K (and flagged with a three).</span>
+
+<span class="sd"> VERSION          1.00  10/09/92  W.D.N.JACKSON</span>
+
+<span class="sd"> ARGUMENTS     </span>
+<span class="sd">                  Constants:</span>
+<span class="sd">                  RCONST(1)   Recovery factor for Deiced sensor</span>
+<span class="sd">                  RCONST(2)   Recovery factor for Non-deiced sensor</span>
+<span class="sd">                  RCONST(3)   Deiced X0 calibration constant (deg C)</span>
+<span class="sd">                  RCONST(4)   Deiced X1 calibration constant (deg C)</span>
+<span class="sd">                  RCONST(5)   Deiced X2 calibration constant (deg C)</span>
+<span class="sd">                  RCONST(6)   Non-deiced X0 calibration constant (deg C)</span>
+<span class="sd">                  RCONST(7)   Non-deiced X1 calibration constant (deg C)</span>
+<span class="sd">                  RCONST(8)   Non-deiced X2 calibration constant (deg C)</span>
+
+<span class="sd">                  Inputs: </span>
+<span class="sd">                  DEICED TEMPERATURE            [bits 0-15]     Para  10 32Hz</span>
+<span class="sd">                  NON DEICED TEMPERATURE        [bits 0-15]     Para  23 32Hz</span>
+<span class="sd">                  SIGNAL REGISTER               [drs units-bcd] Para  27  2Hz</span>
+<span class="sd">                  STATIC PRESSURE               [mbs]           Para 576 32Hz</span>
+<span class="sd">                  PITOT STATIC PRESSURE         [mbs]           Para 577 32Hz</span>
+
+<span class="sd">                  Outputs: </span>
+<span class="sd">                  INDICATED AIR TEMPERATURE (Deiced)   [K]      Para 519 32Hz</span>
+<span class="sd">                  TRUE AIR TEMPERATURE      (Deiced)   [K]      Para 520 32Hz</span>
+<span class="sd">                  INDICATED AIR TEMPERATURE (NonDeiced)[K]      Para 524 32Hz</span>
+<span class="sd">                  TRUE AIR TEMPERATURE      (NonDeiced)[K]      Para 525 32Hz</span>
+<span class="sd">                </span>
+<span class="sd"> SUBPROGRAMS      S_MACH           Calculates Mach no</span>
+<span class="sd">                  ITSTFLG          Examines bits 16,17 for flags</span>
+<span class="sd">                  ISETFLG          Sets flag bits 16,17 = 0 --&gt; 3</span>
+<span class="sd">                  S_QCPT           Performs range and rate of change check</span>
+
+<span class="sd"> REFERENCES       Code adapted from C_TEMPS module.  See MRF Internal Note 55 -</span>
+<span class="sd">                  &#39;Temperature Measurement Working Group Report&#39; for full</span>
+<span class="sd">                  details of C-130 temperature measurement.</span>
+
+<span class="sd"> CHANGES          V1.01  27/09/02  W.D.N.JACKSON</span>
+<span class="sd">                  Changed to handle 16 bit temperature recording.</span>
+<span class="sd">                  V1.02  23/05/05  D.A.TIDDEMAN</span>
+<span class="sd">                  Temperature heater correction changed to opposite sense</span>
+<span class="sd">                  Now raw para 27 bit 5 on = heater on</span>
+<span class="sd">*******************************************************************************</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;TRFCTR&#39;</span><span class="p">,</span> <span class="s">&#39;CALDIT&#39;</span><span class="p">,</span> <span class="s">&#39;CALNDT&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_DITM&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_SREG&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NDTM&#39;</span><span class="p">,</span> <span class="s">&#39;SECS&#39;</span><span class="p">,</span><span class="s">&#39;PS_RVSM&#39;</span><span class="p">,</span> <span class="s">&#39;Q_RVSM&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;ITDI&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;DEG K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">519</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;DEICED IND TEMP&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TAT_DI_R&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;degK&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">520</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;True air temperature from the Rosemount deiced temperature sensor.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NDTI&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;DEG K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">524</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;NONDEICED IND TEMP&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TAT_ND_R&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;degK&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">525</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;True air temperature from the Rosemeount non-deiced temperature sensor.&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;TEMPS2&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -9,7 +9,6 @@ from optparse import OptionParser
 import re
 import time
 from ppodd.core import decades_dataset
-import matplotlib.pyplot as plt
 import tkMessageBox
 import zipfile
 import shutil

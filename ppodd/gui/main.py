@@ -6,7 +6,8 @@ from views import viewparas,viewmodules
 from archive import viewarchive
 from files import viewfiles
 import ppodd
-
+import matplotlib
+matplotlib.use('Tkagg')
 
 class main(Tk.Tk):
     
@@ -53,7 +54,7 @@ class main(Tk.Tk):
         self.paras=self.data.write_nc.input_names
         self.fileview=viewfiles(self.viewpane,self.data,bg=self.cget('bg'))
         self.setview('files')
-
+        Tk.mainloop()
         
 
     def setviewtitle(self,title):
@@ -225,4 +226,4 @@ Help:
 if __name__=="__main__":
     colour='honeydew'
     m=main(bg=colour)
-    Tk.mainloop()
+

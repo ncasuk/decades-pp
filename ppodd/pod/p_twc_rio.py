@@ -3,7 +3,7 @@ from ppodd.core import *
 
 class twc_rio(cal_base):
     """ 
-       Flag and calibrate raw TWC data
+    Flag and calibrate raw TWC data
     """
     def __init__(self,dataset):
         self.input_names=['CALTNOS', 'CALTSAM', 'CALTAMB', 'CALTSRC', 'CALHTR1', 'CALHTR2', 'CALISRC',
@@ -23,16 +23,7 @@ class twc_rio(cal_base):
         #self.name='TWC'
         self.version=1.00
         cal_base.__init__(self,dataset)
-        
-    def swap(self,cal,vlim,xlim=(0,4096)):
-        import matplotlib.pyplot as plt
-        m=2*vlim*1024/4095.0
-        #x=np.arange(xlim[0],xlim[1])
-        x=np.arange(0,4095)
-        x2=x*m-vlim*1024
-        y=np.polyval(cal[::-1],x)
-        return np.polyfit(x2,y,len(cal)-1)
-            
+                    
     def process(self):
         """
         detector between max and min ( -9,+9 )
@@ -43,14 +34,14 @@ class twc_rio(cal_base):
         calhtr1 - 0.3A < I < 6.6A                                 0.5A/s
         calhtr2 - 0.3A < I < 6.6A                                 0.5A/s
         calisrc - -0.4mA < I < -1.1mA                             0.05mA/s
-!c_twc     Lyman alpha total water - temps in K, currents in A, TWC decades refit 22/10/2013
-CALTNOS   1.2614E-16 -1.8668E-12  1.2704E-08  9.4262E-03  3.1654E+02
-CALTSAM   2.5406E-17  3.5253E-13  2.1300E-09  7.1707E-06  2.7927E-02  4.0343E+02
-CALTAMB   2.9951E-13  9.3288E-10 -4.0779E-06  1.6016E-02  2.7390E+02
-CALTSRC   2.8700E-18 -1.2794E-14  2.8480E-11  2.2585E-10  9.5178E-03  3.7298E+02
-CALHTR1   9.7752E-04  0.0000E+00
-CALHTR2   9.7752E-04  0.0000E+00
-CALISRC   9.7636E-08 -2.5957E-06
+        !c_twc     Lyman alpha total water - temps in K, currents in A, TWC decades refit 22/10/2013
+        CALTNOS   1.2614E-16 -1.8668E-12  1.2704E-08  9.4262E-03  3.1654E+02
+        CALTSAM   2.5406E-17  3.5253E-13  2.1300E-09  7.1707E-06  2.7927E-02  4.0343E+02
+        CALTAMB   2.9951E-13  9.3288E-10 -4.0779E-06  1.6016E-02  2.7390E+02
+        CALTSRC   2.8700E-18 -1.2794E-14  2.8480E-11  2.2585E-10  9.5178E-03  3.7298E+02
+        CALHTR1   9.7752E-04  0.0000E+00
+        CALHTR2   9.7752E-04  0.0000E+00
+        CALISRC   9.7636E-08 -2.5957E-06
         """
         caltnos=self.dataset['CALTNOS'].data
         caltsam=self.dataset['CALTSAM'].data

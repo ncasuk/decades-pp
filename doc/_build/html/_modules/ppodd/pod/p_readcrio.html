@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_readcrio &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_readcrio</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+
+<div class="viewcode-block" id="readcrio"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_readcrio.readcrio">[docs]</a><span class="k">class</span> <span class="nc">readcrio</span><span class="p">(</span><span class="n">file_read</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Routine for reading in CRIO data</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;CRIO&#39;</span><span class="p">,</span><span class="s">&#39;DATE&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;*.csv&#39;</span><span class="p">,)</span>
+        <span class="n">file_read</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="readcrio.fixfilename"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_readcrio.readcrio.fixfilename">[docs]</a>    <span class="k">def</span> <span class="nf">fixfilename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">b</span><span class="p">[:</span><span class="mi">6</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="readcrio.readfile"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_readcrio.readcrio.readfile">[docs]</a>    <span class="k">def</span> <span class="nf">readfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; require 2 parts the definition and the data</span>
+<span class="sd">            may have several data files that need combining </span>
+<span class="sd">            Assume they are all in one folder.</span>
+<span class="sd">            Assume the name given is just</span>
+<span class="sd">            folder/type</span>
+<span class="sd">            eg.</span>
+<span class="sd">            decades_data/Bxxx/AERACK01</span>
+<span class="sd">            so any thing in folder/*type* is data</span>
+<span class="sd">            and             folder/type_TCP*.csv is definition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Open CRIO file </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">dirname</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">file_type</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)[:</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">ls</span><span class="o">=</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+        <span class="n">bins</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">deffiles</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.csv&#39;</span><span class="p">):</span>
+                    <span class="n">deffiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        
+        <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;There are </span><span class="si">%i</span><span class="s"> definition files &#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">deffiles</span><span class="p">))</span>
+        <span class="n">deffile</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="nb">sorted</span><span class="p">(</span><span class="n">deffiles</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Using definition file = </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">deffile</span><span class="p">)</span>
+        <span class="n">defin</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">deffile</span><span class="p">,</span><span class="s">&#39;rb&#39;</span><span class="p">),</span><span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">conv</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;text&#39;</span><span class="p">:</span><span class="s">&#39;S&#39;</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">:</span><span class="s">&#39;&gt;&#39;</span><span class="p">,</span><span class="s">&#39;&gt;&#39;</span><span class="p">:</span><span class="s">&#39;&gt;&#39;</span><span class="p">,</span><span class="s">&#39;&lt;&#39;</span><span class="p">:</span><span class="s">&#39;&lt;&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">ty</span> <span class="ow">in</span> <span class="p">{</span><span class="s">&#39;unsigned_int&#39;</span><span class="p">:</span><span class="s">&#39;u&#39;</span><span class="p">,</span><span class="s">&#39;int&#39;</span><span class="p">:</span><span class="s">&#39;i&#39;</span><span class="p">,</span><span class="s">&#39;signed_int&#39;</span><span class="p">:</span><span class="s">&#39;i&#39;</span><span class="p">,</span><span class="s">&#39;double&#39;</span><span class="p">:</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;single_float&#39;</span><span class="p">:</span><span class="s">&#39;f&#39;</span><span class="p">,</span>
+                       <span class="s">&#39;float&#39;</span><span class="p">:</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;single&#39;</span><span class="p">:</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;double_float&#39;</span><span class="p">:</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;boolean&#39;</span><span class="p">:</span><span class="s">&#39;u&#39;</span><span class="p">,</span><span class="s">&#39;f&#39;</span><span class="p">:</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;i&#39;</span><span class="p">:</span><span class="s">&#39;i&#39;</span><span class="p">,</span><span class="s">&#39;u&#39;</span><span class="p">:</span><span class="s">&#39;u&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">conv</span><span class="p">[</span><span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">ty</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="n">en</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">ty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">label</span><span class="o">=</span><span class="s">&#39;&#39;</span>
+        <span class="n">outputs</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">dt</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">total</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">defin</span><span class="p">:</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="s">&#39;field&#39;</span> <span class="p">:</span>
+                        <span class="n">total</span><span class="o">+=</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">if</span><span class="p">(</span><span class="n">label</span><span class="o">==</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+                            <span class="n">full_descriptor</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">label</span><span class="o">=</span><span class="n">full_descriptor</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                            <span class="n">dt</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="s">&#39;S&#39;</span><span class="o">+</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="k">elif</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s">&#39;grpid&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">label</span><span class="o">==</span><span class="s">&#39;G&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s">&#39;2&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s">&#39;2&#39;</span><span class="p">)):</span>
+                            <span class="n">label</span><span class="o">=</span><span class="s">&#39;GINDAT&#39;</span>
+                            <span class="n">full_descriptor</span><span class="o">+=</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&#39;&lt;H&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="n">dt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span><span class="s">&#39;S6&#39;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">f</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                            <span class="n">para</span><span class="o">=</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parameter</span><span class="p">(</span><span class="n">para</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="n">f</span><span class="p">,</span>
+                                                  <span class="n">long_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+                                                  <span class="n">units</span><span class="o">=</span><span class="s">&#39;RAW&#39;</span><span class="p">))</span>
+                            <span class="k">if</span><span class="p">(</span><span class="n">f</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span>
+                                <span class="n">dt</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">para</span><span class="p">,</span><span class="n">conv</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">+</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],(</span><span class="n">f</span><span class="p">,)))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">dt</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">para</span><span class="p">,</span><span class="n">conv</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">+</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Invalid CRIO definition </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">deffile</span><span class="p">)</span>
+            <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span><span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fil</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bins</span><span class="p">):</span>
+            <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Reading </span><span class="si">%s</span><span class="s"> &#39;</span> <span class="o">%</span> <span class="n">fil</span><span class="p">)</span>
+            <span class="n">filen</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="n">fil</span><span class="p">)</span>
+            <span class="n">statinfo</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">filen</span><span class="p">)</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">statinfo</span><span class="o">.</span><span class="n">st_size</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">size</span> <span class="o">%</span> <span class="n">total</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Data truncated </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filen</span><span class="p">)</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">size</span><span class="o">/</span><span class="n">total</span>
+            <span class="n">offs</span><span class="o">=</span><span class="mi">0</span> 
+            <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+                <span class="n">z</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span><span class="n">filen</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,))</span> <span class="c"># Try a simple read </span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">=</span><span class="n">z</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="s">&#39;label&#39;</span><span class="p">]</span><span class="o">!=</span><span class="n">full_descriptor</span><span class="p">)):</span>
+                    <span class="n">nfulld</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">full_descriptor</span><span class="p">)</span>  <span class="c"># If the simple read fails read in byte at a time</span>
+                    <span class="n">z</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,),</span><span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+                    <span class="n">n</span><span class="o">=</span><span class="mi">0</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filen</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">strdata</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">nl</span><span class="o">=</span><span class="mi">0</span>
+                    <span class="n">inds</span><span class="o">=</span><span class="p">[]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">while</span><span class="p">(</span><span class="bp">True</span><span class="p">):</span>
+                            <span class="n">nl</span><span class="o">=</span><span class="n">strdata</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">full_descriptor</span><span class="p">,</span><span class="n">nl</span><span class="p">)</span>
+                            <span class="n">inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nl</span><span class="p">)</span>
+                            <span class="k">if</span><span class="p">(</span><span class="n">nl</span><span class="o">+</span><span class="n">total</span><span class="o">&lt;=</span><span class="nb">len</span><span class="p">(</span><span class="n">strdata</span><span class="p">)):</span>
+                                <span class="n">z</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">offs</span><span class="p">:</span><span class="n">offs</span><span class="o">+</span><span class="n">total</span><span class="p">]</span><span class="o">=</span><span class="n">strdata</span><span class="p">[</span><span class="n">nl</span><span class="p">:</span><span class="n">nl</span><span class="o">+</span><span class="n">total</span><span class="p">]</span>
+                                <span class="n">offs</span><span class="o">+=</span><span class="n">total</span>
+                                <span class="n">n</span><span class="o">+=</span><span class="mi">1</span>
+                            <span class="n">nl</span><span class="o">+=</span><span class="n">total</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="sd">&quot;&quot;&quot;import matplotlib.pyplot as plt #Plots to diagnose weird message lengths</span>
+<span class="sd">                        plt.figure()</span>
+<span class="sd">                        plt.ion()</span>
+<span class="sd">                        inds=np.array(inds)</span>
+<span class="sd">                        plt.plot(inds[1:]-inds[:-1])</span>
+<span class="sd">                        plt.title(&#39;Packet lengths for &#39;+os.path.basename(filen))&quot;&quot;&quot;</span>
+                        <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Weird message lengths </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filen</span><span class="p">)</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">z</span><span class="p">[:</span><span class="n">n</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">dtype_names</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dt</span><span class="p">:</span>
+            <span class="n">dtype_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            
+            <span class="k">if</span><span class="p">(</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_utc_time&#39;</span> <span class="ow">in</span> <span class="n">dtype_names</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rawtimes</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_utc_time&#39;</span><span class="p">]</span>
+                <span class="n">times</span><span class="o">=</span><span class="n">timestamp</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_utc_time&#39;</span><span class="p">],</span><span class="n">fromdate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;DATE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">times</span><span class="p">,</span><span class="n">ind</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">return_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">twodays</span><span class="o">=</span><span class="p">(</span><span class="n">times</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">times</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">((</span><span class="o">~</span><span class="n">twodays</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+                    <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Some </span><span class="si">%s</span><span class="s"> times out of range - Ignoring&quot;</span> <span class="o">%</span> <span class="n">label</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_ptp_sync&#39;</span> <span class="ow">in</span> <span class="n">dtype_names</span><span class="p">):</span>
+                    <span class="n">good</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ind</span><span class="p">][</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_ptp_sync&#39;</span><span class="p">]</span><span class="o">==</span><span class="s">&#39;1&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">twodays</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">good</span><span class="o">==</span><span class="bp">False</span><span class="p">)):</span>
+                        <span class="n">good</span><span class="o">=</span><span class="n">twodays</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">good</span><span class="o">=</span><span class="n">twodays</span>
+                <span class="n">times</span><span class="o">=</span><span class="n">times</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_time1&#39;</span> <span class="ow">in</span> <span class="n">dtype_names</span><span class="p">):</span>
+                <span class="c"># GIN ?</span>
+                <span class="n">ind</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_time1&#39;</span><span class="p">]))</span>
+                <span class="n">times</span><span class="o">=</span><span class="n">gintime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_time1&#39;</span><span class="p">],</span><span class="n">data</span><span class="p">[</span><span class="n">label</span><span class="o">+</span><span class="s">&#39;_time2&#39;</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;DATE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">good</span><span class="o">=</span><span class="n">ind</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;No recognised timing&#39;</span><span class="p">)</span>
+                <span class="k">return</span>             
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;label&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">full_descriptor</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Could be corrupted&#39;</span><span class="p">)</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            for o in outputs:</span>
+<span class="sd">                if o.name==label+&#39;_utc_time&#39;:</span>
+<span class="sd">                    o.data=timed_data(times,times)</span>
+<span class="sd">                    o.number=515</span>
+<span class="sd">                else:</span>
+<span class="sd">                    o.data=timed_data(data[o.name][ind[good]],times) &quot;&quot;&quot;</span>
+            <span class="n">tout</span><span class="o">=</span><span class="bp">None</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="o">=</span><span class="n">timed_data</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="n">ind</span><span class="p">[</span><span class="n">good</span><span class="p">]],</span><span class="n">times</span><span class="p">)</span>
+                                            
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&#39;outputs&#39;</span><span class="p">,[])</span><span class="o">+</span><span class="n">outputs</span>
+
+</div></div>
+<div class="viewcode-block" id="ginday"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_readcrio.ginday">[docs]</a><span class="k">def</span> <span class="nf">ginday</span><span class="p">(</span><span class="n">fromdate</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">date2time</span><span class="p">(</span><span class="n">fromdate</span><span class="p">))</span><span class="o">.</span><span class="n">tm_wday</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">7</span>  <span class="c"># day since saturday night</span>
+    </div>
+<div class="viewcode-block" id="gintime"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_readcrio.gintime">[docs]</a><span class="k">def</span> <span class="nf">gintime</span><span class="p">(</span><span class="n">time1</span><span class="p">,</span><span class="n">time2</span><span class="p">,</span><span class="n">date</span><span class="p">):</span>
+    <span class="n">day</span><span class="o">=</span><span class="mf">86400.0</span>
+    <span class="n">week</span><span class="o">=</span><span class="n">day</span><span class="o">*</span><span class="mi">7</span>
+    <span class="n">gsecs</span><span class="o">=</span><span class="n">day</span><span class="o">*</span><span class="n">ginday</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">sgin</span><span class="o">=</span><span class="n">time1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">gsecs</span>
+    <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;GSECS=</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">gsecs</span><span class="p">)</span>
+    <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;TIME1[0]=</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">time1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;SGIN=</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">sgin</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">sgin</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">sgin</span><span class="o">+=</span><span class="n">week</span>  <span class="c"># if was started on the Sunday after the date ...</span>
+    <span class="n">tfrom</span><span class="o">=</span><span class="n">time2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">sgin</span>
+    <span class="n">diff1</span><span class="o">=</span><span class="n">time1</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">time1</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">diff2</span><span class="o">=</span><span class="n">time2</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">time2</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot; If GIN is restarted - time2 will probably decrease, and unless this happens over the transition from Sat to Sun</span>
+<span class="sd">        time1 will increase - so correct time2 with time1</span>
+<span class="sd">        If both decrease - an unfortunately turn of events</span>
+<span class="sd">        Assume crossed over midnight Saturday and add a weeks worth of seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">diff2</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">timereverse</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diff2</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">incident</span> <span class="ow">in</span> <span class="n">timereverse</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">diff1</span><span class="p">[</span><span class="n">incident</span><span class="p">]</span><span class="o">&lt;</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="o">*</span><span class="n">day</span><span class="p">)):</span>
+                <span class="n">diff1</span><span class="p">[</span><span class="n">incident</span><span class="p">]</span><span class="o">+=</span><span class="n">week</span>
+            <span class="n">time2</span><span class="p">[</span><span class="n">incident</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">+=</span><span class="n">diff1</span><span class="p">[</span><span class="n">incident</span><span class="p">]</span><span class="o">-</span><span class="n">diff2</span><span class="p">[</span><span class="n">incident</span><span class="p">]</span>
+    <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;TIME2[0]=</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">time2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ppodd</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;TFROM=</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">tfrom</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">timestamp</span><span class="p">(</span><span class="n">time2</span><span class="o">-</span><span class="n">tfrom</span><span class="p">)</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

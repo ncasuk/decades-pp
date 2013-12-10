@@ -46,6 +46,7 @@ class twc_fit_wvss(cal_base):
             print 'WVSS FIT=',fit
             self.outputs[0].data=list(fit)
             import matplotlib.pyplot as plt
+            plt.ion()
             plt.figure()
             plt.plot(v,(vp1/t2)+(KO*uO*p1/(Kv*t2)),'bx')
             plt.plot(v[iuse],(vp1/t2)[iuse]+(KO*uO*p1/(Kv*t2))[iuse],'gx')
@@ -53,6 +54,5 @@ class twc_fit_wvss(cal_base):
             plt.plot(v,ans,'r')
             plt.xlim(np.min(v[iuse]),np.max(v[iuse]))
             plt.ylim(np.polyval(fit,plt.xlim()))
-            plt.ion()
             plt.title('TWC vs WVSSA fit=%f + %f*x' % (fit[1],fit[0]))
 

@@ -118,6 +118,9 @@ class decades_dataset(OrderedDict):
         for ar in args:
             self.add_file(ar)
         
+    def __repr__(self):
+        return 'Decades dataset '+repr(self.keys())
+
     def add_para(self,paratype,name,*args,**kwargs):
         if(paratype=='Data'):
             self[name]=parameter(name,*args,**kwargs)
@@ -207,7 +210,10 @@ class decades_dataset(OrderedDict):
             import ppodd.pod
             classes=ppodd.pod.modules
         for m in classes:
-            self.modules[m]=classes[m](self)
+            try:
+                self.modules[m]=classes[m](self)
+            except:
+                ppodd.logger.info('%s probably a base class so cannot instatiate' % m)
 
     def clearmods(self):
         for m in self.modules.values():
@@ -278,7 +284,8 @@ class decades_dataset(OrderedDict):
             if(m in x):
                 self.modules[m].runstate='ignore'
             else:
-                self.modules[m].runstate='ready'
+                if(self.modules[m].runstate=='ignore'):
+                    self.modules[m].runstate='ready'
         for y in x:
             if y not in self.modules:
                 ppodd.logger.warning('%s module not in dataset' % y)
@@ -691,6 +698,8 @@ class cal_base(object):
         self.version=1.0
         self.runstate='ready'
         self.history=''
+        i=self.input_names
+        o=self.outputs
         self.name=self.__class__.__name__.upper()
 
     def getinput(self):
@@ -714,13 +723,12 @@ class cal_base(object):
                     for o in self.outputs:
                         self.dataset[o.name]=o
                     self.addhistory()
-                except:
+                except Exception as e:
+                    ppodd.logger.warning('Exception in ... %s' % self.name)
+                    ppodd.logger.warning(str(e))
                     self.runstate='fail'
             else:
                 self.runstate='fail'
-
-    def process(self):
-        pass
                 
     def addhistory(self):
         if(len(self.outputs)>0):
@@ -877,8 +885,7 @@ class fort_cal(cal_base):
                 else:
                     s=slice(ofs,ofs+frq)
                 p.data=flagged_data(dout[:,s],match,flagout[:,s])
-                ofs+=frq
-        cal_base.process(self)    
+                ofs+=frq  
 
     def __repr__(self):        
         return self.name+' runs fortran '+self.fortname

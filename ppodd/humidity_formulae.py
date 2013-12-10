@@ -53,7 +53,7 @@ def fp2vp(fp,p=[],temp=[],enhance=False):
     k=np.array([-5.8666426e3,2.232870244e1,1.39387003e-2,-3.4262402e-5,2.7040955e-8,6.7063522e-1],dtype='f8')
     lnes=np.zeros(fp.shape,dtype='f8')
     for i in range(5):
-        lnes=lnes+k[i]*(fp**(i-1))
+        lnes=lnes+k[i]*(fp**(i-1.0))
     lnes+=k[5]*np.log(fp)
     vp=np.exp(lnes)/100.0
     if(enhance and len(p)>0):
@@ -81,7 +81,7 @@ def dp2vp(dp,p=[],temp=[],enhance=False):
     g=np.array([-2.8365744e3,-6.028076559e3,1.954263612e1,-2.737830188e-2, 
        1.6261698e-5,7.0229056e-10,-1.8680009e-13,2.7150305],dtype='f8')
     lnes=np.log(dp)*g[7]
-    for i in range(7):lnes=lnes+g[i]*(dp**(i-2))
+    for i in range(7):lnes=lnes+g[i]*(dp**(i-2.0))
     vp=np.exp(lnes)/1e2
     if(enhance and len(p)>0) :
         A=np.array([-1.6302041e-1,1.8071570e-3,-6.7703064e-6,8.5813609e-9],dtype='f8')

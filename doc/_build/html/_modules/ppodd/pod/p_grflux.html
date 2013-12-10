@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_grflux &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_grflux</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="grflux"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_grflux.grflux">[docs]</a><span class="k">class</span> <span class="nc">grflux</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_GRFLUX</span>
+<span class="sd">------------------------------------------------------------------------------</span>
+<span class="sd"> ROUTINE  	   C_RFLUX        SUBROUTINE FORTVAX       [C_RFLUX.FOR]</span>
+<span class="sd">     </span>
+<span class="sd"> PURPOSE 	   CORRECT RAW FLUXES FOR PYRANOMETERS AND PYRGEOMETERS</span>
+<span class="sd">                  </span>
+<span class="sd"> DESCRIPTION      Flux corrections are performed for the six instruments</span>
+<span class="sd">                  which are normally configured:</span>
+<span class="sd">                  Upward-facing :-  Clear dome and Red dome pyranometers.</span>
+<span class="sd">                                    Silver dome pyrgeometer.</span>
+<span class="sd">                  Downward-facing:- Clear dome and Red dome pyranometers.</span>
+<span class="sd">                                    Silver dome pyrgeometer.</span>
+<span class="sd">                  </span>
+<span class="sd">                  The actual configuration is specified by the preset array</span>
+<span class="sd">                  ICONF, which has six elements whose meaning interpreted as:</span>
+<span class="sd">                    1,4 : Clear dome pyranometer  (upper/lower)</span>
+<span class="sd">                    2,5 : red    &quot;       &quot;           &quot;     &quot;</span>
+<span class="sd">                    3,6 : Silver &quot;   pyrgeometer     &quot;     &quot;</span>
+<span class="sd">                  (normally: ICONF(1-3) Upper instruments.</span>
+<span class="sd">                             ICONF(4-6) Lower instruments.)</span>
+<span class="sd">                  </span>
+<span class="sd">                 Check that the normal configuration of instruments is to</span>
+<span class="sd">                 be used. Any changes are indicated by the presence of a large</span>
+<span class="sd">                 offset to the last calibration constant for any instrument</span>
+<span class="sd">                 (i.e. the obscurer indicator constant).</span>
+<span class="sd">                 If this is present the offset is interpreted as a revised</span>
+<span class="sd">                 ICONF indicator for that instrument. See note below.]</span>
+
+<span class="sd">                  n.b. Lower instruments were fitted w.e.f. Flight H797</span>
+<span class="sd">                       Upper instruments were fitted w.e.f. Flight H842</span>
+
+<span class="sd">                  This value solely determines the control path through the</span>
+<span class="sd">                  routine for the processing of each instruments inputs.</span>
+<span class="sd">                  Should the configuration aboard the aircraft be changed</span>
+<span class="sd">                  the array ICONF should be adjusted accordingly.</span>
+<span class="sd">                  e.g. If ICONF(1) was modified := 2; it would imply that the</span>
+<span class="sd">                  &#39;channel&#39; contained raw flux, zero-offset and thermistor</span>
+<span class="sd">                  values for a red dome - rather than clear - pyranometer.</span>
+<span class="sd">                  The value of ICONF(1) i.e. 2 would determine the processing</span>
+<span class="sd">                  path, the selection of the appropriate set of constants</span>
+<span class="sd">                  to apply for correction and the range checking.</span>
+
+<span class="sd"> NOTE             CHANGES FROM STANDARD CONFIGURATION.                    </span>
+<span class="sd">                  Should the configuration of BBR instruments aboard the </span>
+<span class="sd">                  aircraft be changed e.g. swapping a red dome for clear dome,</span>
+<span class="sd">                  the array ICONF is  adjusted accordingly. The mechanism used</span>
+<span class="sd">                  is to add an offset to the sixth constant in the calibration </span>
+<span class="sd">                  constants file (i.e. the obscurer) for that instrument.</span>
+<span class="sd">                  Example: If the second &#39;channel&#39; (inputs 674,677,680) which</span>
+<span class="sd">                  in the standard configuration is a red dome pyranometer,</span>
+<span class="sd">                  was replaced with a second clear dome instrument, the sixth</span>
+<span class="sd">                  constant for the second line of the constants for C_RFLUX </span>
+<span class="sd">                  would be changed from 1.0000E+0 to 21.0000E+0, the offset </span>
+<span class="sd">                  decodes to &quot;2&quot; when detected by this program. </span>
+<span class="sd">                  This is assigned to ICONF(2) and would imply that the </span>
+<span class="sd">                  &#39;channel&#39; inputs contain raw flux, zero-offset and thermistor </span>
+<span class="sd">                  values for a red dome - rather than clear dome - pyranometer,</span>
+<span class="sd">                  and should be range-checked for that type of output only.</span>
+<span class="sd">                 </span>
+<span class="sd">                  Corrections applied:</span>
+<span class="sd">                  --------------------</span>
+<span class="sd">                  Pyranometers (Clear and Red dome) are corrected for:</span>
+<span class="sd">                  - Subtraction of a zero offset (mean over past 10 seconds)</span>
+<span class="sd">                  - Attitude (pitch and roll) -Upper instruments only.</span>
+<span class="sd">                    test if flux is above a critical limit indicating a direct</span>
+<span class="sd">                    solar beam component.</span>
+<span class="sd">                      If not direct, assume diffuse and apply no attitude corr.</span>
+<span class="sd">                      If DIRECT, a geometric correction is used to &quot;level&quot;</span>
+<span class="sd">                      the instrument to produce the equivalent hemispheric</span>
+<span class="sd">                      downward flux through a horizontal surface (without</span>
+<span class="sd">                      inclusion of diffuse component).</span>
+<span class="sd">                      The ratio of the Direct:Direct+Diffuse components is</span>
+<span class="sd">                      assumed to be 0.95 at present. This value could be</span>
+<span class="sd">                      optimised for a particular atmosphere depending on the </span>
+<span class="sd">                      turbidity as a function of height.</span>
+<span class="sd">                      </span>
+<span class="sd">                      Correct for COSINE effect. (MRF Technical note No.7).</span>
+<span class="sd">                      [Pitch and roll offsets of the instrument thermopiles</span>
+<span class="sd">                      relative to the aircraft INS platform are derived in</span>
+<span class="sd">                      flight by flying a box pattern in cloud-free skies -</span>
+<span class="sd">                      These offsets are then used in addition to the INS pitch</span>
+<span class="sd">                      and roll (meaned over two seconds). (See MRF Technical</span>
+<span class="sd">                      note No 4.) and these values are supplied as arguments </span>
+<span class="sd">                      four and five in each set of CONSTANTS below.</span>
+<span class="sd">                  - Time constant of thermopile relative to INS. The mean of</span>
+<span class="sd">                    last two seconds of INS pitch/roll angles are used in the</span>
+<span class="sd">                    attitude correction, giving an effective difference of</span>
+<span class="sd">                    0.5 seconds.</span>
+<span class="sd">                  - Correct flux output for proportion of hemispheric dome </span>
+<span class="sd">                    obscured by indicated obscurer pillar. (Rawlins 1986).</span>
+
+<span class="sd">                  Pyrgeometers (IR) are corrected for:</span>
+<span class="sd">                  - Zero offset (mean over past 10 seconds)</span>
+<span class="sd">                  - Temperature sensitivity  (Coefficients in CONSTANTS below)</span>
+<span class="sd">                  - Linear dependence 0.2% per degree with sensitivity defined </span>
+<span class="sd">                    as unity at zero C. applied to signal. (MRF Int note No 50)</span>
+<span class="sd">                  - Calculation of flux (sigma T^4 correction)</span>
+<span class="sd">                    Flux = signal +(sigma* Tsink^4) </span>
+<span class="sd">                    where sigma = Stefan-Boltzmann constant.</span>
+<span class="sd">                  _ Upper instrument is corrected for dome transmission</span>
+<span class="sd">                    effects (MRF Tech note 3)</span>
+
+<span class="sd"> VERSION	   1.17 05-09-07   D Tiddeman  </span>
+
+<span class="sd"> METHOD           1. First time routine is called, assign constants to named</span>
+<span class="sd">                     program variables/arrays.</span>
+<span class="sd">                     Decide on basis of input constants whether upper instr.</span>
+<span class="sd">                     data is available to be processed. </span>
+<span class="sd">                  2. Derive/convert any intermediate results used multiply</span>
+<span class="sd">                     within several code sections following.</span>
+<span class="sd">                  3. Derive running mean zero-offsets over the past 10 seconds</span>
+<span class="sd">                     for each instrument </span>
+<span class="sd">                     </span>
+<span class="sd">                  4. Calculate mean pitch and roll values for the current </span>
+<span class="sd">                     second and use them to derive running means for the past </span>
+<span class="sd">                     two seconds.</span>
+<span class="sd">                  5. Correct thermistor temperatures for non-linearity.</span>
+<span class="sd">                  6. Cycle through each of six instrument input channels.</span>
+<span class="sd">                     Use the control variable in ICONF() to select execution</span>
+<span class="sd">                     of appropriate code sections.</span>
+<span class="sd">                     In all cases; derive a signal zero-offset and reduce the</span>
+<span class="sd">                     signal flux by this amount.</span>
+<span class="sd">                     Apply temperature-dependance corrections to pyranometers.</span>
+<span class="sd">                     For upward-facing pyranometers the &#39;critical&#39; value to</span>
+<span class="sd">                     discriminate between diffuse and direct-sun conditions is</span>
+<span class="sd">                           FCRIT  = 920.*(COS(ZENRAD))**1.28 </span>
+<span class="sd">                     where ZENRAD : solar zenith angle (in radians)</span>
+<span class="sd">                     [N.B. This approximates to the &#39;German&#39; equation but is</span>
+<span class="sd">                      simpler, and does not produce negative values at low</span>
+<span class="sd">                      Sun elevations]. </span>
+<span class="sd">                     Correct flux output for proportion of hemispheric dome </span>
+<span class="sd">                     obscured by indicated obscurer pillar. (Rawlins 1986).</span>
+<span class="sd">                                                          </span>
+<span class="sd">                  7. Range check flux output and set a flag accordingly.</span>
+<span class="sd">                     Apply flag values to resulting flux output dependent on</span>
+<span class="sd">                     relevant flag settings.</span>
+<span class="sd">                  </span>
+<span class="sd"> ARGUMENTS        RCONST(1),( 7)..(31)  - REAL*4 IN Temperature Sens. coeff a</span>
+<span class="sd">                  RCONST(2),( 8)..(32)  - REAL*4 IN Temperature Sens. coeff b</span>
+<span class="sd">                  RCONST(3),( 9)..(33)  - REAL*4 IN Temperature Sens. coeff c</span>
+<span class="sd">                  RCONST(4),(10)..(34)  - REAL*4 IN Pitch offset of Instrument</span>
+<span class="sd">                  RCONST(5),(11)..(35)  - REAL*4 IN Roll  offset of Instrument</span>
+<span class="sd">                  RCONST(6),(12)..(36)  - REAL*4 IN Obscurer pillar type.</span>
+<span class="sd">                  </span>
+<span class="sd">                  RDER(1,par)             REAL*4  IN Six raw flux signals W/M-2</span>
+<span class="sd">                             (par=673-675,682-684)</span>
+<span class="sd">                  RDER(1,par)             REAL*4  IN six zero-offsets   (W/M-2)</span>
+<span class="sd">                             (par=676-678,685-687)</span>
+<span class="sd">                  RDER(1,par)             REAL*4  IN six instr. temperatures K</span>
+<span class="sd">                             (par=679-681,688-690)</span>
+<span class="sd">                  RDER(32,560)            REAL*4  IN INS Roll      (degrees)</span>
+<span class="sd">                  RDER(32,561)            REAL*4  IN INS Pitch     (degrees)</span>
+<span class="sd">                  RDER(32,562)            REAL*4  IN INS heading   (degrees)</span>
+<span class="sd">                  RDER(1,642)             REAL*4  IN Solar azimuth (degrees)</span>
+<span class="sd">                  RDER(1,643)             REAL*4  IN Solar zenith  (degrees)</span>
+
+<span class="sd">                                                              Pos. Dome  Units</span>
+<span class="sd">                  RDER(1,1019)            REAL*4 OUT Corrected Upp Clear W/m-2 </span>
+<span class="sd">                  RDER(1,1020)            REAL*4 OUT flux.      &quot;  Red dome &quot; </span>
+<span class="sd">                  RDER(1,1021)            REAL*4 OUT            &quot;  I/R      &quot;</span>
+<span class="sd">                  RDER(1,1022)            REAL*4 OUT           Low Clear    &quot;</span>
+<span class="sd">                  RDER(1,1023)            REAL*4 OUT            &quot;  Red dome &quot; </span>
+<span class="sd">                  RDER(1,1024)            REAL*4 OUT            &quot;  I/R      &quot; </span>
+
+<span class="sd"> SUBPROGRAMS  	   ITSTFLG, ISETFLG, S_RUNM, CORR_THM, RMEANOF, CIRC_AVRG</span>
+
+<span class="sd"> REFERENCES 	   MRF Internal note  4.</span>
+<span class="sd">                   &quot;     &quot;      &quot;   12.</span>
+<span class="sd">                   &quot;     &quot;      &quot;   31.</span>
+<span class="sd">                   &quot;     &quot;      &quot;   50.</span>
+<span class="sd">                   &quot;     &quot;      &quot;   56.</span>
+<span class="sd">                  MRF Technical note 3. Pyrgeometer Corrections due to Dome</span>
+<span class="sd">                                        Transmission.  February 1991 Kilsby</span>
+<span class="sd">                  MRF Technical note 7. Report of Broad-band radiative fluxes</span>
+<span class="sd">                                        working group. 17/12/91      Saunders</span>
+<span class="sd">                  MRF Technical note 8. Pyramometer calibrationsin Ascension</span>
+<span class="sd">                                        of Feb.1992.   4/6/92        Seymour</span>
+<span class="sd">                  RAWLINS  R        D/Met.O.(MRF)/13/1      1986.</span>
+<span class="sd">                  SAUNDERS R         &quot;        &quot;   &quot;         21/3/90</span>
+<span class="sd">                  SAUNDERS R        M/MRF/13/5              22/7/92</span>
+<span class="sd">                  </span>
+<span class="sd"> CHANGES          10/01/91 A.D.Hennings.</span>
+<span class="sd">                    Ability to change ICONF to when reconfiguring instrument</span>
+<span class="sd">                    fit on A/C using the constants file.</span>
+<span class="sd">                  10/01/91 Pitch &amp; Roll averaging changed from 3 to 2 seconds.</span>
+<span class="sd">                  25/01/91 Flags assessment changed; use of new flag IFLAG_SUN </span>
+<span class="sd">                  29/01/91 Roll limit checking:replace ROLBAR with ABS(ROLBAR).</span>
+<span class="sd">                           Flags assessment changed; IFLAG_OUTPUT being max of</span>
+<span class="sd">                           (signal,Pitch,Roll,Zenith) flags.               </span>
+<span class="sd">                  30/07/91 FCRIT for Red dome now only used if no clear dome </span>
+<span class="sd">                  16/10/91 Corrected pyrgeometer temp sensitivity correction</span>
+<span class="sd">                  20/01/92 Use INS heading instead of obsolete Omega heading.</span>
+<span class="sd">                  03/02/92 New subroutine CIRC_AVRG to calc INS mean heading</span>
+<span class="sd">                  21/07/92 Levelling of upper pyranometers changed to use </span>
+<span class="sd">                           direct beam component, and cosine effect included.</span>
+<span class="sd">                           Recommendations of MRF Tech note 7.   (V1.13)</span>
+<span class="sd">                           references to Tech note 8. and M/MRF/13/5</span>
+<span class="sd">                  24/07/92 Pyrgeometer corrections for Dome transmission. </span>
+<span class="sd">                           (Downwelling) MRF Tech note 3.             </span>
+<span class="sd">                  17/01/96 D Lauchlan</span>
+<span class="sd">                           Unused variables removed</span>
+<span class="sd">                  22/12/97 W D N Jackson, Flags cleared from all data before</span>
+<span class="sd">                           use.</span>
+<span class="sd">                  11/08/98 W D N Jackson, Upper pyranometer obscurer</span>
+<span class="sd">                           corrections changed to correct values.  The</span>
+<span class="sd">                           values have been incorrect in all previous versions</span>
+<span class="sd">                           of C_RFLUX. The error is only small. (Source </span>
+<span class="sd">                           P Hignett)</span>
+<span class="sd">                  05/09/07 D TIDDEMAN Will use GIN attitude if available rather </span>
+<span class="sd">                           then INU</span>
+
+<span class="sd">------------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;CALCUCF&#39;</span><span class="p">,</span> <span class="s">&#39;CALCURF&#39;</span><span class="p">,</span> <span class="s">&#39;CALCUIF&#39;</span><span class="p">,</span> <span class="s">&#39;CALCLCF&#39;</span><span class="p">,</span> <span class="s">&#39;CALCLRF&#39;</span><span class="p">,</span> <span class="s">&#39;CALCLIF&#39;</span><span class="p">,</span> <span class="s">&#39;UP1S&#39;</span><span class="p">,</span> <span class="s">&#39;UP2S&#39;</span><span class="p">,</span> <span class="s">&#39;UIRS&#39;</span><span class="p">,</span> <span class="s">&#39;UP1Z&#39;</span><span class="p">,</span> <span class="s">&#39;UP2Z&#39;</span><span class="p">,</span> <span class="s">&#39;UIRZ&#39;</span><span class="p">,</span> <span class="s">&#39;UP1T&#39;</span><span class="p">,</span> <span class="s">&#39;UP2T&#39;</span><span class="p">,</span> <span class="s">&#39;UIRT&#39;</span><span class="p">,</span> <span class="s">&#39;LP1S&#39;</span><span class="p">,</span> <span class="s">&#39;LP2S&#39;</span><span class="p">,</span> <span class="s">&#39;LIRS&#39;</span><span class="p">,</span> <span class="s">&#39;LP1Z&#39;</span><span class="p">,</span> <span class="s">&#39;LP2Z&#39;</span><span class="p">,</span> <span class="s">&#39;LIRZ&#39;</span><span class="p">,</span> <span class="s">&#39;LP1T&#39;</span><span class="p">,</span> <span class="s">&#39;LP2T&#39;</span><span class="p">,</span> <span class="s">&#39;LIRT&#39;</span><span class="p">,</span> <span class="s">&#39;SOL_AZIM&#39;</span><span class="p">,</span> <span class="s">&#39;SOL_ZEN&#39;</span><span class="p">,</span> <span class="s">&#39;ROLL_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;PTCH_GIN&#39;</span><span class="p">,</span> <span class="s">&#39;HDG_GIN&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;SW_DN_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;W m-2&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1019</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Corrected downward short wave irradiance, clear dome&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;RED_DN_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;W m-2&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1020</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Corrected downward short wave irradiance, red dome&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;IR_DN_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;W m-2&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1021</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Corrected downward long wave irradiance.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;SW_UP_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;W m-2&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1022</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Corrected upward short wave irradiance, clear dome&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;RED_UP_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;W m-2&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1023</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Corrected upward short wave irradiance, red dome&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;IR_UP_C&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;W m-2&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Corrected upward long wave irradiance&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;GRFLUX&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

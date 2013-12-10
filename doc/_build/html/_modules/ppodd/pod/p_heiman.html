@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_heiman &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_heiman</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="heiman"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_heiman.heiman">[docs]</a><span class="k">class</span> <span class="nc">heiman</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_HEIMAN</span>
+<span class="sd">-----------------------------------------------------------------------------</span>
+<span class="sd"> </span>
+<span class="sd"> ROUTINE          C_HEIMAN   SUBROUTINE FORTVAX</span>
+
+<span class="sd"> PURPOSE          To derive uncorrected Heimann temperatures</span>
+
+<span class="sd"> DESCRIPTION      Converts rawdata input from the Heimann radiometer and</span>
+<span class="sd">                  black body source into uncorrected surface tempratures,</span>
+<span class="sd">                  parameter 537.</span>
+<span class="sd">                   </span>
+<span class="sd">                  The Heimmann is recorded by para 141, </span>
+<span class="sd">                  the blackbody reference temperature by para 142,</span>
+<span class="sd">                  and bit 0 of the signal register (para 27) indicates whether</span>
+<span class="sd">                  the Heimann is set to calibrate.  </span>
+
+<span class="sd"> ARGUMENTS        IRAW   input raw data</span>
+<span class="sd">                  IFRQ   raw data frequencies</span>
+<span class="sd">                  RCONST flight constants corresponding to PRTCCAL and HEIMCAL</span>
+<span class="sd">                  RDER   output data</span>
+
+<span class="sd"> SUBPROGRAMS      </span>
+
+<span class="sd"> REFERENCES</span>
+
+<span class="sd"> VERSION          1.00 D.R.Lauchlan</span>
+
+<span class="sd"> CHANGES          </span>
+<span class="sd"> DESCRIPTION      Converts the two input parameters 141 (raw Heimann) and</span>
+<span class="sd">                  142 (black body reference temperature) into one, the</span>
+<span class="sd">                  uncorrected HEIMAN temp (para 537).</span>
+
+<span class="sd">                  The Heimann Radiometer data is converted using a quadratic</span>
+<span class="sd">                  fit :</span>
+<span class="sd">                  Surface temp =  RCONST(4) + RCONST(5)*x + RCONST(6)*x**2</span>
+<span class="sd">                  RCONST(4 to 6) correspond to the constants with the keyword</span>
+<span class="sd">                  HEIMCAL in the flight constants file.</span>
+<span class="sd"> </span>
+<span class="sd">                  The black body signal (para 142) is converted using</span>
+<span class="sd">                  a quadratic fit :</span>
+<span class="sd">              </span>
+<span class="sd">                   BB = a + b*x + c*x**2</span>
+
+<span class="sd">                  where constants a, b and c correspond to RCONST(1 to 3)</span>
+<span class="sd">                  from the keyword PRTCCAL in the flight constant file.</span>
+
+<span class="sd">                  Signal Register (para 27) bit 0 indicates the position of </span>
+<span class="sd">                  the black body;  0 = b/b out of FoV, 1 = b/b in FoV. </span>
+
+<span class="sd">                  If signal register bit 0 is set to 1 and black body</span>
+<span class="sd">                  reference temprature has been steady for the previous</span>
+<span class="sd">                  3 seconds (mean of each second differs by no more than</span>
+<span class="sd">                  0.1K), the b/b reference temperature is output.</span>
+<span class="sd">                  Otherwise the HEIMAN temprature is output. An offset</span>
+<span class="sd">                  is assigned accordingly:</span>
+<span class="sd">                                                para 27 </span>
+<span class="sd">                                                 bit 0</span>
+<span class="sd">                   233.26 to  313.06   Heimann-    0    (o/s = 0)</span>
+<span class="sd">                  1233.26 to 1313.06   Ref/BB -    0    (o/s = 1000)</span>
+<span class="sd">                  2233.26 to 2313.06   Heimann-    1    (o/s = 2000)</span>
+<span class="sd">                  3233.26 to 3313.06   Ref/BB -    1    (o/s = 2000 + 1000)</span>
+
+<span class="sd">                  (NOTE: an offset of 1000 is never assigned under </span>
+<span class="sd">                         this scheme)</span>
+
+
+<span class="sd">                  Heimann data is output for the time that the</span>
+<span class="sd">                  reference temperature is output. This is done in</span>
+<span class="sd">                  4 second bursts imediately after the reference </span>
+<span class="sd">                  sequence and overwrites the ramping sections.</span>
+<span class="sd">                  Non reference or dwelling calibration temeratures</span>
+<span class="sd">                  are flagged as 2.</span>
+<span class="sd">                  Dwell Heimann data is output for the corresponding</span>
+<span class="sd">                  calibration reference period after the instrument has </span>
+<span class="sd">                  switched back to measure, ie para 27 bit 0 becomes 0. </span>
+
+<span class="sd">                  Bits 16 and 17 of the output temperature RDER(x,537) are</span>
+<span class="sd">                  used to flag certain data conditions as follows :</span>
+<span class="sd">                    Bits 16 and 17 = 00  - Good data, MEASURE/HEIMANN</span>
+<span class="sd">                                   = 01  - Good data, but Heimann on CALIBRATE</span>
+<span class="sd">                                           and outputing DWELL temp</span>
+<span class="sd">                                           or looking at the Black Body temps</span>
+<span class="sd">                                           or BB moved out of field of view</span>
+<span class="sd">                                           and data are last Heimann dwell</span>
+<span class="sd">                                           data.</span>
+<span class="sd">                                   = 02  - Suspect or absent signal register </span>
+<span class="sd">                                           data, non-reference calibration</span>
+<span class="sd">                                           temperatures and non-dwelling</span>
+<span class="sd">                                           calibration temperatures.</span>
+<span class="sd">                                   = 03  - Absent data, passed through from</span>
+<span class="sd">                                           IRAW(x,141)</span>
+
+<span class="sd"> ARGUMENTS        IRAW(f,141)   Raw Heimann data</span>
+<span class="sd">                  IRAW(f,27)    Raw signal register data </span>
+<span class="sd">                  IRAW(f,142)   Raw black body data</span>
+<span class="sd">                  IFRQ(141)     Recorded frequency of Heimann Radiometer    </span>
+<span class="sd">                  IFRQ(27)      Recorded frequency of signal register  </span>
+<span class="sd">                  IFRQ(142)     Recorded frequency of black body</span>
+<span class="sd">                  RCONST(1-6)   Constants for quadratic fit</span>
+<span class="sd">                  RDER(f,537)   Uncorrected Heimann temps (deg K) </span>
+
+<span class="sd"> SUBPROGRAMS      ITSTFLG  -  Returns the value of bits 16 &amp; 17    - SCILIB</span>
+<span class="sd">                  ISETFLG  -  Sets the value of bits 16 &amp; 17       - SCILIB</span>
+<span class="sd">                  IBITS    -  Extracts selected bits from input    - FORTRAN</span>
+<span class="sd">                  BTEST    -  Tests value of selected single bit   - FORTRAN</span>
+<span class="sd">         C_HEIMAN_LTST_BB  -  Checks array elemenets are within</span>
+<span class="sd">                              +/- 86                                - LOCAL</span>
+
+<span class="sd"> REFERENCES       </span>
+
+<span class="sd"> VERSION          1.00   09-11-94 D.R.Lauchlan</span>
+<span class="sd">                  Based on C_BARNES V2.00 by D.P. Briggs</span>
+
+<span class="sd"> CHANGES          V1.01  10/02/99  W.D.N.JACKSON</span>
+<span class="sd">                  Bug in flag checking of raw data fixed.</span>
+<span class="sd">                  </span>
+<span class="sd">                  V1.02  27/09/02  W.D.N.JACKSON</span>
+<span class="sd">                  Changed to include handling of 16 bit data from the new </span>
+<span class="sd">                  DRS.  Also now expects calibrator temp cal to be in deg C.</span>
+
+<span class="sd">                  V1.03 11/11/04 J.P. TAYLOR</span>
+<span class="sd">                  Changed to account for 16bit representation of DRS</span>
+<span class="sd">                  parameters.  Allowable range of BB ref means changed from</span>
+<span class="sd">                  +/- 6 to +/- 86 this is equivalent to 0.1K with the new</span>
+<span class="sd">                  DRS 16bit data stream.</span>
+<span class="sd">----------------------------------------------------------------------------</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;PRTCCAL&#39;</span><span class="p">,</span> <span class="s">&#39;HEIMCAL&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_SREG&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_HEIM&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_HEIC&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;BTHEIM_U&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;degK&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">537</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected brightness temperature from the Heimann radiometer&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;HEIMAN&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

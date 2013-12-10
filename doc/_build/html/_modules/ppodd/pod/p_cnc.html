@@ -1,0 +1,140 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_cnc &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_cnc</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="cnc"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_cnc.cnc">[docs]</a><span class="k">class</span> <span class="nc">cnc</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_CNC</span>
+
+<span class="sd"> ROUTINE          C_CNC SUBROUTINE FORTVAX</span>
+
+<span class="sd"> PURPOSE          Produces (CNCC) CNC Concentration (568) as a real number</span>
+
+<span class="sd"> DESCRIPTION      Takes 16 bit word from the DRS interface which contains</span>
+<span class="sd">                  four decimal digits as BCD (leftmost digit being the highest</span>
+<span class="sd">                  nibble). This word is recorded as DRS parameter 50 (CNC).</span>
+<span class="sd">                  The four decimal digits represent a real number of the form:</span>
+
+<span class="sd">                                    ab.cEd</span>
+<span class="sd">                  </span>
+<span class="sd">                  which is calculated thus:</span>
+
+<span class="sd">                            (a + b/10 + y/100) * 10**d</span>
+<span class="sd">                  </span>
+<span class="sd">                  Checks are made that no hexadecimal figures are included</span>
+<span class="sd">                  in the initial nibbles. Any data including these returns</span>
+<span class="sd">                  a value of 0.0 and is flagged 3. (If the 4 BCD digits</span>
+<span class="sd">                  return AAAA it means there was no response from the CNC</span>
+<span class="sd">                  whilst EEEE means the CNC responded with ERROR.)</span>
+
+<span class="sd"> VERSION          1.00 21/03/97 D H ANDERSON </span>
+
+<span class="sd"> ARGUMENTS        IRAW(64,512) I*4 IN  Up to 64 samples for up to 512 DRS pars</span>
+<span class="sd">                  IFRQ(512)    I*4 IN  Sample rate of each DRS par (0-64)</span>
+<span class="sd">                  RCONST(64)   R*4 IN  Inputs constants (none used by C_CNC)</span>
+<span class="sd">                  RDER(64,1024)R*4 OUT Output array of up to 64 samples for</span>
+<span class="sd">                                       each of 1024 parameters</span>
+
+<span class="sd"> CHANGES          </span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;Horace_CNC&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;CPC_CONC&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;cm-3&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">568</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Total condensation particle concentration from TSI 3025A&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;CNC&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

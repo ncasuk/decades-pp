@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pod Package &mdash; ppodd 0.1 documentation</title>
+    <title>pod Package &mdash; ppodd  documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.1',
+        VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ppodd 0.1 documentation" href="index.html" />
+    <link rel="top" title="ppodd  documentation" href="index.html" />
     <link rel="up" title="ppodd Package" href="ppodd.html" />
     <link rel="prev" title="gui Package" href="ppodd.gui.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="ppodd.gui.html" title="gui Package"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">ppodd 0.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">ppodd  documentation</a> &raquo;</li>
           <li><a href="ppodd.html" accesskey="U">ppodd Package</a> &raquo;</li> 
       </ul>
     </div>  
@@ -61,17 +61,22 @@
 <p>&#64;author Dave Tiddeman</p>
 <dl class="function">
 <dt id="ppodd.pod.addmodule">
-<tt class="descclassname">ppodd.pod.</tt><tt class="descname">addmodule</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#ppodd.pod.addmodule" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">ppodd.pod.</tt><tt class="descname">addmodule</tt><big>(</big><em>cls</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod.html#addmodule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.addmodule" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="ppodd.pod.getstandardmodule">
-<tt class="descclassname">ppodd.pod.</tt><tt class="descname">getstandardmodule</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.getstandardmodule" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.getstandardmodules">
+<tt class="descclassname">ppodd.pod.</tt><tt class="descname">getstandardmodules</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.getstandardmodules" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.pod.import_modules">
+<tt class="descclassname">ppodd.pod.</tt><tt class="descname">import_modules</tt><big>(</big><em>mods</em><big>)</big><a class="headerlink" href="#ppodd.pod.import_modules" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="ppodd.pod.is_calmodule">
-<tt class="descclassname">ppodd.pod.</tt><tt class="descname">is_calmodule</tt><big>(</big><em>mod</em><big>)</big><a class="headerlink" href="#ppodd.pod.is_calmodule" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">ppodd.pod.</tt><tt class="descname">is_calmodule</tt><big>(</big><em>mod</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod.html#is_calmodule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.is_calmodule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks whether it is a calibration module, by making sure it has a &#8216;run&#8217; member</p>
 </dd></dl>
 
@@ -80,7 +85,7 @@
 <span id="p-airspd-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_airspd</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_airspd" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_airspd.airspd">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_airspd.</tt><tt class="descname">airspd</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_airspd.airspd" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_airspd.</tt><tt class="descname">airspd</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_airspd.html#airspd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_airspd.airspd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_AIRSPD</p>
 <blockquote>
@@ -177,11 +182,39 @@ temperature input from TAT_NDI (Phil Brown)</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-ppodd.pod.p_calc_svp">
+<span id="p-calc-svp-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_calc_svp</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_calc_svp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_calc_svp.calc_svp">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_calc_svp.</tt><tt class="descname">calc_svp</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_calc_svp.html#calc_svp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_calc_svp.calc_svp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<dl class="method">
+<dt id="ppodd.pod.p_calc_svp.calc_svp.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_calc_svp.html#calc_svp.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_calc_svp.calc_svp.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_calc_vp">
+<span id="p-calc-vp-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_calc_vp</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_calc_vp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_calc_vp.calc_vp">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_calc_vp.</tt><tt class="descname">calc_vp</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_calc_vp.html#calc_vp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_calc_vp.calc_vp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<dl class="method">
+<dt id="ppodd.pod.p_calc_vp.calc_vp.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_calc_vp.html#calc_vp.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_calc_vp.calc_vp.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-ppodd.pod.p_cnc">
 <span id="p-cnc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_cnc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_cnc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_cnc.cnc">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_cnc.</tt><tt class="descname">cnc</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_cnc.cnc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_cnc.</tt><tt class="descname">cnc</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_cnc.html#cnc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_cnc.cnc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_CNC</p>
 <blockquote>
@@ -223,7 +256,7 @@ RDER(64,1024)R*4 OUT Output array of up to 64 samples for</p>
 <span id="p-comr-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_comr</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_comr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_comr.comr">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_comr.</tt><tt class="descname">comr</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_comr.comr" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_comr.</tt><tt class="descname">comr</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_comr.html#comr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_comr.comr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_COMR</p>
 <blockquote>
@@ -262,7 +295,7 @@ RCONST(1,2,3,4) XO and X1 voltage cal for CO, v to ppb, ppb offs</p>
 <span id="p-drs-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_drs</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_drs" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_drs.drs">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_drs.</tt><tt class="descname">drs</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_drs.drs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_drs.</tt><tt class="descname">drs</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_drs.html#drs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_drs.drs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_DRS</p>
 <blockquote>
@@ -303,7 +336,7 @@ processing.</p>
 <span id="p-fwvs-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_fwvs</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_fwvs" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_fwvs.fwvs">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_fwvs.</tt><tt class="descname">fwvs</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_fwvs.fwvs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_fwvs.</tt><tt class="descname">fwvs</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_fwvs.html#fwvs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_fwvs.fwvs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_FWVS</p>
 <blockquote>
@@ -329,7 +362,7 @@ RDER(64,1024)R*4 OUT Output array of up to 64 samples for</p>
 <span id="p-geneas-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_geneas</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_geneas" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_geneas.geneas">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_geneas.</tt><tt class="descname">geneas</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_geneas.geneas" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_geneas.</tt><tt class="descname">geneas</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_geneas.html#geneas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_geneas.geneas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_GENEAS
 DEC$ IDENT &#8216;V1.02&#8217;</p>
@@ -389,7 +422,7 @@ DRS.</p>
 <span id="p-gin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_gin</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_gin" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_gin.gin">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_gin.</tt><tt class="descname">gin</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_gin.gin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_gin.</tt><tt class="descname">gin</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_gin.html#gin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_gin.gin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
 <p>GIN processing</p>
 <blockquote>
@@ -400,7 +433,7 @@ Missing out times where the gap is greater than 0.5 sec ( see resample.createtim
 <p>&#64;author: Dave Tiddeman</p>
 <dl class="method">
 <dt id="ppodd.pod.p_gin.gin.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_gin.gin.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_gin.html#gin.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_gin.gin.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -410,7 +443,7 @@ Missing out times where the gap is greater than 0.5 sec ( see resample.createtim
 <span id="p-grflux-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_grflux</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_grflux" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_grflux.grflux">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_grflux.</tt><tt class="descname">grflux</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_grflux.grflux" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_grflux.</tt><tt class="descname">grflux</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_grflux.html#grflux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_grflux.grflux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><p>ROUTINE           C_RFLUX        SUBROUTINE FORTVAX       [C_RFLUX.FOR]</p>
@@ -666,7 +699,7 @@ P Hignett)</dd>
 <span id="p-gsun-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_gsun</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_gsun" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_gsun.gsun">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_gsun.</tt><tt class="descname">gsun</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_gsun.gsun" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_gsun.</tt><tt class="descname">gsun</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_gsun.html#gsun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_gsun.gsun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_GSUN</p>
 <blockquote>
@@ -734,7 +767,7 @@ INU were available.  WDNJ 20/10/97</dd>
 <span id="p-gwinds-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_gwinds</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_gwinds" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_gwinds.gwinds">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_gwinds.</tt><tt class="descname">gwinds</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_gwinds.gwinds" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_gwinds.</tt><tt class="descname">gwinds</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_gwinds.html#gwinds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_gwinds.gwinds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_GWINDS</p>
 <blockquote>
@@ -841,7 +874,7 @@ Will use GIN inputs if available rather than INU</dd>
 <span id="p-heiman-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_heiman</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_heiman" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_heiman.heiman">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_heiman.</tt><tt class="descname">heiman</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_heiman.heiman" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_heiman.</tt><tt class="descname">heiman</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_heiman.html#heiman"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_heiman.heiman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><p>ROUTINE          C_HEIMAN   SUBROUTINE FORTVAX</p>
@@ -979,7 +1012,7 @@ DRS 16bit data stream.</p>
 <span id="p-lwc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_lwc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_lwc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_lwc.lwc">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_lwc.</tt><tt class="descname">lwc</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_lwc.lwc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_lwc.</tt><tt class="descname">lwc</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_lwc.html#lwc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_lwc.lwc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_LWC</p>
 <blockquote>
@@ -1102,7 +1135,7 @@ data is -9999.0 the flag will be three.</div></blockquote>
 <span id="p-nephl1-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_nephl1</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_nephl1" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_nephl1.nephl1">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nephl1.</tt><tt class="descname">nephl1</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_nephl1.nephl1" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nephl1.</tt><tt class="descname">nephl1</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_nephl1.html#nephl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_nephl1.nephl1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><blockquote>
@@ -1193,7 +1226,7 @@ is now calibrated.</dd>
 <span id="p-nevz-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_nevz</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_nevz" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_nevz.nevz">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nevz.</tt><tt class="descname">nevz</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_nevz.nevz" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nevz.</tt><tt class="descname">nevz</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_nevz.html#nevz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_nevz.nevz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_NEVZ</p>
 <blockquote>
@@ -1278,11 +1311,25 @@ Voltage flags explicitly set to zero</dd>
 </dd></dl>
 
 </div>
+<div class="section" id="module-ppodd.pod.p_nevzorov">
+<span id="p-nevzorov-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_nevzorov</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_nevzorov" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_nevzorov.nevzorov">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nevzorov.</tt><tt class="descname">nevzorov</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_nevzorov.html#nevzorov"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_nevzorov.nevzorov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<dl class="method">
+<dt id="ppodd.pod.p_nevzorov.nevzorov.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_nevzorov.html#nevzorov.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_nevzorov.nevzorov.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-ppodd.pod.p_nox">
 <span id="p-nox-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_nox</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_nox" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_nox.nox">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nox.</tt><tt class="descname">nox</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_nox.nox" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_nox.</tt><tt class="descname">nox</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_nox.html#nox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_nox.nox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_NOX</p>
 <blockquote>
@@ -1328,11 +1375,26 @@ RDER(1,772) - on exit contains the derived NOx signal</div></blockquote>
 </dd></dl>
 
 </div>
+<div class="section" id="module-ppodd.pod.p_ozone">
+<span id="p-ozone-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_ozone</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_ozone" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_ozone.ozone">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_ozone.</tt><tt class="descname">ozone</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_ozone.html#ozone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_ozone.ozone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<p>Calibrate TEI Ozone instrument</p>
+<dl class="method">
+<dt id="ppodd.pod.p_ozone.ozone.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_ozone.html#ozone.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_ozone.ozone.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-ppodd.pod.p_ozone1">
 <span id="p-ozone1-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_ozone1</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_ozone1" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_ozone1.ozone1">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_ozone1.</tt><tt class="descname">ozone1</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_ozone1.ozone1" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_ozone1.</tt><tt class="descname">ozone1</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_ozone1.html#ozone1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_ozone1.ozone1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_OZONE1</p>
 <blockquote>
@@ -1375,7 +1437,7 @@ RDER(1,574) - on exit contains the derived ozone mixing ratio</dd>
 <span id="p-press1-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_press1</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_press1" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_press1.press1">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_press1.</tt><tt class="descname">press1</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_press1.press1" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_press1.</tt><tt class="descname">press1</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_press1.html#press1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_press1.press1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_PRESS1</p>
 <blockquote>
@@ -1449,7 +1511,7 @@ Out of range data flagged 2.</dd>
 <span id="p-psap-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_psap</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_psap" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_psap.psap">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_psap.</tt><tt class="descname">psap</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_psap.psap" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_psap.</tt><tt class="descname">psap</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_psap.html#psap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_psap.psap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><blockquote>
@@ -1496,7 +1558,7 @@ Adjusted for 16 bit data from the new DRS</p>
 <span id="p-radal1-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_radal1</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_radal1" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_radal1.radal1">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_radal1.</tt><tt class="descname">radal1</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_radal1.radal1" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_radal1.</tt><tt class="descname">radal1</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_radal1.html#radal1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_radal1.radal1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_RADAL1</p>
 <blockquote>
@@ -1534,66 +1596,55 @@ of 0.25 ft.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-ppodd.pod.p_read_horace_gin">
-<span id="p-read-horace-gin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_read_horace_gin</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_read_horace_gin" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ppodd.pod.p_read_crios">
+<span id="p-read-crios-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_read_crios</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_read_crios" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="ppodd.pod.p_read_horace_gin.read_horace_gin">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_horace_gin.</tt><tt class="descname">read_horace_gin</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_read_horace_gin.read_horace_gin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
-<p>Routine for reading in HORACE_GIN data</p>
-<dl class="method">
-<dt id="ppodd.pod.p_read_horace_gin.read_horace_gin.fixfilename">
-<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_read_horace_gin.read_horace_gin.fixfilename" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ppodd.pod.p_read_horace_gin.read_horace_gin.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_read_horace_gin.read_horace_gin.readfile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dt id="ppodd.pod.p_read_crios.read_aerack">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_aerack</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_aerack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_aerack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in AERACK data</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-ppodd.pod.p_readconst">
-<span id="p-readconst-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readconst</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readconst" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="ppodd.pod.p_readconst.readconst">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readconst.</tt><tt class="descname">readconst</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readconst.readconst" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
-<p>Routine for reading in CONST data</p>
-<dl class="method">
-<dt id="ppodd.pod.p_readconst.readconst.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readconst.readconst.readfile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dt id="ppodd.pod.p_read_crios.read_corcon">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_corcon</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_corcon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_corcon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in CORCON data</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-ppodd.pod.p_readcrio">
-<span id="p-readcrio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readcrio</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readcrio" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="ppodd.pod.p_readcrio.ginday">
-<tt class="descclassname">ppodd.pod.p_readcrio.</tt><tt class="descname">ginday</tt><big>(</big><em>fromdate</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readcrio.ginday" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="ppodd.pod.p_readcrio.gintime">
-<tt class="descclassname">ppodd.pod.p_readcrio.</tt><tt class="descname">gintime</tt><big>(</big><em>time1</em>, <em>time2</em>, <em>date</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readcrio.gintime" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="class">
-<dt id="ppodd.pod.p_readcrio.readcrio">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readcrio.</tt><tt class="descname">readcrio</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readcrio.readcrio" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.p_read_crios.read_crio">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_crio</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
 <p>Routine for reading in CRIO data</p>
 <dl class="method">
-<dt id="ppodd.pod.p_readcrio.readcrio.fixfilename">
-<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readcrio.readcrio.fixfilename" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.p_read_crios.read_crio.check_times">
+<tt class="descname">check_times</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio.check_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio.check_times" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="ppodd.pod.p_readcrio.readcrio.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readcrio.readcrio.readfile" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.p_read_crios.read_crio.fixfilename">
+<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio.fixfilename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio.fixfilename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.pod.p_read_crios.read_crio.read_slowly">
+<tt class="descname">read_slowly</tt><big>(</big><em>n</em>, <em>filen</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio.read_slowly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio.read_slowly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.pod.p_read_crios.read_crio.read_tcp_data">
+<tt class="descname">read_tcp_data</tt><big>(</big><em>dirname</em>, <em>bins</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio.read_tcp_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio.read_tcp_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.pod.p_read_crios.read_crio.read_tcp_defin">
+<tt class="descname">read_tcp_defin</tt><big>(</big><em>deffile</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio.read_tcp_defin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio.read_tcp_defin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.pod.p_read_crios.read_crio.readfile">
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_crio.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_crio.readfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>require 2 parts the definition and the data
 may have several data files that need combining 
 Assume they are all in one folder.
@@ -1607,32 +1658,157 @@ and             folder/type_TCP*.csv is definition</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="ppodd.pod.p_read_crios.read_lowbbr">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_lowbbr</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_lowbbr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_lowbbr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in LOWBBR data</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.pod.p_read_crios.read_prtaft">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_prtaft</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_prtaft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_prtaft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in PRTAFT data</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.pod.p_read_crios.read_twcdat">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_twcdat</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_twcdat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_twcdat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in TWCDAT data</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.pod.p_read_crios.read_uppbbr">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_crios.</tt><tt class="descname">read_uppbbr</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_crios.html#read_uppbbr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_crios.read_uppbbr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in UPPBBR data</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_read_gindat">
+<span id="p-read-gindat-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_read_gindat</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_read_gindat" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ppodd.pod.p_read_gindat.ginday">
+<tt class="descclassname">ppodd.pod.p_read_gindat.</tt><tt class="descname">ginday</tt><big>(</big><em>fromdate</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_gindat.html#ginday"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_gindat.ginday" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ppodd.pod.p_read_gindat.gintime">
+<tt class="descclassname">ppodd.pod.p_read_gindat.</tt><tt class="descname">gintime</tt><big>(</big><em>time1</em>, <em>time2</em>, <em>date</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_gindat.html#gintime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_gindat.gintime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="ppodd.pod.p_read_gindat.read_gindat">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_gindat.</tt><tt class="descname">read_gindat</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_gindat.html#read_gindat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_gindat.read_gindat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in AERACK data</p>
+<dl class="method">
+<dt id="ppodd.pod.p_read_gindat.read_gindat.check_times">
+<tt class="descname">check_times</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_gindat.html#read_gindat.check_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_gindat.read_gindat.check_times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ppodd.pod.p_read_gindat.read_gindat.input_names">
+<tt class="descname">input_names</tt><em class="property"> = ['GINDAT', 'DATE']</em><a class="headerlink" href="#ppodd.pod.p_read_gindat.read_gindat.input_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.pod.p_read_gindat.read_gindat.read_tcp_defin">
+<tt class="descname">read_tcp_defin</tt><big>(</big><em>deffile</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_gindat.html#read_gindat.read_tcp_defin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_gindat.read_gindat.read_tcp_defin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_read_horace_gin">
+<span id="p-read-horace-gin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_read_horace_gin</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_read_horace_gin" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_read_horace_gin.read_horace_gin">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_horace_gin.</tt><tt class="descname">read_horace_gin</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_horace_gin.html#read_horace_gin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_horace_gin.read_horace_gin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
+<p>Routine for reading in HORACE_GIN data</p>
+<dl class="method">
+<dt id="ppodd.pod.p_read_horace_gin.read_horace_gin.fixfilename">
+<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_horace_gin.html#read_horace_gin.fixfilename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_horace_gin.read_horace_gin.fixfilename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ppodd.pod.p_read_horace_gin.read_horace_gin.readfile">
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_horace_gin.html#read_horace_gin.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_horace_gin.read_horace_gin.readfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_read_wvss">
+<span id="p-read-wvss-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_read_wvss</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_read_wvss" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_read_wvss.read_wvss">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_wvss.</tt><tt class="descname">read_wvss</tt><big>(</big><em>dataset</em>, <em>wvss</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_wvss.html#read_wvss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_wvss.read_wvss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_crios.read_crio" title="ppodd.pod.p_read_crios.read_crio"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_crios.read_crio</span></tt></a></p>
+<p>Routine for reading in WVSS2A data</p>
+<dl class="method">
+<dt id="ppodd.pod.p_read_wvss.read_wvss.readfile">
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_wvss.html#read_wvss.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_wvss.read_wvss.readfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.pod.p_read_wvss.read_wvss2a">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_wvss.</tt><tt class="descname">read_wvss2a</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_wvss.html#read_wvss2a"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_wvss.read_wvss2a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_wvss.read_wvss" title="ppodd.pod.p_read_wvss.read_wvss"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_wvss.read_wvss</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ppodd.pod.p_read_wvss.read_wvss2b">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_read_wvss.</tt><tt class="descname">read_wvss2b</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_read_wvss.html#read_wvss2b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_read_wvss.read_wvss2b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_read_wvss.read_wvss" title="ppodd.pod.p_read_wvss.read_wvss"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_read_wvss.read_wvss</span></tt></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_readconst">
+<span id="p-readconst-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readconst</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readconst" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_readconst.readconst">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readconst.</tt><tt class="descname">readconst</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readconst.html#readconst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readconst.readconst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
+<p>Routine for reading in CONST data</p>
+<dl class="method">
+<dt id="ppodd.pod.p_readconst.readconst.readfile">
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readconst.html#readconst.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readconst.readconst.readfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-ppodd.pod.p_readfolder">
 <span id="p-readfolder-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readfolder</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readfolder" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_readfolder.readfolder">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readfolder.</tt><tt class="descname">readfolder</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readfolder.</tt><tt class="descname">readfolder</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readfolder.html#readfolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
 <p>Reads all cRIO data in one folder</p>
 <dl class="method">
 <dt id="ppodd.pod.p_readfolder.readfolder.add_file">
-<tt class="descname">add_file</tt><big>(</big><em>filename</em>, <em>filetype</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.add_file" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_file</tt><big>(</big><em>filename</em>, <em>filetype</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readfolder.html#readfolder.add_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.add_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readfolder.readfolder.filetest">
-<tt class="descname">filetest</tt><big>(</big><em>filen</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.filetest" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filetest</tt><big>(</big><em>filen</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readfolder.html#readfolder.filetest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.filetest" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readfolder.readfolder.fixfilename">
-<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.fixfilename" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readfolder.html#readfolder.fixfilename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.fixfilename" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readfolder.readfolder.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.readfile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readfolder.html#readfolder.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readfolder.readfolder.readfile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1642,42 +1818,42 @@ and             folder/type_TCP*.csv is definition</p>
 <span id="p-readm3-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readm3</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readm3" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_readm3.readm3">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readm3.</tt><tt class="descname">readm3</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readm3.</tt><tt class="descname">readm3</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
 <p>Routine for reading in M3 data</p>
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.fixfilename">
-<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.fixfilename" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.fixfilename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.fixfilename" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.get_BCDtime">
-<tt class="descname">get_BCDtime</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.get_BCDtime" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_BCDtime</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.get_BCDtime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.get_BCDtime" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.get_time">
-<tt class="descname">get_time</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.get_time" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_time</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.get_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.get_time" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.get_timex">
-<tt class="descname">get_timex</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.get_timex" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_timex</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.get_timex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.get_timex" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.paradesc">
-<tt class="descname">paradesc</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.paradesc" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">paradesc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.paradesc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.paradesc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.readfile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.readfile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readm3.readm3.time_BCD">
-<tt class="descname">time_BCD</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.time_BCD" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">time_BCD</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readm3.html#readm3.time_BCD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readm3.readm3.time_BCD" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1687,32 +1863,12 @@ and             folder/type_TCP*.csv is definition</p>
 <span id="p-readnc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readnc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readnc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_readnc.readnc">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readnc.</tt><tt class="descname">readnc</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readnc.readnc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readnc.</tt><tt class="descname">readnc</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readnc.html#readnc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readnc.readnc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
 <p>Routine for reading in NETCDF data</p>
 <dl class="method">
 <dt id="ppodd.pod.p_readnc.readnc.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readnc.readnc.readfile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-ppodd.pod.p_readwvssii">
-<span id="p-readwvssii-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readwvssii</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readwvssii" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="ppodd.pod.p_readwvssii.readwvssii">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readwvssii.</tt><tt class="descname">readwvssii</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readwvssii.readwvssii" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.file_read" title="ppodd.core.file_read"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.file_read</span></tt></a></p>
-<p>Routine for reading in WVSSII data</p>
-<dl class="method">
-<dt id="ppodd.pod.p_readwvssii.readwvssii.fixfilename">
-<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readwvssii.readwvssii.fixfilename" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="ppodd.pod.p_readwvssii.readwvssii.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readwvssii.readwvssii.readfile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readnc.html#readnc.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readnc.readnc.readfile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1722,7 +1878,7 @@ and             folder/type_TCP*.csv is definition</p>
 <span id="p-readzipped-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_readzipped</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_readzipped" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_readzipped.readzipped">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readzipped.</tt><tt class="descname">readzipped</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_readzipped.</tt><tt class="descname">readzipped</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readzipped.html#readzipped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ppodd.pod.p_readfolder.readfolder" title="ppodd.pod.p_readfolder.readfolder"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.pod.p_readfolder.readfolder</span></tt></a></p>
 <p>Unzip and read in raw data files</p>
 <p>cRIO data or old M3 raw data zipped in a file is unzipped to 
@@ -1730,120 +1886,19 @@ a temporary file and read in</p>
 <p>&#64;author: Dave Tiddeman</p>
 <dl class="method">
 <dt id="ppodd.pod.p_readzipped.readzipped.filetest">
-<tt class="descname">filetest</tt><big>(</big><em>filen</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped.filetest" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">filetest</tt><big>(</big><em>filen</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readzipped.html#readzipped.filetest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped.filetest" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readzipped.readzipped.fixfilename">
-<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped.fixfilename" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fixfilename</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readzipped.html#readzipped.fixfilename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped.fixfilename" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_readzipped.readzipped.readfile">
-<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped.readfile" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">readfile</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_readzipped.html#readzipped.readfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_readzipped.readzipped.readfile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</dd></dl>
-
-</div>
-<div class="section" id="module-ppodd.pod.p_rio_airspd">
-<span id="p-rio-airspd-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_airspd</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_airspd" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="ppodd.pod.p_rio_airspd.rio_airspd">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_airspd.</tt><tt class="descname">rio_airspd</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_airspd.rio_airspd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
-<p>FORTRAN routine C_AIRSPD</p>
-<blockquote>
-<div><p>ROUTINE          C_AIRSPD SUBROUTINE FORTVAX</p>
-<p>PURPOSE          Derives Indicated and True Airspedd (paras 516 &amp; 517)</p>
-<dl class="docutils">
-<dt>DESCRIPTION      True Air Speed is the component of air flow parallel to</dt>
-<dd><p class="first">the Aircraft&#8217;s longitudinal axis.</p>
-<dl class="docutils">
-<dt>IAS =  340.294 </dt>
-<dd><ul class="first last simple">
-<li>Mach no.</li>
-<li>SQRT(Static Pressure[mb]/ 1013.25)      in ms-1</li>
-</ul>
-</dd>
-<dt>TAS =  A/S correction factor </dt>
-<dd><ul class="first last simple">
-<li>340.294</li>
-<li>Mach no.</li>
-<li>SQRT(De-iced True Air Temp[K] / 288.15) in ms-1</li>
-</ul>
-</dd>
-</dl>
-<p>where:</p>
-<blockquote>
-<div>288.15   is ICAO Standard temperature [K] at zero altitude.
-340.294  is speed of sound [ms-1]         at zero altitude.
-Mach no. is computed by subroutine S_MACH.</div></blockquote>
-<p class="last">Flagging - If a value can&#8217;t be computed, due to missing data
-missing constants, divide be zeroes, etc, a value of 0 is
-used, flagged with a three.  If a value is outside its 
-limits for range or rate of change, it is flagged with a two.
-If there are no problems with the data it is flagged with 0.
-Any flags on input data are propagated through subsequent 
-calculations.</p>
-</dd>
-</dl>
-<p>VERSION          1.00  020190   A.D.HENNINGS</p>
-<dl class="docutils">
-<dt>ARGUMENTS        For Indicated Airspeed:</dt>
-<dd><blockquote class="first">
-<div><p>RDER(IN,576) REAL*4 IN  Derived static pressure in mb
-RDER(IN,577) REAL*4 IN  Derived Pitot static pressure in mb</p>
-<blockquote>
-<div>(samples IN = 1,32 )</div></blockquote>
-<dl class="docutils">
-<dt>RDER(OP,516) REAL*4 OUT Derived Indicated Airspeed  ms-1</dt>
-<dd>(samples OP = 1,32 )</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>For True Airspeed:</dt>
-<dd><p class="first">RCONST(1)    REAL*4 IN  True Airspeed correction factor  
-RDER(IN,576) REAL*4 IN  Derived static pressure in mb
-RDER(IN,577) REAL*4 IN  Derived Pitot static pressure in mb
-RDER(IN,520) REAL*4 IN  Derived De-iced True air temp deg K</p>
-<blockquote>
-<div>(samples IN = 1,32 )</div></blockquote>
-<dl class="last docutils">
-<dt>RDER(IN,525) REAL*4 IN  Derived Non-Deiced True air temp deg K</dt>
-<dd>(samples IN = 1,32 )</dd>
-<dt>RDER(OP,517) REAL*4 OUT Derived True Airspeed  ms-1</dt>
-<dd>(samples OP = 1,32 )</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-<p>SUBPROGRAMS      S_MACH, S_QCPT, ITSTFLG, ISETFLG</p>
-<dl class="docutils">
-<dt>REFERENCES       Code adapted from MRF1/HORACE</dt>
-<dd><dl class="first last docutils">
-<dt>n.b. RCONST(1) (Air speed correction factor &#8216;K&#8217; should be</dt>
-<dd>determined by &#8216;K &amp; Gamma&#8217; aircraft runs. The value
-in RCONST(1) is unity. Experimental values have been
-found between 0.98 and 1.02; (HORACE used 1.002 from 
-June 1988 - Jan 1990., value suggested by S.Nicholls
-after JASIN experiment).</dd>
-</dl>
-</dd>
-<dt>CHANGES          V1.01  02/06/93  Limit on max rate of change between</dt>
-<dd><p class="first">adjacent samples has been increased to 3.3 m/s.  This is
-based on analysis of the high turbulence A257 flight, where
-the histogram of rates of change showed meaningful changes
-of up to 3.0 m/s between adjacent samples. (WDNJ)
-Also changed so that data with flags of 2 are processed
-rather than rejected and flags are stripped from data before
-processing. (WDNJ)</p>
-<p class="last">V1.02 20/06/06 If TAT_DI flag is 2 or more, then takes
-temperature input from TAT_NDI (Phil Brown)</p>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 </div>
@@ -1851,7 +1906,7 @@ temperature input from TAT_NDI (Phil Brown)</p>
 <span id="p-rio-geneas-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_geneas</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_geneas" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_geneas.rio_geneas">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_geneas.</tt><tt class="descname">rio_geneas</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_geneas.rio_geneas" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_geneas.</tt><tt class="descname">rio_geneas</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_geneas.html#rio_geneas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_geneas.rio_geneas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_GENEAS
 DEC$ IDENT &#8216;V1.02&#8217;</p>
@@ -1906,7 +1961,7 @@ DRS.</p>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_geneas.rio_geneas.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_geneas.rio_geneas.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_geneas.html#rio_geneas.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_geneas.rio_geneas.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1916,7 +1971,7 @@ DRS.</p>
 <span id="p-rio-heiman-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_heiman</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_heiman" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_heiman.rio_heiman">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_heiman.</tt><tt class="descname">rio_heiman</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_heiman.rio_heiman" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_heiman.</tt><tt class="descname">rio_heiman</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_heiman.html#rio_heiman"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_heiman.rio_heiman" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><p>ROUTINE          C_HEIMAN   SUBROUTINE FORTVAX</p>
@@ -2049,7 +2104,7 @@ DRS 16bit data stream.</p>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_heiman.rio_heiman.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_heiman.rio_heiman.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_heiman.html#rio_heiman.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_heiman.rio_heiman.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2059,7 +2114,7 @@ DRS 16bit data stream.</p>
 <span id="p-rio-lwc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_lwc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_lwc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_lwc.rio_lwc">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_lwc.</tt><tt class="descname">rio_lwc</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_lwc.rio_lwc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_lwc.</tt><tt class="descname">rio_lwc</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_lwc.html#rio_lwc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_lwc.rio_lwc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_LWC</p>
 <blockquote>
@@ -2177,7 +2232,7 @@ data is -9999.0 the flag will be three.</div></blockquote>
 </dl>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_lwc.rio_lwc.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_lwc.rio_lwc.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_lwc.html#rio_lwc.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_lwc.rio_lwc.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2187,7 +2242,7 @@ data is -9999.0 the flag will be three.</div></blockquote>
 <span id="p-rio-neph-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_neph</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_neph" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_neph.rio_neph">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_neph.</tt><tt class="descname">rio_neph</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_neph.rio_neph" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_neph.</tt><tt class="descname">rio_neph</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_neph.html#rio_neph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_neph.rio_neph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><blockquote>
@@ -2273,7 +2328,7 @@ is now calibrated.</dd>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_neph.rio_neph.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_neph.rio_neph.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_neph.html#rio_neph.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_neph.rio_neph.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2283,7 +2338,7 @@ is now calibrated.</dd>
 <span id="p-rio-press-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_press</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_press" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_press.rio_press">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_press.</tt><tt class="descname">rio_press</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_press.rio_press" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_press.</tt><tt class="descname">rio_press</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_press.html#rio_press"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_press.rio_press" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_PRESS1</p>
 <blockquote>
@@ -2352,7 +2407,7 @@ Out of range data flagged 2.</dd>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_press.rio_press.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_press.rio_press.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_press.html#rio_press.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_press.rio_press.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2362,7 +2417,7 @@ Out of range data flagged 2.</dd>
 <span id="p-rio-psap-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_psap</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_psap" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_psap.rio_psap">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_psap.</tt><tt class="descname">rio_psap</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_psap.rio_psap" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_psap.</tt><tt class="descname">rio_psap</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_psap.html#rio_psap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_psap.rio_psap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><blockquote>
@@ -2404,7 +2459,7 @@ Adjusted for 16 bit data from the new DRS</p>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_psap.rio_psap.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_psap.rio_psap.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_psap.html#rio_psap.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_psap.rio_psap.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2414,7 +2469,7 @@ Adjusted for 16 bit data from the new DRS</p>
 <span id="p-rio-radal-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_radal</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_radal" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_radal.rio_radal">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_radal.</tt><tt class="descname">rio_radal</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_radal.rio_radal" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_radal.</tt><tt class="descname">rio_radal</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_radal.html#rio_radal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_radal.rio_radal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_RADAL1</p>
 <blockquote>
@@ -2451,7 +2506,7 @@ of 0.25 ft.</p>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_radal.rio_radal.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_radal.rio_radal.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_radal.html#rio_radal.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_radal.rio_radal.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2461,7 +2516,7 @@ of 0.25 ft.</p>
 <span id="p-rio-rvsm-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_rvsm</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_rvsm" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_rvsm.rio_rvsm">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_rvsm.</tt><tt class="descname">rio_rvsm</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_rvsm.rio_rvsm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_rvsm.</tt><tt class="descname">rio_rvsm</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_rvsm.html#rio_rvsm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_rvsm.rio_rvsm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
 <p>FORTRAN routine C_TPRESS</p>
 <blockquote>
@@ -2555,12 +2610,12 @@ flag-3 saetting. I reckon a better value would be 180.0 hPa.&#8221;</dd>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_rvsm.rio_rvsm.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_rvsm.rio_rvsm.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_rvsm.html#rio_rvsm.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_rvsm.rio_rvsm.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="ppodd.pod.p_rio_rvsm.rio_rvsm.resample">
-<tt class="descname">resample</tt><big>(</big><em>P</em>, <em>flag</em>, <em>freq=32</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_rvsm.rio_rvsm.resample" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">resample</tt><big>(</big><em>P</em>, <em>flag</em>, <em>freq=32</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_rvsm.html#rio_rvsm.resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_rvsm.rio_rvsm.resample" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2570,7 +2625,7 @@ flag-3 saetting. I reckon a better value would be 180.0 hPa.&#8221;</dd>
 <span id="p-rio-sols-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_sols</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_sols" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_sols.rio_sols">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_sols.</tt><tt class="descname">rio_sols</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_sols.rio_sols" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_sols.</tt><tt class="descname">rio_sols</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_sols.html#rio_sols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_sols.rio_sols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><p>ROUTINE      C_SOLS    SUBROUTINE  FORTVAX</p>
@@ -2735,7 +2790,7 @@ V1.09  13/08/04  Quality Control zero limits increased for</p>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_sols.rio_sols.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_sols.rio_sols.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_sols.html#rio_sols.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_sols.rio_sols.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2745,12 +2800,12 @@ V1.09  13/08/04  Quality Control zero limits increased for</p>
 <span id="p-rio-sreg-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_sreg</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_sreg" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_sreg.rio_sreg">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_sreg.</tt><tt class="descname">rio_sreg</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_sreg.rio_sreg" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_sreg.</tt><tt class="descname">rio_sreg</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_sreg.html#rio_sreg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_sreg.rio_sreg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
 <p>Routine to calculate signal register from Decades parameters</p>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_sreg.rio_sreg.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_sreg.rio_sreg.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_sreg.html#rio_sreg.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_sreg.rio_sreg.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2760,7 +2815,7 @@ V1.09  13/08/04  Quality Control zero limits increased for</p>
 <span id="p-rio-sun-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_sun</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_sun" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_sun.rio_sun">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_sun.</tt><tt class="descname">rio_sun</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_sun.rio_sun" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_sun.</tt><tt class="descname">rio_sun</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_sun.html#rio_sun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_sun.rio_sun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_GSUN</p>
 <blockquote>
@@ -2828,7 +2883,7 @@ INU were available.  WDNJ 20/10/97</dd>
 <span id="p-rio-temps-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_temps</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_temps" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_temps.rio_temps">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_temps.</tt><tt class="descname">rio_temps</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_temps.rio_temps" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_temps.</tt><tt class="descname">rio_temps</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_temps.html#rio_temps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_temps.rio_temps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_TEMPS2</p>
 <blockquote>
@@ -2956,7 +3011,7 @@ Now raw para 27 bit 5 on = heater on</dd>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_temps.rio_temps.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_temps.rio_temps.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_temps.html#rio_temps.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_temps.rio_temps.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2966,7 +3021,7 @@ Now raw para 27 bit 5 on = heater on</dd>
 <span id="p-rio-tpress-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rio_tpress</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rio_tpress" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rio_tpress.rio_tpress">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_tpress.</tt><tt class="descname">rio_tpress</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_tpress.rio_tpress" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rio_tpress.</tt><tt class="descname">rio_tpress</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_tpress.html#rio_tpress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_tpress.rio_tpress" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_TPRESS</p>
 <blockquote>
@@ -3060,7 +3115,7 @@ flag-3 saetting. I reckon a better value would be 180.0 hPa.&#8221;</dd>
 </div></blockquote>
 <dl class="method">
 <dt id="ppodd.pod.p_rio_tpress.rio_tpress.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_rio_tpress.rio_tpress.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rio_tpress.html#rio_tpress.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rio_tpress.rio_tpress.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -3070,7 +3125,7 @@ flag-3 saetting. I reckon a better value would be 180.0 hPa.&#8221;</dd>
 <span id="p-rvsm-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_rvsm</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_rvsm" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_rvsm.rvsm">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rvsm.</tt><tt class="descname">rvsm</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_rvsm.rvsm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_rvsm.</tt><tt class="descname">rvsm</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_rvsm.html#rvsm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_rvsm.rvsm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_RVSM</p>
 <blockquote>
@@ -3170,7 +3225,7 @@ V1.04 17/03/04  WDNJ Now handles negative heights correctly</p>
 <span id="p-so2-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_so2</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_so2" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_so2.so2">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_so2.</tt><tt class="descname">so2</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_so2.so2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_so2.</tt><tt class="descname">so2</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_so2.html#so2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_so2.so2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_SO2</p>
 <blockquote>
@@ -3199,7 +3254,7 @@ into PPB by multiplying the DRS bits by a calibration factor.</dd>
 <span id="p-sols-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_sols</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_sols" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_sols.sols">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_sols.</tt><tt class="descname">sols</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_sols.sols" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_sols.</tt><tt class="descname">sols</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_sols.html#sols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_sols.sols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <blockquote>
 <div><p>ROUTINE      C_SOLS    SUBROUTINE  FORTVAX</p>
@@ -3369,7 +3424,7 @@ V1.09  13/08/04  Quality Control zero limits increased for</p>
 <span id="p-temps2-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_temps2</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_temps2" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_temps2.temps2">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_temps2.</tt><tt class="descname">temps2</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_temps2.temps2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_temps2.</tt><tt class="descname">temps2</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_temps2.html#temps2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_temps2.temps2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_TEMPS2</p>
 <blockquote>
@@ -3502,7 +3557,7 @@ Now raw para 27 bit 5 on = heater on</dd>
 <span id="p-tpress-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_tpress</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_tpress" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_tpress.tpress">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_tpress.</tt><tt class="descname">tpress</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_tpress.tpress" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_tpress.</tt><tt class="descname">tpress</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_tpress.html#tpress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_tpress.tpress" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_TPRESS</p>
 <blockquote>
@@ -3601,7 +3656,7 @@ flag-3 saetting. I reckon a better value would be 180.0 hPa.&#8221;</dd>
 <span id="p-turb-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_turb</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_turb" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.p_turb.turb">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_turb.</tt><tt class="descname">turb</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_turb.turb" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_turb.</tt><tt class="descname">turb</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_turb.html#turb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_turb.turb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_TURB</p>
 <blockquote>
@@ -3722,19 +3777,70 @@ RCONST(17-18) Coefficients of linear correction to calculated AoSS</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-ppodd.pod.p_twc">
-<span id="p-twc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ppodd.pod.p_twc_calc">
+<span id="p-twc-calc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_calc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_calc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="ppodd.pod.p_twc.twc">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc.</tt><tt class="descname">twc</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_twc.twc" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.p_twc_calc.twc_calc">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_calc.</tt><tt class="descname">twc_calc</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_calc.html#twc_calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_calc.twc_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<p>Use the fit to create a Mass Mixing ratio for the TWC and then a dewpoint.</p>
+<dl class="method">
+<dt id="ppodd.pod.p_twc_calc.twc_calc.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_calc.html#twc_calc.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_calc.twc_calc.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_twc_fit_ge">
+<span id="p-twc-fit-ge-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_fit_ge</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_fit_ge" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_twc_fit_ge.twc_fit_ge">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_fit_ge.</tt><tt class="descname">twc_fit_ge</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_fit_ge.html#twc_fit_ge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_fit_ge.twc_fit_ge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<p>Fit TWC sensor to GE chilled mirror</p>
+<p>Calculates Vapour pressures from GE where less than a threshold ( to screen out liquid and ice )
+Calculate a theoretical Oxygen absorption from pressure
+Fit the TWC detector less the oxygen correction against the GE vapour pressure</p>
+<dl class="method">
+<dt id="ppodd.pod.p_twc_fit_ge.twc_fit_ge.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_fit_ge.html#twc_fit_ge.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_fit_ge.twc_fit_ge.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_twc_fit_wvss">
+<span id="p-twc-fit-wvss-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_fit_wvss</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_fit_wvss" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_twc_fit_wvss.twc_fit_wvss">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_fit_wvss.</tt><tt class="descname">twc_fit_wvss</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_fit_wvss.html#twc_fit_wvss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_fit_wvss.twc_fit_wvss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
+<p>Fit TWC sensor to GE chilled mirror</p>
+<p>Calculates Vapour pressures from GE where less than a threshold ( to screen out liquid and ice )
+Calculate a theoretical Oxygen absorption from pressure
+Fit the TWC detector less the oxygen correction against the GE vapour pressure</p>
+<dl class="method">
+<dt id="ppodd.pod.p_twc_fit_wvss.twc_fit_wvss.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_fit_wvss.html#twc_fit_wvss.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_fit_wvss.twc_fit_wvss.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ppodd.pod.p_twc_horace">
+<span id="p-twc-horace-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_horace</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_horace" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ppodd.pod.p_twc_horace.twc_horace">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_horace.</tt><tt class="descname">twc_horace</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_horace.html#twc_horace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_horace.twc_horace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.fort_cal" title="ppodd.core.fort_cal"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.fort_cal</span></tt></a></p>
 <p>FORTRAN routine C_TWC</p>
-<blockquote>
-<div><p>ROUTINE            C_TWC   subroutine fortvax/fort77</p>
-<p>PURPOSE            To calibrate DRS pars. 70-78 into TARDIS parameters 664-672</p>
+<p>ROUTINE         C_TWC   subroutine fortvax/fort77</p>
+<p>PURPOSE         To calibrate DRS pars. 70-78 into TARDIS parameters 664-672</p>
 <dl class="docutils">
 <dt>DESCRIPTION       The same algorithm is used for all nine parameters. First</dt>
 <dd><blockquote class="first">
+<div><blockquote>
 <div><p>check to see if the right frequency has been set. Find
 the flag of the raw data. Work out the derived parameter,
 #665-#671, values of RCONST are used in a polynomial
@@ -3752,7 +3858,7 @@ This looks at the values set in RATE_CHANGE.</p>
 par   par
 70    664     0      4094       -         DRS</p>
 </div></blockquote>
-<p class="last">71    665     314    383      10.0         K
+<p>71    665     314    383      10.0         K
 72    666     323    388       3.0         K
 73    667     289    343       2.0         K
 74    668     378    393       5.0         K
@@ -3760,20 +3866,19 @@ par   par
 76    670     0.3    6.6       0.5         A
 77    671     0.4E-3 1.1E-3    0.05E-3     A
 78    672     0      4095       -         DRS</p>
-</dd>
-</dl>
-<p>VERSION            1.00 080190 M.J.GLOVER</p>
+</div></blockquote>
+<p>VERSION        1.00 080190 M.J.GLOVER</p>
 <dl class="docutils">
 <dt>ARGUMENTS         IRAW(64,512) I*4  IN   Raw data for the parameters</dt>
 <dd>IFRQ(512)    I*4  IN   Frequencies of the data
 RCONST(64)   R*4  IN   Constants required by routine,(1-32)
 RDER(64,1024)R*4  OUT  Tardis parameters</dd>
 </dl>
-<p>COMMON     None.</p>
-<p>SUBPROGRAMS        ISETFLG (linked automatically)</p>
-<p>FILES              None.</p>
-<p>REFERENCES         MRF2 Specification for Total Water Hygrometer 4 Dec 1989</p>
-<dl class="docutils">
+<p>COMMON         None.</p>
+<p>SUBPROGRAMS            ISETFLG (linked automatically)</p>
+<p>FILES                  None.</p>
+<p>REFERENCES     MRF2 Specification for Total Water Hygrometer 4 Dec 1989</p>
+<dl class="last docutils">
 <dt>CHANGES           V1.01  10/06/94  W.D.N.JACKSON / S.J.MOSS</dt>
 <dd>Modified to correctly compute evaporator currents when the
 modified TWC instrument is flown (ie for A188 onwards).  In
@@ -3787,42 +3892,42 @@ that they are present.  Also note that when this routine is
 used for flights before A188 CALIBRATE issues a warning
 that some of the constants are absent; this can be ignored.</dd>
 </dl>
-</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
-<div class="section" id="module-ppodd.pod.p_twc_cor">
-<span id="p-twc-cor-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_cor</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_cor" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ppodd.pod.p_twc_rio">
+<span id="p-twc-rio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_rio</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_rio" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="ppodd.pod.p_twc_cor.twc_cor">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_cor.</tt><tt class="descname">twc_cor</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_twc_cor.twc_cor" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.p_twc_rio.twc_rio">
+<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_rio.</tt><tt class="descname">twc_rio</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_rio.html#twc_rio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_rio.twc_rio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
-<p>Fit TWC sensor to GE chilled mirror</p>
-<p>Calculates Vapour pressures from GE where less than a threshold ( to screen out liquid and ice )
-Calculate a theoretical Oxygen absorption from pressure
-Fit the TWC detector less the oxygen correction against the GE vapour pressure</p>
-<p>Use the fit to create a Mass Mixing ratio for the TWC and then a dewpoint.</p>
+<p>Flag and calibrate raw TWC data</p>
 <dl class="method">
-<dt id="ppodd.pod.p_twc_cor.twc_cor.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_twc_cor.twc_cor.process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dt id="ppodd.pod.p_twc_rio.twc_rio.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_rio.html#twc_rio.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_rio.twc_rio.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>detector between max and min ( -9,+9 )
+caltnos - nose_temp, use status word to flag ?  or &gt; 383K  10K/s
+caltsam - samp_temp  &#8221;  323K &lt; T &lt; 388K                    3K/s
+caltamb - amb_temp  &#8221; 289K &lt; T &lt; 343K                      2K/s
+caltsrc - srce_temp &#8221; 378K &lt; T &lt; 393K                      5K/s
+calhtr1 - 0.3A &lt; I &lt; 6.6A                                 0.5A/s
+calhtr2 - 0.3A &lt; I &lt; 6.6A                                 0.5A/s
+calisrc - -0.4mA &lt; I &lt; -1.1mA                             0.05mA/s
+!c_twc     Lyman alpha total water - temps in K, currents in A, TWC decades refit 22/10/2013
+CALTNOS   1.2614E-16 -1.8668E-12  1.2704E-08  9.4262E-03  3.1654E+02
+CALTSAM   2.5406E-17  3.5253E-13  2.1300E-09  7.1707E-06  2.7927E-02  4.0343E+02
+CALTAMB   2.9951E-13  9.3288E-10 -4.0779E-06  1.6016E-02  2.7390E+02
+CALTSRC   2.8700E-18 -1.2794E-14  2.8480E-11  2.2585E-10  9.5178E-03  3.7298E+02
+CALHTR1   9.7752E-04  0.0000E+00
+CALHTR2   9.7752E-04  0.0000E+00
+CALISRC   9.7636E-08 -2.5957E-06</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-ppodd.pod.p_twc_wvsscor">
-<span id="p-twc-wvsscor-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">p_twc_wvsscor</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.p_twc_wvsscor" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="ppodd.pod.p_twc_wvsscor.twc_wvsscor">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.p_twc_wvsscor.</tt><tt class="descname">twc_wvsscor</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.p_twc_wvsscor.twc_wvsscor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
-<p>Fit TWC sensor to WVSSII</p>
-<p>Calculates Vapour pressures from WVSSII where less than a threshold ( to screen out liquid and ice )
-Calculate a theoretical Oxygen absorption from pressure
-Fit the TWC detector less the oxygen correction against the WVSSII vapour pressure</p>
 <dl class="method">
-<dt id="ppodd.pod.p_twc_wvsscor.twc_wvsscor.process">
-<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#ppodd.pod.p_twc_wvsscor.twc_wvsscor.process" title="Permalink to this definition">¶</a></dt>
+<dt id="ppodd.pod.p_twc_rio.twc_rio.swap">
+<tt class="descname">swap</tt><big>(</big><em>cal</em>, <em>vlim</em>, <em>xlim=(0</em>, <em>4096)</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/p_twc_rio.html#twc_rio.swap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.p_twc_rio.twc_rio.swap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -3832,14 +3937,14 @@ Fit the TWC detector less the oxygen correction against the WVSSII vapour pressu
 <span id="write-nc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">write_nc</span></tt> Module<a class="headerlink" href="#module-ppodd.pod.write_nc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ppodd.pod.write_nc.write_nc">
-<em class="property">class </em><tt class="descclassname">ppodd.pod.write_nc.</tt><tt class="descname">write_nc</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#ppodd.pod.write_nc.write_nc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">ppodd.pod.write_nc.</tt><tt class="descname">write_nc</tt><big>(</big><em>dataset</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/write_nc.html#write_nc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.write_nc.write_nc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="ppodd.html#ppodd.core.cal_base" title="ppodd.core.cal_base"><tt class="xref py py-class docutils literal"><span class="pre">ppodd.core.cal_base</span></tt></a></p>
 <p>Write data out to a NetCDF 
 It will try and write whatever is in input_names
 beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum</p>
 <dl class="method">
 <dt id="ppodd.pod.write_nc.write_nc.process">
-<tt class="descname">process</tt><big>(</big><em>output=None</em>, <em>nctype=''</em>, <em>paras=None</em>, <em>onehz=False</em>, <em>fill_value=-9999</em>, <em>dtyp='f4'</em>, <em>flag_fill=-1</em><big>)</big><a class="headerlink" href="#ppodd.pod.write_nc.write_nc.process" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">process</tt><big>(</big><em>output=None</em>, <em>nctype=''</em>, <em>paras=None</em>, <em>onehz=False</em>, <em>fill_value=-9999</em>, <em>dtyp='f4'</em>, <em>flag_fill=-1</em><big>)</big><a class="reference internal" href="_modules/ppodd/pod/write_nc.html#write_nc.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ppodd.pod.write_nc.write_nc.process" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -3858,6 +3963,8 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
 <li><a class="reference internal" href="#">pod Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">pod</span></tt> Package</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_airspd"><tt class="docutils literal"><span class="pre">p_airspd</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_calc_svp"><tt class="docutils literal"><span class="pre">p_calc_svp</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_calc_vp"><tt class="docutils literal"><span class="pre">p_calc_vp</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_cnc"><tt class="docutils literal"><span class="pre">p_cnc</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_comr"><tt class="docutils literal"><span class="pre">p_comr</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_drs"><tt class="docutils literal"><span class="pre">p_drs</span></tt> Module</a></li>
@@ -3871,20 +3978,22 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
 <li><a class="reference internal" href="#module-ppodd.pod.p_lwc"><tt class="docutils literal"><span class="pre">p_lwc</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_nephl1"><tt class="docutils literal"><span class="pre">p_nephl1</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_nevz"><tt class="docutils literal"><span class="pre">p_nevz</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_nevzorov"><tt class="docutils literal"><span class="pre">p_nevzorov</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_nox"><tt class="docutils literal"><span class="pre">p_nox</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_ozone"><tt class="docutils literal"><span class="pre">p_ozone</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_ozone1"><tt class="docutils literal"><span class="pre">p_ozone1</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_press1"><tt class="docutils literal"><span class="pre">p_press1</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_psap"><tt class="docutils literal"><span class="pre">p_psap</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_radal1"><tt class="docutils literal"><span class="pre">p_radal1</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_read_crios"><tt class="docutils literal"><span class="pre">p_read_crios</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_read_gindat"><tt class="docutils literal"><span class="pre">p_read_gindat</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_read_horace_gin"><tt class="docutils literal"><span class="pre">p_read_horace_gin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_read_wvss"><tt class="docutils literal"><span class="pre">p_read_wvss</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_readconst"><tt class="docutils literal"><span class="pre">p_readconst</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-ppodd.pod.p_readcrio"><tt class="docutils literal"><span class="pre">p_readcrio</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_readfolder"><tt class="docutils literal"><span class="pre">p_readfolder</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_readm3"><tt class="docutils literal"><span class="pre">p_readm3</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_readnc"><tt class="docutils literal"><span class="pre">p_readnc</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-ppodd.pod.p_readwvssii"><tt class="docutils literal"><span class="pre">p_readwvssii</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_readzipped"><tt class="docutils literal"><span class="pre">p_readzipped</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-ppodd.pod.p_rio_airspd"><tt class="docutils literal"><span class="pre">p_rio_airspd</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_rio_geneas"><tt class="docutils literal"><span class="pre">p_rio_geneas</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_rio_heiman"><tt class="docutils literal"><span class="pre">p_rio_heiman</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_rio_lwc"><tt class="docutils literal"><span class="pre">p_rio_lwc</span></tt> Module</a></li>
@@ -3904,9 +4013,11 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
 <li><a class="reference internal" href="#module-ppodd.pod.p_temps2"><tt class="docutils literal"><span class="pre">p_temps2</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_tpress"><tt class="docutils literal"><span class="pre">p_tpress</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.p_turb"><tt class="docutils literal"><span class="pre">p_turb</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-ppodd.pod.p_twc"><tt class="docutils literal"><span class="pre">p_twc</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-ppodd.pod.p_twc_cor"><tt class="docutils literal"><span class="pre">p_twc_cor</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-ppodd.pod.p_twc_wvsscor"><tt class="docutils literal"><span class="pre">p_twc_wvsscor</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_twc_calc"><tt class="docutils literal"><span class="pre">p_twc_calc</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_twc_fit_ge"><tt class="docutils literal"><span class="pre">p_twc_fit_ge</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_twc_fit_wvss"><tt class="docutils literal"><span class="pre">p_twc_fit_wvss</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_twc_horace"><tt class="docutils literal"><span class="pre">p_twc_horace</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ppodd.pod.p_twc_rio"><tt class="docutils literal"><span class="pre">p_twc_rio</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-ppodd.pod.write_nc"><tt class="docutils literal"><span class="pre">write_nc</span></tt> Module</a></li>
 </ul>
 </li>
@@ -3949,12 +4060,12 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         <li class="right" >
           <a href="ppodd.gui.html" title="gui Package"
              >previous</a> |</li>
-        <li><a href="index.html">ppodd 0.1 documentation</a> &raquo;</li>
+        <li><a href="index.html">ppodd  documentation</a> &raquo;</li>
           <li><a href="ppodd.html" >ppodd Package</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Dave Tiddeman.
+        &copy; Copyright 2013, Author.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

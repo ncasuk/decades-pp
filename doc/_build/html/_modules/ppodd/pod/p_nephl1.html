@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_nephl1 &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_nephl1</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="nephl1"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_nephl1.nephl1">[docs]</a><span class="k">class</span> <span class="nc">nephl1</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_NEPHL1</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="sd">         ROUTINE      C_NEPHL1</span>
+
+<span class="sd">         PURPOSE      Calibrates the parameters from the TSI 3 wavelength</span>
+<span class="sd">                      Nephelometer.</span>
+
+<span class="sd">         DESCRIPTION  The nephelometer output are subject to calibrations</span>
+<span class="sd">                      internal to the instrument plus the normal MILLIE/DRS</span>
+<span class="sd">                      calibrations.</span>
+
+<span class="sd">                      All raw parameters are digital conversions of the input</span>
+<span class="sd">                      voltage. The digital values are converted using a</span>
+<span class="sd">                      linear fit then the nephelometer internal cals are</span>
+<span class="sd">                      applied to obtain the output derived values.</span>
+<span class="sd">                      Parameters 175, 176 &amp; 183 are linear thus</span>
+
+<span class="sd">                           output = a + b * v /vfs</span>
+
+<span class="sd">                      where a and b are nephelometer internal constants,</span>
+<span class="sd">                      v the derived voltage and vfs the full scale voltage.</span>
+<span class="sd">                      Scattering parameters 177 through 182 are logarithmic</span>
+<span class="sd">                      so</span>
+
+<span class="sd">                          output = 10**((v/b) - a) - c</span>
+
+<span class="sd">                      a, b and c are nephelometer internal constants, v</span>
+<span class="sd">                      the derived voltage.</span>
+
+<span class="sd">                      Parameter 184, nephelometer status, is the analog output</span>
+<span class="sd">                      of a 4 bit D to A converter. The LSB corresponds to </span>
+<span class="sd">                      0.625V.</span>
+
+<span class="sd">         VERSION      1.00  D.P.Briggs</span>
+
+<span class="sd">         SUBROUTINES  ISETFLG</span>
+
+<span class="sd">         FILES        NONE</span>
+
+<span class="sd">         REFERENCES   Nephelometer Instruction Manual</span>
+<span class="sd">                      Nephelometer internal technical note</span>
+<span class="sd">  </span>
+<span class="sd">         PARAMETERS   RAW      DERIVED    FREQ   RANGE   UNITS</span>
+<span class="sd">  NEPH PRESSURE       175        760      1Hz    0-10V    mb</span>
+<span class="sd">  NEPH TEMPERTURE     176        761      1Hz    0-10V    K</span>
+<span class="sd">  NEPH BLUE SP        177        762      1Hz    0-10V    /m</span>
+<span class="sd">  NEPH GREEN SP       178        763      1HZ    0-10V    /m</span>
+<span class="sd">  NEPH RED SP         179        764      1Hz    0-10V    /m</span>
+<span class="sd">  NEPH BLUE BSP       180        765      1Hz    0-10V    /m</span>
+<span class="sd">  NEPH GREEN BSP      182        766      1Hz    0-10V    /m</span>
+<span class="sd">  NEPH RED BSP        181        767      1Hz    0-10V    /m</span>
+<span class="sd">  NEPH HUMIDITY       183        768      1Hz    0-5V     %</span>
+<span class="sd">  NEPH STATUS         184        769      1Hz    0-10V    bits</span>
+<span class="sd"> </span>
+<span class="sd">         NEPHELOMETER CONSTANT KEYWORDS</span>
+<span class="sd">   CALNPRS  I J A B      </span>
+<span class="sd">   CALNTMP  I J A B</span>
+<span class="sd">   CALNBTS  I J A B C    NOTE : I &amp; J are multiplexer calibrations.</span>
+<span class="sd">   CALNGTS  I J A B C           A, B &amp; C are instrument internal cals.</span>
+<span class="sd">   CALNRTS  I J A B C</span>
+<span class="sd">   CALNBBS  I J A B C</span>
+<span class="sd">   CALNGBS  I J A B C</span>
+<span class="sd">   CALNRBS  I J A B C</span>
+<span class="sd">   CALNHUM  I J A B</span>
+<span class="sd">   CALNSTS  I J</span>
+
+<span class="sd">         CHANGES </span>
+<span class="sd">         V1.01  12/05/97  W.D.N.JACKSON</span>
+<span class="sd">                Miscellaneous bug fixes, the most serious being the incorrect</span>
+<span class="sd">                calculation of the red backscattering coefficient, and a</span>
+<span class="sd">                tendency to crash with floating overflows.</span>
+<span class="sd">         V1.02  29/05/97  W.D.N.JACKSON</span>
+<span class="sd">                Changed to reflect fact that Red BS comes in on 181 and green</span>
+<span class="sd">                on para 182.</span>
+<span class="sd">         V1.03  19/06/98  W.D.N.JACKSON</span>
+<span class="sd">                Changed to reflect fact that bit 3 of the status word is 0</span>
+<span class="sd">                (not 1) when on calibrate.</span>
+<span class="sd">         V1.04  01/09/02  W.D.N.JACKSON</span>
+<span class="sd">                Small changes to handle new 16 bit DRS.  Also status parameter</span>
+<span class="sd">                is now calibrated.</span>
+<span class="sd">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;CALNPRS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNTMP&#39;</span><span class="p">,</span> <span class="s">&#39;CALNBTS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNGTS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNRTS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNBBS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNGBS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNRBS&#39;</span><span class="p">,</span> <span class="s">&#39;CALNHUM&#39;</span><span class="p">,</span> <span class="s">&#39;CALNSTS&#39;</span><span class="p">,</span> 
+                          <span class="s">&#39;Horace_NPRS&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NTMP&#39;</span><span class="p">,</span> 
+                          <span class="s">&#39;Horace_NBTS&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NGTS&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NRTS&#39;</span><span class="p">,</span> 
+                          <span class="s">&#39;Horace_NBBS&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NRBS&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NGBS&#39;</span><span class="p">,</span> 
+                          <span class="s">&#39;Horace_NHUM&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NSTS&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NEPH_PR&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;hPa&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">760</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Internal sample pressure of the Nephelometer&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NEPH_T&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;K&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">761</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Internal sample temperature of the Nephelometer&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TSC_BLUU&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">762</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected blue total scattering coefficient from TSI 3563 nephelometer.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TSC_GRNU&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">763</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected green total scattering coefficient from TSI 3563 nephelometer.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TSC_REDU&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">764</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected red total scattering coefficient from TSI 3563 nephelometer.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;BSC_BLUU&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">765</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected blue back scattering coefficient from TSI 3563 nephelometer.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;BSC_GRNU&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">766</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected green back scattering coefficient from TSI 3563 nephelometer.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;BSC_REDU&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;m-1&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">767</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected red back scattering coefficient from TSI 3563 nephelometer.&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NHUM_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;%&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">768</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;NEPH HUMIDITY&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NSTS_CAL&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;RBITS&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">769</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;NEPH STATUS&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;NEPHL1&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_nevzorov &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_nevzorov</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="nevzorov"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_nevzorov.nevzorov">[docs]</a><span class="k">class</span> <span class="nc">nevzorov</span><span class="p">(</span><span class="n">cal_base</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span>  <span class="s">&#39;CORCON_nv_lwc_vcol&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_lwc_icol&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_lwc_vref&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_lwc_iref&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_twc_vcol&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_twc_icol&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_twc_vref&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;CORCON_nv_twc_iref&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;TAS&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NV_LWC_U&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;gram m-3&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">602</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected liquid water content from the Nevzorov probe&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NV_TWC_U&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;gram m-3&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">605</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Uncorrected total condensed water content from the Nevzorov probe.&#39;</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">cal_base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="nevzorov.process"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_nevzorov.nevzorov.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">CALNVLWC</span><span class="o">=</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="mf">0.3e-4</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">]</span>
+        <span class="n">CALNVTWC</span><span class="o">=</span><span class="p">[</span><span class="mf">1.65</span><span class="p">,</span><span class="mf">0.5e-4</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">,</span><span class="mf">3.29E-4</span><span class="p">,</span><span class="o">-</span><span class="mf">6.82E-2</span><span class="p">]</span>
+        <span class="n">CALNVL</span><span class="o">=</span><span class="p">[</span><span class="mf">2589.0</span><span class="p">]</span>
+        <span class="n">t</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">matchtimes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="p">)</span>
+        <span class="n">licol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_lwc_icol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>   
+        <span class="n">lvcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_lwc_vcol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>     
+        <span class="n">liref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_lwc_iref&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>     
+        <span class="n">lvref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_lwc_vref&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> 
+        <span class="n">ticol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_twc_icol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>   
+        <span class="n">tvcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_twc_vcol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>     
+        <span class="n">tiref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_twc_iref&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>     
+        <span class="n">tvref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;CORCON_nv_twc_vref&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> 
+        <span class="n">AREA_TWC</span><span class="o">=</span><span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">AREA_LWC</span><span class="o">=</span><span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">K_TWC</span><span class="o">=</span><span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">K_LWC</span><span class="o">=</span><span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">L_WC</span><span class="o">=</span><span class="n">CALNVL</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c">#calibrate raw data</span>
+        <span class="n">lwc_col_i</span> <span class="o">=</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">licol</span> <span class="o">+</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">lwc_col_v</span> <span class="o">=</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">*</span><span class="n">lvcol</span> <span class="o">+</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">lwc_ref_i</span> <span class="o">=</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">*</span><span class="n">liref</span> <span class="o">+</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+        <span class="n">lwc_ref_v</span> <span class="o">=</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">*</span><span class="n">lvref</span> <span class="o">+</span> <span class="n">CALNVLWC</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+        <span class="c">#Calculate derived parameters.</span>
+        <span class="c">#</span>
+        <span class="c">#Sensor power (J/s).</span>
+        <span class="n">lwc_col_p</span><span class="o">=</span><span class="n">lwc_col_i</span><span class="o">*</span><span class="n">lwc_col_v</span>
+        <span class="n">lwc_ref_p</span><span class="o">=</span><span class="n">lwc_ref_i</span><span class="o">*</span><span class="n">lwc_ref_v</span>
+        <span class="n">times</span><span class="o">=</span><span class="n">licol</span><span class="o">.</span><span class="n">times2d</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">sh</span><span class="o">=</span><span class="n">licol</span><span class="o">.</span><span class="n">shape</span>
+ 
+        <span class="n">tas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s">&#39;TAS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ismatch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">tas</span><span class="o">.</span><span class="n">interp1d</span><span class="p">()</span>
+        <span class="n">tas</span><span class="o">=</span><span class="n">tas</span><span class="o">.</span><span class="n">interpolated</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
+        <span class="n">lwc_p</span><span class="o">=</span><span class="n">lwc_col_p</span><span class="o">-</span><span class="n">K_LWC</span><span class="o">*</span><span class="n">lwc_ref_p</span>  
+        <span class="n">lwc_q</span><span class="o">=</span><span class="n">lwc_p</span><span class="o">/</span><span class="p">(</span><span class="n">tas</span><span class="o">*</span><span class="n">AREA_LWC</span><span class="o">*</span><span class="n">L_WC</span><span class="p">)</span>
+        
+        <span class="n">twc_col_i</span> <span class="o">=</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">ticol</span> <span class="o">+</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">twc_col_v</span> <span class="o">=</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">*</span><span class="n">tvcol</span> <span class="o">+</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">twc_ref_i</span> <span class="o">=</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">*</span><span class="n">tiref</span> <span class="o">+</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+        <span class="n">twc_ref_v</span> <span class="o">=</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">*</span><span class="n">tvref</span> <span class="o">+</span> <span class="n">CALNVTWC</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+        <span class="c">#Calculate derived parameters.</span>
+        <span class="c">#</span>
+        <span class="c">#Sensor power (J/s).</span>
+        <span class="n">twc_col_p</span><span class="o">=</span><span class="n">twc_col_i</span><span class="o">*</span><span class="n">twc_col_v</span>
+        <span class="n">twc_ref_p</span><span class="o">=</span><span class="n">twc_ref_i</span><span class="o">*</span><span class="n">twc_ref_v</span>
+ 
+        <span class="n">twc_p</span><span class="o">=</span><span class="n">twc_col_p</span><span class="o">-</span><span class="n">K_LWC</span><span class="o">*</span><span class="n">twc_ref_p</span>  
+        <span class="n">twc_q</span><span class="o">=</span><span class="n">twc_p</span><span class="o">/</span><span class="p">(</span><span class="n">tas</span><span class="o">*</span><span class="n">AREA_TWC</span><span class="o">*</span><span class="n">L_WC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">=</span><span class="n">lwc_q</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">=</span><span class="n">twc_q</span>
+        
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

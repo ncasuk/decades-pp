@@ -42,7 +42,7 @@ Routine for reading in CONST data
                     l=l[0:l.index('!')].strip()
                 if(l.startswith('NO')):
                     mod=l.replace('NO','',1)
-                    self.dataset.nocals.append(mod)                 
+                    self.dataset.nocals=self.dataset.nocals+[mod]                 
                 else:
                     values=l.split()
                     name=values[0]

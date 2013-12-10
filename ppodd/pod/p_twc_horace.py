@@ -2,13 +2,13 @@
 from ppodd.core import *
 class twc_horace(fort_cal):
     """
-FORTRAN routine C_TWC
+    FORTRAN routine C_TWC
 
- ROUTINE	    C_TWC   subroutine fortvax/fort77
+    ROUTINE	    C_TWC   subroutine fortvax/fort77
 
- PURPOSE	    To calibrate DRS pars. 70-78 into TARDIS parameters 664-672
+    PURPOSE	    To calibrate DRS pars. 70-78 into TARDIS parameters 664-672
 	
- DESCRIPTION       The same algorithm is used for all nine parameters. First
+    DESCRIPTION       The same algorithm is used for all nine parameters. First
 		    check to see if the right frequency has been set. Find
 		    the flag of the raw data. Work out the derived parameter,
 		    #665-#671, values of RCONST are used in a polynomial
@@ -36,22 +36,22 @@ FORTRAN routine C_TWC
                    77    671     0.4E-3 1.1E-3    0.05E-3     A
                    78    672     0      4095       -         DRS
 
- VERSION 	    1.00 080190 M.J.GLOVER
+     VERSION 	    1.00 080190 M.J.GLOVER
 
- ARGUMENTS         IRAW(64,512) I*4  IN   Raw data for the parameters
-		    IFRQ(512)    I*4  IN   Frequencies of the data
-		    RCONST(64)   R*4  IN   Constants required by routine,(1-32)
-		    RDER(64,1024)R*4  OUT  Tardis parameters
+     ARGUMENTS         IRAW(64,512) I*4  IN   Raw data for the parameters
+		        IFRQ(512)    I*4  IN   Frequencies of the data
+		        RCONST(64)   R*4  IN   Constants required by routine,(1-32)
+		        RDER(64,1024)R*4  OUT  Tardis parameters
 	
- COMMON	    None.
-                 
- SUBPROGRAMS	    ISETFLG (linked automatically)
+     COMMON	    None.
+                     
+     SUBPROGRAMS	    ISETFLG (linked automatically)
 
- FILES		    None.
+     FILES		    None.
 	
- REFERENCES	    MRF2 Specification for Total Water Hygrometer 4 Dec 1989
+     REFERENCES	    MRF2 Specification for Total Water Hygrometer 4 Dec 1989
 
- CHANGES           V1.01  10/06/94  W.D.N.JACKSON / S.J.MOSS
+     CHANGES           V1.01  10/06/94  W.D.N.JACKSON / S.J.MOSS
                    Modified to correctly compute evaporator currents when the
                    modified TWC instrument is flown (ie for A188 onwards).  In
                    this case DRS parameters 173 and 174 are also used.  If
@@ -64,8 +64,7 @@ FORTRAN routine C_TWC
                    used for flights before A188 CALIBRATE issues a warning
                    that some of the constants are absent; this can be ignored.
 
-###############################################################################
-"""
+    """
     def __init__(self,dataset):
         self.input_names=['CALTNOS', 'CALTSAM', 'CALTAMB', 'CALTSRC', 'CALHTR1', 'CALHTR2', 'CALISRC', 
                           'SECS','Horace_TWCD', 'Horace_TNOS', 'Horace_TSAM', 'Horace_TAMB', 

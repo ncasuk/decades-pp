@@ -1,0 +1,150 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_nox &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_nox</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="nox"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_nox.nox">[docs]</a><span class="k">class</span> <span class="nc">nox</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_NOX</span>
+
+<span class="sd"> ROUTINE	C_NOX SUBROUTINE FORTVAX</span>
+
+<span class="sd"> PURPOSE	A subroutine to calculate Nitrogen monoxide, Nitrogen dioxide</span>
+<span class="sd">		and NOx measured by the TECO 42 NOx analyser.</span>
+
+<span class="sd"> DESCRIPTION	The NOx analyser outputs three measurements, NO, NO2 and NOx.</span>
+<span class="sd">		These are input to the program as DRS bits, and converted</span>
+<span class="sd">		into PPB by multiplying the DRS bits by a calibration factor.</span>
+
+
+<span class="sd"> TO COMPILE	$FORT C_NOX</span>
+
+<span class="sd"> VERSION	1.00  28 Sept. 1998  	I. Hawke</span>
+<span class="sd">               1.01  23 June. 1999     I. Hawke     5ppb Offset included</span>
+<span class="sd">               1.02  07 Mar   2000     I. Hawke     Offset removed</span>
+<span class="sd">               1.03  07 Mar   2000     I. Hawke     5ppb offset included</span>
+<span class="sd">               1.04  29 Mar   2000     I. Hawke     New Conversion Algorithm</span>
+<span class="sd">               1.05  30 Mar   2000     I. Hawke     Flow Testing Added</span>
+<span class="sd">               1.06  02 Oct   2002     N. Jackson   Modified for 16 bit DRS</span>
+<span class="sd">               1.07  27 Oct   2005     D.Tiddeman   New constants for flagging</span>
+<span class="sd">                                                    low airspeeds or out of</span>
+<span class="sd">                                                    range values.</span>
+<span class="sd">               1.08  05 Dec  2005      D.Tiddeman   No flag 2 for negative</span>
+<span class="sd">                                                                               </span>
+<span class="sd"> ARGUMENTS	IRAW(1,203) - on entry contains the raw NO signal</span>
+<span class="sd">		IRAW(1,204) - on entry contains the raw NO2 signal</span>
+<span class="sd">		IRAW(1,205) - on entry contains the raw NOx signal</span>
+<span class="sd">               IRAW(1,114) - on entry contains ozone flow signal</span>
+<span class="sd">               RCONST(1,2,3,4) XO and X1 voltage cal for NO, v to ppb, ppb offs</span>
+<span class="sd">               RCONST(5,6,7,8) same for NO2</span>
+<span class="sd">               RCONST(9,10,11,12) same for NOx</span>
+<span class="sd">               RCONST(13,14) X0 and X1 voltage cal for Ozone flow</span>
+<span class="sd">		RDER(1,770) - on exit contains the derived NO signal</span>
+<span class="sd">		RDER(1,771) - on exit contains the derived NO2 signal</span>
+<span class="sd">		RDER(1,772) - on exit contains the derived NOx signal</span>
+
+<span class="sd">*******************************************************************************</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;CALNO&#39;</span><span class="p">,</span> <span class="s">&#39;CALNO2&#39;</span><span class="p">,</span> <span class="s">&#39;CALNOX&#39;</span><span class="p">,</span> <span class="s">&#39;CALO3F&#39;</span><span class="p">,</span> <span class="s">&#39;CALNOMX&#39;</span><span class="p">,</span>  
+                          <span class="s">&#39;Horace_NOX1&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NOX2&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_NOX3&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_O3F&#39;</span><span class="p">,</span> <span class="s">&#39;Horace_RVAS&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NO_TECO&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;ppb&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">770</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Mole fraction of Nitrogen Monoxide (NO) in air from the TECO 42 instrument&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NO2_TECO&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;ppb&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">771</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Mole fraction of Nitrogen Dioxide (NO2) in air from the TECO 42 instrument&#39;</span><span class="p">)</span>
+                     <span class="p">,</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;NOX_TECO&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;ppb&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">772</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Mole fraction of NOx in air from the TECO 42 instrument&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;NOX&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

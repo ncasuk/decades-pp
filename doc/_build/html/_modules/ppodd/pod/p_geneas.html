@@ -1,0 +1,162 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_geneas &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_geneas</h1><div class="highlight"><pre>
+<span class="c">#from ppodd.pod import *</span>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="viewcode-block" id="geneas"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_geneas.geneas">[docs]</a><span class="k">class</span> <span class="nc">geneas</span><span class="p">(</span><span class="n">fort_cal</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FORTRAN routine C_GENEAS</span>
+<span class="sd">DEC$ IDENT &#39;V1.02&#39;</span>
+
+<span class="sd"> ROUTINE  	   C_GENEAS     SUBROUTINE FORTVAX</span>
+<span class="sd">     </span>
+<span class="sd"> PURPOSE 	   Derivation of Dew point   </span>
+
+<span class="sd"> DESCRIPTION      Calculation of Dew Point in K from General Eastern Hygrometer</span>
+<span class="sd">                  </span>
+<span class="sd">                         529- Dew Point                             [K]</span>
+
+<span class="sd">                  The General Eastern Hygrometer (Parameter 58) is recorded </span>
+<span class="sd">                  in binary with a range of 0 to 4095 DRS bits.</span>
+<span class="sd">                  A control signal (Parameter 59) is also recorded which </span>
+<span class="sd">                  gives an indication of the amount of heating or cooling</span>
+<span class="sd">                  of the mirror.</span>
+<span class="sd">                  The instrument should be in control if the signal is between</span>
+<span class="sd">                  certain limits. </span>
+<span class="sd">                  Outside these limits it still produces a dew point </span>
+<span class="sd">                  reading,though of doubtful accuracy, and derived data </span>
+<span class="sd">                  is flagged - FLAG = 2.</span>
+<span class="sd">                  </span>
+<span class="sd"> VERSION	   1.00  240190   J HARMER</span>
+<span class="sd">                  1.01  17-01-96 D Lauchlan</span>
+<span class="sd"> ARGUMENTS </span>
+<span class="sd">                  Constants:</span>
+<span class="sd">                  GEMAX      Maximum control condition signal limit RCONST(1)</span>
+<span class="sd">                  GEMIN      Minimum control condition signal limit RCONST(2)</span>
+<span class="sd">                  CALGE(1)   GE Dew point calib. constant x0        RCONST(3)</span>
+<span class="sd">                  CALGE(2)   GE Dew point calib. constant x1        RCONST(4)</span>
+<span class="sd">                  CALGE(3)   GE Dew point calib. constant x2        RCONST(5)</span>
+
+
+<span class="sd">                  Inputs   : </span>
+<span class="sd">                  GENERAL EASTERN 1011 DEW POINT    [drs units ] Para 58</span>
+<span class="sd">                  GENERAL EASTERN CONTROL SIGNAL    [drs units ] Para 59</span>
+
+<span class="sd">                  Outputs  : </span>
+<span class="sd">                  DEW POINT                            [K]      Para 529</span>
+<span class="sd">           </span>
+<span class="sd"> SUBPROGRAMS</span>
+<span class="sd">                  ITSTFLG          Examines bits 16,17 for flags</span>
+<span class="sd">                  ISETFLG          Sets flag bits 16,17 = 0 --&gt; 3</span>
+<span class="sd">                  S_QCPT           Performs range and rate of change check</span>
+
+<span class="sd"> REFERENCES 	   Code adapted from MRF1/MRF2</span>
+
+<span class="sd"> CHANGES          v1.01 17-01-96 D Lauchlan</span>
+<span class="sd">                  Unused variables removed</span>
+
+<span class="sd">                  V1.02  27/09/02  W.D.N.JACKSON</span>
+<span class="sd">                  Changed to include handling of 16 bit data from the new </span>
+<span class="sd">                  DRS.</span>
+<span class="sd">------------------------------------------------------------------------------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GELIMS&#39;</span><span class="p">,</span> <span class="s">&#39;CALGE&#39;</span><span class="p">,</span> <span class="s">&#39;SECS&#39;</span><span class="p">,</span><span class="s">&#39;Horace_HYGR&#39;</span><span class="p">,</span><span class="s">&#39;Horace_HYCS&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">parameter</span><span class="p">(</span><span class="s">&#39;TDEW_GE&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;degK&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">number</span><span class="o">=</span><span class="mi">529</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="s">&#39;Dew point from the General Eastern instrument.&#39;</span><span class="p">)]</span>
+        <span class="c">#self.name=&#39;GENEAS&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">=</span><span class="mf">1.00</span>
+        <span class="n">fort_cal</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
