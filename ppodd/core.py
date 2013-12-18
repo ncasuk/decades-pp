@@ -199,9 +199,21 @@ class decades_dataset(OrderedDict):
 
     def guesstype(self,filen):
         ans='FOLDER'
+        anso=None
         for n,o in self.filetypes.items():
             if(o.filetest(filen)):
-                ans=n
+                #ans=n
+                if(not(anso)):
+                    ans=n
+                    anso=o
+                else:
+                    change=False
+                    for patt in o.patterns:
+                        if(anso.filetest(patt)):
+                            change=True
+                    if(change):
+                        ans=n
+                        anso=o
         return ans
 
 

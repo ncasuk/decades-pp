@@ -16,7 +16,7 @@ Routine for reading in CRIO data
     def fixfilename(self,filename):
         d=os.path.dirname(filename)
         b=os.path.basename(filename)
-        return d # os.path.join(d,b[:6])
+        return os.path.join(d,b[:6])
         
     def read_tcp_defin(self,deffile):
         import csv
@@ -161,8 +161,10 @@ Routine for reading in CRIO data
             and             folder/type_TCP*.csv is definition
         """
         ppodd.logger.info('Open CRIO file %s' % filename)
-        dirname=filename # os.path.dirname(filename)
-        file_type=self.input_names[0] # os.path.basename(filename)[:6]
+        dirname=os.path.dirname(filename)
+        #dirname=filename
+        #file_type=self.input_names[0] # 
+        file_type=os.path.basename(filename)[:6]
         ls=os.listdir(dirname)
         bins=[]
         deffiles=[]
@@ -177,10 +179,7 @@ Routine for reading in CRIO data
         deffile=os.path.join(dirname,sorted(deffiles)[-1])
         ppodd.logger.info('Using definition file = %s' % deffile)
         outputs=self.read_tcp_defin(deffile)
-        print [o.name for o in outputs]
-        print self.dtype
         data=self.read_tcp_data(dirname,bins)
-        print 'LEN(DATA)=',len(data)
         if len(data)>0:
             try:
                 good,times=self.check_times(data) 
@@ -188,61 +187,25 @@ Routine for reading in CRIO data
                     o.data=timed_data(data[o.name][good],times)
                 self.outputs=getattr(self,'outputs',[])+outputs
             except TypeError:
-                ppodd.logger.warning('No %s data' % self.input_names[0])
+                ppodd.logger.warning('No %s data' % file_type)
 
-
-class read_corcon(read_crio):
+class read_criox(read_crio):
     """
-Routine for reading in CORCON data
+Routine for reading in unspecified cRIO data
 """
 
     def __init__(self,dataset):
-        self.input_names=['CORCON','DATE']
+        self.input_names=['CRIO','DATE']
         read_crio.__init__(self,dataset)
+        self.patterns=('*.csv',)
 
-class read_aerack(read_crio):
-    """
-Routine for reading in AERACK data
-"""
-
+class read_fltsumm(file_read):
     def __init__(self,dataset):
-        self.input_names=['AERACK','DATE']
-        read_crio.__init__(self,dataset)
-        
-class read_uppbbr(read_crio):
-    """
-Routine for reading in UPPBBR data
-"""
-
-    def __init__(self,dataset):
-        self.input_names=['UPPBBR','DATE']
-        read_crio.__init__(self,dataset)
-
-class read_lowbbr(read_crio):
-    """
-Routine for reading in LOWBBR data
-"""
-
-    def __init__(self,dataset):
-        self.input_names=['LOWBBR','DATE']
-        read_crio.__init__(self,dataset)
-
-class read_prtaft(read_crio):
-    """
-Routine for reading in PRTAFT data
-"""
-
-    def __init__(self,dataset):
-        self.input_names=['PRTAFT','DATE']
-        read_crio.__init__(self,dataset)
-
-class read_twcdat(read_crio):
-    """
-Routine for reading in TWCDAT data
-"""
-
-    def __init__(self,dataset):
-        self.input_names=['TWCDAT','DATE']
-        read_crio.__init__(self,dataset)
-
+        self.input_names=['FLTSUMM']
+        self.patterns=('FLTSUMM*.csv',)
+        self.outputs=[]
+        file_read.__init__(self,dataset)
+    
+    def readfile(filename):
+        ppodd.logger.warning('No FLTSUMM reading capability yet')
 
