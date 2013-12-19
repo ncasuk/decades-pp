@@ -176,7 +176,3 @@ class ftpjob(threading.Thread):
                     break
         return StringIO.StringIO(md5.hexdigest()+'  '+os.path.basename(self.filename)+'\n')
 
-
-    
-
-   
