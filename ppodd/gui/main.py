@@ -6,8 +6,6 @@ from views import viewparas,viewmodules
 from archive import viewarchive
 from files import viewfiles
 import ppodd
-import matplotlib
-matplotlib.use('Tkagg')
 
 class main(Tk.Tk):
     

@@ -31,6 +31,7 @@ class gin_track_plot(cal_base):
         max_lon=np.nanmax(self.dataset[lon])+2.0
         lat_0=(min_lat+max_lat)/2.0
         lon_0=(min_lon+max_lon)/2.0
+        plt.figure()
         m = Basemap(projection='merc', lat_0=lat_0, lon_0=lon_0,
             resolution = 'h', area_thresh = 0.1,
             llcrnrlon=min_lon, llcrnrlat=min_lat,

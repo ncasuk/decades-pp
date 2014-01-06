@@ -2,6 +2,8 @@
 import ppodd
 from ppodd.core import decades_dataset
 from optparse import OptionParser
+import matplotlib
+matplotlib.use('Tkagg')
 
 def split_up(option, opt, value, parser): 
     """ Splits up comma separated input and sets to upper case """

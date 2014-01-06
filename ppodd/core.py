@@ -608,6 +608,7 @@ class timed_data(np.ndarray):
         ind=self.times.asindexes(start=start)
         xind=(ind>=0) & (ind<len(d))
         d[ind[xind]]=data[xind]
+        d[~np.isfinite(d)]=d.fill_value
         if mask is not None:
             ind=self.twod_array(ind,indexes1d=True)
             xind=self.twod_array(xind)
