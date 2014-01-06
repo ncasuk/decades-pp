@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ppodd.pod.p_read_wvss &mdash; ppodd  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ppodd  documentation" href="../../../index.html" />
+    <link rel="up" title="ppodd.pod" href="../pod.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" accesskey="U">ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ppodd.pod.p_read_wvss</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">ppodd.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">p_read_crios</span> <span class="kn">import</span> <span class="n">read_crio</span>
+
+<div class="viewcode-block" id="read_wvss"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_read_wvss.read_wvss">[docs]</a><span class="k">class</span> <span class="nc">read_wvss</span><span class="p">(</span><span class="n">read_crio</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Routine for reading in WVSS2A data</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">,</span><span class="n">wvss</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">=</span><span class="n">wvss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="p">,</span><span class="s">&#39;DATE&#39;</span><span class="p">]</span>
+        <span class="n">read_crio</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_VMR&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;ppmv&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Water Vapor Measurement linearly interpolated to 1Hz&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_PRESS&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;hPa&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Pressure inside sample cell linearly interpolated to 1Hz&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_TEMP&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;C&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Temperature of sample cell linearly interpolated to 1Hz&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_VMR_RAW&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;ppmv&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Water Vapor Measurement&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_PRESS_RAW&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;hPa&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Pressure inside sample cell&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_TEMP_RAW&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;C&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Temperature of sample cell&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_PP2F&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;C&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; 2F2F (PP2F in digital counts)&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_LasSigPow&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;counts&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; power of laser signal&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_PeakIndex&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;counts&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; index of peak&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_NullValue&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;counts&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; Null Value&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_MidPt&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;mAmp&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; midpoint in mAmp&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_AdjMidPt&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;mAmp&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; adjusted midpoint in MAmp, if peak tracking turned on&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_PT&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; unitless Pressure/Temperature correction factor&#39;</span><span class="p">),</span>
+        <span class="n">parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_BLCF&#39;</span><span class="p">,</span><span class="n">units</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span><span class="n">frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39; unitless Beers Law correction factor for non-linearity&#39;</span><span class="p">)]</span>
+        
+<div class="viewcode-block" id="read_wvss.readfile"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_read_wvss.read_wvss.readfile">[docs]</a>    <span class="k">def</span> <span class="nf">readfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">read_crio</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_utc_time_msec&#39;</span><span class="p">:</span>
+                <span class="n">msec_offset</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span><span class="o">/</span><span class="mf">1000.0</span>
+                <span class="n">tx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c"># spread data times to interpolate to over every second</span>
+                <span class="n">tx</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+                <span class="n">tx</span><span class="o">=</span><span class="n">timestamp</span><span class="p">(</span><span class="n">tx</span><span class="p">)</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">times</span><span class="o">+=</span><span class="n">msec_offset</span>
+                <span class="n">times</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">times</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">wvss</span><span class="o">+</span><span class="s">&#39;_serial_data&#39;</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="p">)]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[:</span><span class="mi">3</span><span class="p">]):</span>
+            <span class="n">d</span><span class="o">=</span><span class="n">timed_data</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span><span class="n">times</span><span class="p">)</span>
+            <span class="n">inter</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">interp1d</span><span class="p">()</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="o">=</span><span class="n">timed_data</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">interpolated</span><span class="p">(</span><span class="n">tx</span><span class="p">),</span><span class="n">tx</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">14</span><span class="p">]):</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="o">=</span><span class="n">timed_data</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span><span class="n">times</span><span class="p">)</span>
+        
+        
+</div></div>
+<div class="viewcode-block" id="read_wvss2a"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_read_wvss.read_wvss2a">[docs]</a><span class="k">class</span> <span class="nc">read_wvss2a</span><span class="p">(</span><span class="n">read_wvss</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="n">read_wvss</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">,</span><span class="s">&#39;WVSS2A&#39;</span><span class="p">)</span>   
+        </div>
+<div class="viewcode-block" id="read_wvss2b"><a class="viewcode-back" href="../../../ppodd.pod.html#ppodd.pod.p_read_wvss.read_wvss2b">[docs]</a><span class="k">class</span> <span class="nc">read_wvss2b</span><span class="p">(</span><span class="n">read_wvss</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">):</span>
+        <span class="n">read_wvss</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">dataset</span><span class="p">,</span><span class="s">&#39;WVSS2B&#39;</span><span class="p">)</span>        
+     
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ppodd  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pod.html" >ppodd.pod</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+gui Package
+===========
+
+:mod:`gui` Package
+------------------
+
+.. automodule:: ppodd.gui
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`archive` Module
+---------------------
+
+.. automodule:: ppodd.gui.archive
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`files` Module
+-------------------
+
+.. automodule:: ppodd.gui.files
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`flaggedplots` Module
+--------------------------
+
+.. automodule:: ppodd.gui.flaggedplots
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`main` Module
+------------------
+
+.. automodule:: ppodd.gui.main
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`util` Module
+------------------
+
+.. automodule:: ppodd.gui.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`views` Module
+-------------------
+
+.. automodule:: ppodd.gui.views
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

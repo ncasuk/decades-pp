@@ -1,0 +1,59 @@
+ppodd Package
+=============
+
+:mod:`ppodd` Package
+--------------------
+
+.. automodule:: ppodd.__init__
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`OrderedDictOld` Module
+----------------------------
+
+.. automodule:: ppodd.OrderedDictOld
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`core` Module
+------------------
+
+.. automodule:: ppodd.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`humidity_formulae` Module
+-------------------------------
+
+.. automodule:: ppodd.humidity_formulae
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`resample` Module
+----------------------
+
+.. automodule:: ppodd.resample
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`util` Module
+------------------
+
+.. automodule:: ppodd.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ppodd.gui
+    ppodd.pod
+
