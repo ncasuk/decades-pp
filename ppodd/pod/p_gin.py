@@ -70,7 +70,10 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
                     else:
                         d=self.dataset[name].data
                     d.interp1d()
-                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)  
+                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)
+                    x=~np.isfinite(o.data)
+                    o.data.flag[x]=3 
+                    o.data[x]=0 
         
 
 
