@@ -74,29 +74,16 @@ Routine for reading in CRIO data
         lfd=len(self.full_descriptor)
         lpl=self.pack_len.itemsize
         packlen=np.array([self.total-lpl-lfd],dtype=self.pack_len)
-        print self.pack_len,packlen[0]
         try:
             strtstr=self.full_descriptor+packlen.data[:] # Use this to only search for correct length packets
             while(True):
                 nl=strdata.index(strtstr,nl)
-                """packlen.data[0:lpl]=strdata[nl+lfd:nl+lfd+lpl]
-                l=packlen[0]+lfd+lpl"""
                 inds.append(nl)
-                """lens.append(l)
-                if(nl+l<=len(strdata)):
-                    if(l==self.total):
-                        z.data[offs:offs+l]=strdata[nl:nl+l]
-                        offs+=l
-                        n+=1"""
                 if(nl+self.total<=len(strdata)):
                     z.data[offs:offs+self.total]=strdata[nl:nl+self.total]
                     n+=1
                 offs+=self.total
                 nl+=self.total
-                """if(l>0):
-                    nl+=l
-                else:
-                    nl+=lfd+lpl"""
                 
         except ValueError:
             if(debug_lengths):
@@ -108,7 +95,7 @@ Routine for reading in CRIO data
                 plt.plot([0,len(inds)],[self.total,self.total],label='Correct')
                 plt.title('Packet lengths for '+os.path.basename(filen))
                 plt.legend()
-        return z[:n]
+        return n,z[:n]
 
     def read_tcp_data(self,dirname,bins):
         data=np.zeros((0,),dtype=self.dtype)
@@ -123,7 +110,7 @@ Routine for reading in CRIO data
             if(n>0):
                 z=np.memmap(filen,dtype=self.dtype,mode='r',shape=(n,)) # Try a simple read 
                 if(np.any(z['label']!=self.full_descriptor)):
-                    z=self.read_slowly(n,filen)
+                    n,z=self.read_slowly(n,filen)
             if(n>0):
                 data=np.append(data,z,axis=0)
         return data

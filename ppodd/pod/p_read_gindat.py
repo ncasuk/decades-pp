@@ -25,7 +25,7 @@ Routine for reading in AERACK data
         return outputs
 
     def read_slowly(self,n,filen):
-        read_crio.read_slowly(self,n,filen,debug_lengths=False)
+        return read_crio.read_slowly(self,n,filen,debug_lengths=False)
 
     def check_times(self,data):
         dtype_names=[d[0] for d in self.dtype]

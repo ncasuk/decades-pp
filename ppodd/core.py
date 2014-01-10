@@ -690,13 +690,15 @@ class flagged_data(timed_data):
         if(self.frequency>1):
             flags=np.amin(self.flag,axis=1)
             times=self.times
+            dat=self.raw_data[:]
+            dat[np.isnan(dat)]=-9999.0
             weight=np.atleast_2d(flags).transpose()==self.flag
             if(angle):
-                x=np.sum(np.cos(np.radians(self))*weight,axis=1)
-                y=np.sum(np.sin(np.radians(self))*weight,axis=1)
+                x=np.sum(np.cos(np.radians(dat))*weight,axis=1)
+                y=np.sum(np.sin(np.radians(dat))*weight,axis=1)
                 data=np.degrees(np.arctan2(y,x)) % 360
             else:
-                data=np.average(self,axis=1,weights=weight)
+                data=np.average(dat,axis=1,weights=weight)
             return flagged_data(data,times,flags)
         else:
             return self
