@@ -1,41 +1,41 @@
-#from ppodd.pod import *
+
 from ppodd.core import *
-class comr(fort_cal):
-    """
-FORTRAN routine C_COMR
 
- ROUTINE	C_COMR SUBROUTINE FORTVAX
+class co_mixingratio(cal_base):
+    """Routine to calculate the Carbon Monoxide concentration from the AL52002 Instrument.
 
- PURPOSE	A subroutine to calculate Carbon monoxide.
+    The routine works with the data from the TCP packages that are stored by fish.
+    Flagging is done using the static pressure and the pressure measurement in the
+    calibration chamber of the instrument.
 
- DESCRIPTION	The CO analyser outputs one measurement.
-		This is input to the program as DRS bits, and converted
-		into PPB by multiplying the DRS bits by a calibration factor.
+    Is the static pressure from the RVSM system lower than 500mb the data are unreliable
+    and flagged 2. Is the pressure inside the calibration chamber greater than 3.1 bar
+    the instrument is performing a calibration and data are flagged 3.
 
-
- TO COMPILE	$FORT C_COMR
-
- VERSION	1.00  8-Jul-2004  	D.Tiddeman
-               1.01  27-OCT-2005
-               1.02
-               1.03 31-JAN-2007 R Purvis Changed timedelay after cal to 20
-               1.04 18-SEP-2007 R Purvis	RCONST(5) added for correction factor
-               1.05 30-JUL-2010 S Bauguitte increased CO flag count threshold from 8000 to 10000
-               1.06 15-OCT-2012 A Wellpott CO upper threshold flagging added. Now values above 
-                                4995 are flagged with 3
-                                                                
- ARGUMENTS	IRAW(1,154) - on entry contains the raw CO signal
-               IRAW(1,223) - on entry contains raw RVSM airspeed
-               IRAW(1,113) - cal info ?
-               RCONST(1,2,3,4) XO and X1 voltage cal for CO, v to ppb, ppb offs
-		RDER(1,782) - on exit contains the derived CO signal
-
-*******************************************************************************
+    The routine needs an interpolation method to calculate the change of calibration coefficients
+    inbetween calibrations. This will be written after the CAST campaign and applied to all future
+    data.
 
     """
     def __init__(self,dataset):
-        self.input_names=['CALCOMR', 'CALCOMX', 'Horace_CO', 'Horace_RVAS']
-        self.outputs=[parameter('CO_AERO',units='ppb',frequency=1,number=782,long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument')]
-        #self.name='COMR'
+        self.input_names=['AL52CO_conc', 'AL52CO_cellpress', 'AL52CO_calpress', 'PS_RVSM']
+        self.outputs=[parameter('CO_AERO',
+                                units='ppb',
+                                frequency=1,
+                                long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument')]
         self.version=1.00
-        fort_cal.__init__(self,dataset)
+        cal_base.__init__(self,dataset) 
+
+    def process(self):
+        d=self.dataset
+        match=d.matchtimes(['PS_RVSM', 'AL52CO_conc', 'AL52CO_calpress'])
+        co_conc=d['AL52CO_conc'].data.ismatch(match)
+        calpress=d['AL52CO_calpress'].data.ismatch(match)
+        sp=d['PS_RVSM'].data.ismatch(match)
+        print(sp.shape)
+        flag=co_conc*0
+        co_mr=flagged_data(co_conc, co_conc.times, flag) 
+        co_mr.flag[co_conc < -10] = 3
+        co_mr.flag[sp[:,0] < 500] = 2
+        co_mr.flag[calpress > 3.1] = 3
+        self.outputs[0].data=co_mr

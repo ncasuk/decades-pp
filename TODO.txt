@@ -1,12 +1,73 @@
-Data processing issues that might need to be addressed
-* Gin data not flagged as 3 when GIN_LAT and GIN_LON are 0
+* uploading of the flight-cst files to the badc is not working at the moment.
+The files are not move out of the incoming directory at the badc, due to a bad
+md5 checksum. This is most likely caused by a mix-up of binary or ascii upload. 
+I remember that we had a very similar issue a few years back.
+
+
+* Correct and harmonize parameter long_names:
+
+For example
+Headingfrom POSAV GPS-aided Inertial Navigation unit(degree)
+dew point from the General Eastern instrument.(degK)
+Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument         (ppb)
+Radar height from the aircraft radar altimeter.(m)
+
+
+* Using the code snippet below does not return a decades_dataset that contains
+TEIOZO parameters. The rawdlu.zip does not contain a TEIOZ_TCP definiton file,
+but adding it via add_file did not solve this. 
+
+The solution was to add the defintion file to the rawdlu.zip file. I don't think that is 
+the intention.
+
+
+from ppodd.core import *
+import ppodd.pod
+
+
+d=decades_dataset()
+d.add_file('/home/axel/Dropbox/cast2014/b823/core_faam_20140118_r0_b823_rawdlu.zip')
+d.add_file('/home/axel/Dropbox/cast2014/decades_files/flight-cst_faam_20140118_r0_b823.txt')
+d.add_file('/home/axel/Dropbox/cast2014/decades_files/TEIOZO01_TCP_v4.csv')
+
+d.process()
+d.write_nc.process('/home/axel/b823.nc')
+
+
+
+
+* setup clean is not working at the moment
+
+axel@obelix:~/git-repos/decades-pp$ sudo python setup.py clean
+/usr/lib/python2.7/distutils/dist.py:267: UserWarning: Unknown distribution option: 'include_package_data'
+  warnings.warn(msg)
+running clean
+
+The build directory has to be deleted manually before reinstalling the code.
+
+* makefile has no clean option
+
+* Installation issue: When I run "python setup.py install" the script 
+can't find the ifort option and therefore the c_runmod.so is not 
+created and not copied to /usr/local/lib/python2.7/dist-packages.
+Not sure yet if this affects every machine. At the moment the solution is
+to build c_runmod.so and to copy it manually.
+
+* IR_UP_C and IR_DWN_C data end up in netcdf although instrument is not fitted. 
+Maybe the default setting for the IR should be not to be added (edit self.input_names in write_nc)
+
+* ppodd netcdf files contain nan values; but they should not
+
+* all "standard_name" attributes for the parameters in the netcdf are empty (empty = "")
+
+* Gin data not flagged as 3 when GIN_LAT and/or GIN_LON are 0
 
 * averaging for creating 1Hz data is not working for angles (wind direction, gin hdg, etc.)
    import scipy.stats
    scipy.stats.circmean
   might be the solution
 
-* adding gin offset constants to the flight constants
+* adding gin offset constants to the flight constants file
 
 * adding the noturb code to the gin decades-pp
 
@@ -21,6 +82,8 @@ Data processing issues that might need to be addressed
 * buck processing code and flagging; add it to the ppod code; translation from idl to python
 
 * double check flagging to make sure that missing values do match the defintion of missing_values for all variables
+
+
 
 * Below is a short bash script that can be run on the core netcdf file to make it compliant with some american 
   3d plotting software (I can't remember the name). But maybe it would be worthwhile to add the global
