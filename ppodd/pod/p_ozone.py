@@ -20,9 +20,10 @@ class ozone(cal_base):
         flag=self.dataset['TEIOZO_flag'].data!='1c100000'
         flow_a=self.dataset['TEIOZO_FlowA'].data
         flow_b=self.dataset['TEIOZO_FlowB'].data
+        flow_threshold=0.68
         flag[conc < -10]=2
-        flag[flow_a < 0.7]=3
-        flag[flow_b < 0.7]=3
+        flag[flow_a < flow_threshold]=3
+        flag[flow_b < flow_threshold]=3
         self.outputs[0].data=flagged_data(conc,conc.times,flag)
         
 
