@@ -32,10 +32,22 @@ class co_mixingratio(cal_base):
         co_conc=d['AL52CO_conc'].data.ismatch(match)
         calpress=d['AL52CO_calpress'].data.ismatch(match)
         sp=d['PS_RVSM'].data.ismatch(match)
-        print(sp.shape)
         flag=co_conc*0
         co_mr=flagged_data(co_conc, co_conc.times, flag) 
         co_mr.flag[co_conc < -10] = 3
         co_mr.flag[sp[:,0] < 500] = 2
-        co_mr.flag[calpress > 3.1] = 3
+
+        # cal_time buffer
+        # using the calpress variable for flagging
+        # the calpress is lagging behind and therefore we flag
+        # data values before and after the calpress exceeds 3.1
+        cal_time_buffer=(-15,5)
+        ix_calpress_flag=np.where(calpress > 3.1)
+        for i in range(cal_time_buffer[0], cal_time_buffer[1]+1):
+            ix=ix_calpress_flag[0]+i
+            ix[ix < 0]=0
+            ix[ix >= calpress.size-1]=calpress.size-1
+            ix=np.unique(ix)
+            co_mr.flag[ix]=3
+            
         self.outputs[0].data=co_mr

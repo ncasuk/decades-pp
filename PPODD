@@ -1,10 +1,19 @@
 #!/usr/bin/env python
+import os
 import ppodd
 from ppodd.core import decades_dataset
 from optparse import OptionParser
 import matplotlib
-matplotlib.use('Tkagg')
 
+# checking if X-server is available or not
+# and set renderer backend according to result
+if not os.environ.has_key('DISPLAY'):
+    matplotlib.use('agg')
+else:
+    matplotlib.use('Tkagg')
+
+
+    
 def split_up(option, opt, value, parser): 
     """ Splits up comma separated input and sets to upper case """
     setattr(parser.values, option.dest, value.upper().split(','))

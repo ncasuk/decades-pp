@@ -21,7 +21,10 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         'IR_DN_C', 'NV_LWC_U', 'NV_TCW_U', 'LAT_GIN', 'LON_GIN', 'ALT_GIN', 'VELN_GIN', 
         'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'TRCK_GIN', 'GSPD_GIN', 
         'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 'ACLF_GIN', 'ACLS_GIN', 'ACLD_GIN', 'SW_UP_C', 
-        'NEPH_PR', 'NEPH_T', 'TSC_BLUU', 'TSC_GRNU', 'TSC_REDU', 'BSC_BLUU', 'BSC_GRNU', 'BSC_REDU']
+        'NEPH_PR', 'NEPH_T', 'TSC_BLUU', 'TSC_GRNU', 'TSC_REDU', 'BSC_BLUU', 'BSC_GRNU', 'BSC_REDU',
+        'EXX_ZEUS', 'EXX_JCI']
+
+
         self.outputs=[]
         self.name='WRITE_NC'
         self.version=1.00
