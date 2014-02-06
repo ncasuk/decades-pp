@@ -131,7 +131,7 @@ FORTRAN routine C_HEIMAN
 """
     def __init__(self,dataset):
         self.input_names=['PRTCCAL', 'HEIMCAL', 'SREG', 'CORCON_heim_t', 'CORCON_heim_c']
-        self.outputs=[parameter('BTHEIM_U-rio',units='degK',frequency=4,number=537,long_name='Uncorrected brightness temperature from the Heimann radiometer')]
+        self.outputs=[parameter('BTHEIM_U',units='degK',frequency=4,number=537,long_name='Uncorrected brightness temperature from the Heimann radiometer')]
         self.fortname='HEIMAN'
         #self.name='RIO_HEIMAN'
         self.version=1.00
