@@ -5,27 +5,27 @@ FORTRAN routine C_GENEAS
 DEC$ IDENT 'V1.02'
 
  ROUTINE  	   C_GENEAS     SUBROUTINE FORTVAX
-     
- PURPOSE 	   Derivation of Dew point   
+
+ PURPOSE 	   Derivation of Dew point
 
  DESCRIPTION      Calculation of Dew Point in K from General Eastern Hygrometer
-                  
+
                          529- Dew Point                             [K]
 
-                  The General Eastern Hygrometer (Parameter 58) is recorded 
+                  The General Eastern Hygrometer (Parameter 58) is recorded
                   in binary with a range of 0 to 4095 DRS bits.
-                  A control signal (Parameter 59) is also recorded which 
+                  A control signal (Parameter 59) is also recorded which
                   gives an indication of the amount of heating or cooling
                   of the mirror.
                   The instrument should be in control if the signal is between
-                  certain limits. 
-                  Outside these limits it still produces a dew point 
-                  reading,though of doubtful accuracy, and derived data 
+                  certain limits.
+                  Outside these limits it still produces a dew point
+                  reading,though of doubtful accuracy, and derived data
                   is flagged - FLAG = 2.
-                  
+
  VERSION	   1.00  240190   J HARMER
                   1.01  17-01-96 D Lauchlan
- ARGUMENTS 
+ ARGUMENTS
                   Constants:
                   GEMAX      Maximum control condition signal limit RCONST(1)
                   GEMIN      Minimum control condition signal limit RCONST(2)
@@ -34,13 +34,13 @@ DEC$ IDENT 'V1.02'
                   CALGE(3)   GE Dew point calib. constant x2        RCONST(5)
 
 
-                  Inputs   : 
+                  Inputs   :
                   GENERAL EASTERN 1011 DEW POINT    [drs units ] Para 58
                   GENERAL EASTERN CONTROL SIGNAL    [drs units ] Para 59
 
-                  Outputs  : 
+                  Outputs  :
                   DEW POINT                            [K]      Para 529
-           
+
  SUBPROGRAMS
                   ITSTFLG          Examines bits 16,17 for flags
                   ISETFLG          Sets flag bits 16,17 = 0 --> 3
@@ -52,20 +52,20 @@ DEC$ IDENT 'V1.02'
                   Unused variables removed
 
                   V1.02  27/09/02  W.D.N.JACKSON
-                  Changed to include handling of 16 bit data from the new 
+                  Changed to include handling of 16 bit data from the new
                   DRS.
 ------------------------------------------------------------------------------
 
 """
     def __init__(self,dataset):
         self.input_names=['GELIMS', 'CALGE', 'SECS','CORCON_ge_dew','CORCON_ge_cont']
-        self.outputs=[parameter('TDEW_GE',units='degK',frequency=4,number=529,long_name='Dew point from the General Eastern instrument.')]
+        self.outputs=[parameter('TDEW_GE',units='degK',frequency=4,number=529,long_name='Dew point from the General Eastern instrument',standard_name='dew_point_temperature')]
         #self.name='RIO_GENEAS'
         self.fortname='GENEAS'
         self.version=1.00
         fort_cal.__init__(self,dataset)
 
-    def process(self): 
+    def process(self):
         self.dataset[self.input_names[3]].number=58
         self.dataset[self.input_names[4]].number=59
         fort_cal.process(self)

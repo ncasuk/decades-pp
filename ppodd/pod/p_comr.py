@@ -23,20 +23,21 @@ class co_mixingratio(cal_base):
                                 units='ppb',
                                 frequency=1,
                                 long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument',
-                                standard_name='mole_fraction_of_carbon_monxide_in_air')]
+                                standard_name='mole_fraction_of_carbon_monoxide_in_air')]
         self.version=1.00
         cal_base.__init__(self,dataset)
 
     def process(self):
         d=self.dataset
         match=d.matchtimes(['PS_RVSM', 'AL52CO_conc', 'AL52CO_calpress'])
-        co_conc=d['AL52CO_conc'].data.ismatch(match)
+        co_mr=d['AL52CO_conc'].data.ismatch(match)
         calpress=d['AL52CO_calpress'].data.ismatch(match)
         sp=d['PS_RVSM'].data.ismatch(match)
-        flag=co_conc*0
-        co_mr.flag[co_conc < -10] = 3
-        co_mr=flagged_data(co_conc, co_conc.times, flag)
-        co_mr.flag[sp[:,0] < 500] = 2
+        flag=co_mr*0
+        flag[co_mr < -10]=3
+        flag[sp[:,0] < 500]=2
+
+        co_mr=flagged_data(co_mr, co_mr.times, flag)
 
         # cal_time buffer
         # using the calpress variable for flagging
