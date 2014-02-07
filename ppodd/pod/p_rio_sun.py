@@ -11,7 +11,7 @@ FORTRAN routine C_GSUN
  DESCRIPTION      Given date, time and location on the earth's
                   surface this routine puts a solar zenith and
                   azimuth angle in the array of derived parameters.
-                  It computes a value once every second. The 
+                  It computes a value once every second. The
                   angles are only obtained if all the flags are
                   set to less than 3 and the date, time and location
                   are all within sensible limits. Any flags set on input
@@ -41,7 +41,7 @@ FORTRAN routine C_GSUN
 
  SUBPROGRAMS      S_SUN , ITSTFLG, ISETFLG
 
- CHANGES          01 Range checks for input data now done in S_SUN 
+ CHANGES          01 Range checks for input data now done in S_SUN
                      RWS 30/10/90
                 1.02 Check added if time RSECS has reached midnight and
                      if so to reduce RSECS to less than 86400 s and increase
@@ -58,8 +58,8 @@ FORTRAN routine C_GSUN
 """
     def __init__(self,dataset):
         self.input_names=['DATE', 'SECS_GIN', 'LAT_GIN', 'LON_GIN']
-        self.outputs=[parameter('SOL_AZIM',units='degree',frequency=1,number=642,long_name='Solar azimuth derived from aircraft position and time.')
-                     ,parameter('SOL_ZEN',units='degree',frequency=1,number=643,long_name='Solar zenith derived from aircraft position and time.')]
+        self.outputs=[parameter('SOL_AZIM',units='degree',frequency=1,number=642,long_name='Solar azimuth derived from aircraft position and time')
+                     ,parameter('SOL_ZEN',units='degree',frequency=1,number=643,long_name='Solar zenith derived from aircraft position and time')]
         #self.name='SUN'
         self.fortname='GSUN'
         self.version=1.00

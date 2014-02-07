@@ -11,7 +11,7 @@ FORTRAN routine C_TURB
                       centre-static differential pressure (to derive TAS)).
 
          DESCRIPTION  Calibration of AOA and AOSS is assumed to be of the form:
-                      
+
                       PA/q = a0(M) + a1(M)*alpha
                       PB/q = b0(M) + b1(M)*beta
                       where q is the pitot(dynamic) pressure.
@@ -19,7 +19,7 @@ FORTRAN routine C_TURB
                       ADE-46S-R-463-34 1233 (Page 78 of 116).
                       Initial value of pitot pressure is taken from RVSM and
                       used to calculate first guess AOA and AOSS. These are
-                      to derive corrections to the centre-port along with 
+                      to derive corrections to the centre-port along with
                       separate calculation of static position error in the
                       centre-port measurement. AOA and AOSS are recalculated
                       with iteration continuing until specified tolerance is
@@ -74,25 +74,25 @@ FORTRAN routine C_TURB
 
          SUBROUTINES: S10_PECORR, ITSTFLG, ISETFLG, G_MACH
 
-         FILES        
+         FILES
 
-         REFERENCES 
+         REFERENCES
 
-         CONSTANTS 
-           RCONST(1-3) Coefficients of 2nd order polynomial in Mach to 
-                       calculate AOA offset, A0 
-           RCONST(4-6) Coefficients of 2nd order polynomial in Mach to 
-                       calculate AOA sensitivity, A1 
-           RCONST(7-9) Coefficients of 2nd order polynomial in Mach to 
-                       calculate AOSS offset, B0 
-           RCONST(10-12) Coefficients of 2nd order polynomial in Mach to 
+         CONSTANTS
+           RCONST(1-3) Coefficients of 2nd order polynomial in Mach to
+                       calculate AOA offset, A0
+           RCONST(4-6) Coefficients of 2nd order polynomial in Mach to
+                       calculate AOA sensitivity, A1
+           RCONST(7-9) Coefficients of 2nd order polynomial in Mach to
+                       calculate AOSS offset, B0
+           RCONST(10-12) Coefficients of 2nd order polynomial in Mach to
                        calculate AOSS sensitivity, B1
            RCONST(13)  Tolerance for AOA/AOSS iteration
-           RCONST(14)  True Airspeed correction factor (fudge factor to 
+           RCONST(14)  True Airspeed correction factor (fudge factor to
                        remove residual along-heading wind errors).
            RCONST(15-16) Coefficients of linear correction to calculated AoA
            RCONST(17-18) Coefficients of linear correction to calculated AoSS
-  
+
          INPUT PARAMETERS
            516  IAS   32Hz
            520  TTDI  32Hz
@@ -107,7 +107,7 @@ FORTRAN routine C_TURB
            777  TBPD  32Hz
 
          OUTPUT PARAMETERS
-           
+
            548  AOA   32Hz  deg
            549  AOSS  32Hz  deg
            779  TASD  32Hz  ms-1
@@ -120,8 +120,8 @@ FORTRAN routine C_TURB
         self.input_names=['AOA_A0', 'AOA_A1', 'AOSS_B0', 'AOSS_B1', 'TOLER', 'TASCOR1', 'ALPH0', 'ALPH1', 'BET0', 'BET1', 'IAS_RVSM', 'TAT_DI_R', 'TAT_ND_R', 'PS_RVSM', 'Q_RVSM', 'PALT_RVS', 'P0_S10', 'PA_TURB', 'PB_TURB', 'TBPC', 'TBPD']
         self.outputs=[parameter('AOA',units='degree',frequency=32,number=548,long_name='Angle of attack from the turbulence probe (positive, flow upwards wrt a/c axes)')
                      ,parameter('AOSS',units='degree',frequency=32,number=549,long_name='Angle of sideslip from the turbulence probe (positive, flow from left)')
-                     ,parameter('TAS',units='m s-1',frequency=32,number=779,long_name='True airspeed (dry-air) from turbulence probe')
-                     ,parameter('TASW',units='MS-1',frequency=32,number=780,long_name='TURB PROBE WET TAS')
+                     ,parameter('TAS',units='m s-1',frequency=32,number=779,long_name='True airspeed (dry-air) from turbulence probe',standard_name='platform_speed_wrt_air')
+                     ,parameter('TASW',units='m s-1',frequency=32,number=780,long_name='TURB PROBE WET TAS')
                      ,parameter('PSP_TURB',units='hPa',frequency=32,number=781,long_name='Pitot-static pressure from centre-port measurements corrrected for AoA and AoSS')]
         #self.name='TURB'
         self.version=1.00

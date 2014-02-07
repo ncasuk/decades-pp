@@ -16,9 +16,9 @@ def add_hdg_offset(hdg, hdg_offset):
 def correct_tas_rvsm(tas_rvsm, dit, tas_scale_factor=None):
     """Correcting true airspeed measurement for temperature effect.
        dit is the deiced temperature measurements.
-       
+
        see: http://en.wikipedia.org/wiki/Airspeed
-       
+
     """
     if not tas_scale_factor:
         tas_scale_factor = 0.9984
@@ -28,14 +28,14 @@ def correct_tas_rvsm(tas_rvsm, dit, tas_scale_factor=None):
     return tas
 
 
-def calc_noturb_wspd(tas_rvsm, hdg_gin, gspd_north, gspd_east, dit, hdg_offset=None, tas_scale_factor=None):                                                   
-                     
-    """calculates u and v as the aircraft does it                                                                                           
-                                                                                                                                            
+def calc_noturb_wspd(tas_rvsm, hdg_gin, gspd_north, gspd_east, dit, hdg_offset=None, tas_scale_factor=None):
+
+    """calculates u and v as the aircraft does it
+
        see: http://delphiforfun.org/programs/Math_Topics/WindTriangle.htm
             http://www.pilotfriend.com/training/flight_training/nav/calcs.htm
- 
-    """   
+
+    """
     if hdg_offset:
         hdg = add_hdg_offset(hdg_gin, hdg_offset)
     else:
@@ -48,16 +48,16 @@ def calc_noturb_wspd(tas_rvsm, hdg_gin, gspd_north, gspd_east, dit, hdg_offset=N
     air_spd_east = np.cos(np.deg2rad(hdg - 90.)) * tas
     air_spd_north = np.sin(np.deg2rad(hdg - 90.)) * tas
     u = gspd_east - air_spd_east
-    v = air_spd_north + gspd_north      
+    v = air_spd_north + gspd_north
     return (u, v)
 
 
 def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, roll_threshold=None):
-    """uses the flags for the variables that are used to calculate the 
+    """uses the flags for the variables that are used to calculate the
     noturb winds. noturb wind speeds are invalid in turns. This is taken care of
     by flagging those values using a roll_threshold (default=1.5)
-    
-    """    
+
+    """
     if not roll_threshold:
         roll_threshold = 1.5
     tas_rvsm_flag = np.max(tas_rvsm.flag, axis=1)
@@ -68,7 +68,7 @@ def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, 
 
     #flag all data points 3, that exceed roll_threshold
     roll_flag = np.where(np.abs(roll_gin) < roll_threshold,
-                         roll_gin*0, 
+                         roll_gin*0,
                          roll_gin*0+3)
 
     flag_data = np.column_stack((tas_rvsm_flag,
@@ -83,7 +83,7 @@ def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, 
     return flag_data
 
 
-    
+
 class noturb_windvectors(cal_base):
     """ """
     def __init__(self,dataset):
@@ -92,13 +92,15 @@ class noturb_windvectors(cal_base):
         self.outputs=[parameter('U_NOTURB',
                                 units='m s-1',
                                 frequency=1,
-                                long_name='Eastward wind component derived from aircraft instruments and GIN'),                            
+                                long_name='Eastward wind component derived from aircraft instruments and GIN',
+                                standard_name='eastward_wind'),
                       parameter('V_NOTURB',
                                 units='m s-1',
                                 frequency=1,
-                                long_name='Northward wind component derived from aircraft instruments and GIN')]
+                                long_name='Northward wind component derived from aircraft instruments and GIN',
+                                standard_name='northward_wind')]
         self.version=1.00
-        cal_base.__init__(self,dataset) 
+        cal_base.__init__(self,dataset)
 
     def process(self):
         #TODO: move the two calibration coefficients to the flight-cst file
@@ -127,7 +129,7 @@ class noturb_windvectors(cal_base):
         self.outputs[0].data=u_noturb
         self.outputs[1].data=v_noturb
 
-        
+
 
 
 

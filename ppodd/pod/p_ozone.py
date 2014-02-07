@@ -11,7 +11,8 @@ class ozone(cal_base):
                                 units='ppb',
                                 frequency=1,
                                 number=574,
-                                long_name='Mole fraction of ozone in air from the TECO 49 instrument')]
+                                long_name='Mole fraction of Ozone in air from the TECO 49 instrument',
+                                standard_name='mole_fraction_of_ozone_in_air')]
         self.version=1.00
         cal_base.__init__(self,dataset)
 
@@ -25,5 +26,5 @@ class ozone(cal_base):
         flag[flow_a < flow_threshold]=3
         flag[flow_b < flow_threshold]=3
         self.outputs[0].data=flagged_data(conc,conc.times,flag)
-        
+
 

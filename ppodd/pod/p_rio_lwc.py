@@ -6,13 +6,13 @@ FORTRAN routine C_LWC
  ROUTINE	    C_LWC   SUBROUTINE FORT VAX   [C_LWC.FOR]
 
  PURPOSE	    To calibrate DRS parm 42 to tardis parm 535 (LWC)
-	
- DESCRIPTION 	    The Liquid Water Content (LWC) is a four hertz 
-		    parameter. It requires the True Air Speed (Parm 517), 
-		    True De_iced Temperature (parm 520) and Static 
-		    Pressure (parm 576). All these derived parameters 
-		    (517, 520, 576) are at 32 Hertz. So for each quarter 
-		    point of the LWC requires a sample of eight of 
+
+ DESCRIPTION 	    The Liquid Water Content (LWC) is a four hertz
+		    parameter. It requires the True Air Speed (Parm 517),
+		    True De_iced Temperature (parm 520) and Static
+		    Pressure (parm 576). All these derived parameters
+		    (517, 520, 576) are at 32 Hertz. So for each quarter
+		    point of the LWC requires a sample of eight of
 		    the derived paramters to be averaged. This is done using
 		    only good data points. If there are not eight samples but
 		    more than one then the flag for the derived LWC is set to 1.
@@ -30,23 +30,23 @@ FORTRAN routine C_LWC
 		    IFRQ(512)    I*4  IN   Frequencies of the data
 		    RCONST(64)   R*4  IN   Constants required by routine,(1-28)
 		    RDER(64,1024)R*4  OUT  Tardis parameters
-	
+
  COMMON	    None.
-                 
+
  SUBPROGRAMS	    ISETFLG (linked automatically)
 
  FILES		    None.
-	
+
  REFERENCES	    MRF2 Specification for Total Water Hygrometer 4 Dec 1989
 		    Ouldridge Feb 1982
                    Johnson 1979
 
- CHANGES           110190 Documentational changes only         M.Glover  
+ CHANGES           110190 Documentational changes only         M.Glover
                    v 1.02 17-01-96 D Lauchlan
                    Unused parameters removed
 
                    V1.03  27/09/02  W.D.N.JACKSON
-                   Changed to include handling of 16 bit data from the new 
+                   Changed to include handling of 16 bit data from the new
                    DRS.
 ###############################################################################
 DEC$ IDENT 'V1.03'
@@ -60,26 +60,26 @@ DEC$ IDENT 'V1.03'
 			32         7
 			64        15
 
-	Calibrate the Johnson_Williams Liquid Water Content Probe - DRS 
+	Calibrate the Johnson_Williams Liquid Water Content Probe - DRS
 	parameter 42, sample rate 4 Hz. This is to be put into g kg-1.
 	This uses the elements of RCONST from 1 to 2.
 			See if all the const are there,if not set the flag to 3
 			Find the average of the TAS.
-			Reset the starter for the do loop to be the old start 
-			point plus the incremental for the TAS frequency plus 
+			Reset the starter for the do loop to be the old start
+			point plus the incremental for the TAS frequency plus
 			one.
 				No good points.
 			Find the average of the true de_iced temp.
 			Find the static pressure average.
 				Only use good data, namley of flag zero.
-			Make sure that division by one does not happen.	
-			ICHECK will be more than one if any of the constants 
+			Make sure that division by one does not happen.
+			ICHECK will be more than one if any of the constants
 			are missing, or the true air speed is zero, or rho
-			is zero. 
+			is zero.
 			ICHECK_2 will be diffrent than 1 if there are not eight
 			samples for the true de-iced temp or pressure.
-			If the flag of the raw data is less than three, then 
-			convert the raw data into derived data. This is done 
+			If the flag of the raw data is less than three, then
+			convert the raw data into derived data. This is done
 			using ;
 
 				LWC=  (A+Bx)*77.2
@@ -92,27 +92,27 @@ DEC$ IDENT 'V1.03'
 					TRUE_DE_ICED_TEMP
 
 
-				If the flag is three or above, set the 
+				If the flag is three or above, set the
 				derived data to -9999.0.
-			If the derived data is outside the bounds but not 
+			If the derived data is outside the bounds but not
 			-9999.0, then set the flag to two.
 			If J/W > 300/TAS  set J/W FLAG=1
 			300/tas = instrument saturation value.
 			Ref Ouldridge Feb 1982, Johnson 1979
-				The derived data is within the limits then 
-				set the flag to that of the raw data. If the 
+				The derived data is within the limits then
+				set the flag to that of the raw data. If the
 				data is -9999.0 the flag will be three.
 		The data has not got the right frequency.
 
 """
     def __init__(self,dataset):
         self.input_names=['CALLWC', 'CORCON_jw_lwc', 'TAS_RVSM', 'TAT_DI_R', 'PS_RVSM']
-        self.outputs=[parameter('LWC_JW_U',units='gram kg-1',frequency=4,number=535,long_name='Uncorrected liquid water content from the Johnson Williams instrument.')]
+        self.outputs=[parameter('LWC_JW_U',units='gram kg-1',frequency=4,number=535,long_name='Uncorrected liquid water content from the Johnson Williams instrument')]
         #self.name='RIO_LWC'
         self.fortname='LWC'
         self.version=1.00
         fort_cal.__init__(self,dataset)
-        
-    def process(self): 
+
+    def process(self):
         self.dataset[self.input_names[1]].number=42
         fort_cal.process(self)

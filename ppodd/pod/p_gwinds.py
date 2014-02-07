@@ -13,14 +13,14 @@ FORTRAN routine C_GWINDS
                   attitude, and attitude rate information. Note that at this
                   stage the INS data have not been corrected for drift, so
                   these are 'raw' winds, which will normally be corrected
-                  later as part of the interactive renavigation processing. 
+                  later as part of the interactive renavigation processing.
                   Once errors have been evaluated for the three INS velocity
                   components, they can be applied directly to the three wind
-                  components; the wind components do not need to be recomputed 
+                  components; the wind components do not need to be recomputed
                   from scratch.  To show that the winds are 'raw' all values
-                  of U, V and W are increased by 1000 m/s by this routine.  
+                  of U, V and W are increased by 1000 m/s by this routine.
                   This makes it easy to see that normal (flagged 0 or 1) data
-                  are 'raw', but it may not be enough to say unabiguously 
+                  are 'raw', but it may not be enough to say unabiguously
                   whether data that are already bad (flagged 2 or 3) are 'raw'
                   or 'corrected'.
 
@@ -30,24 +30,24 @@ FORTRAN routine C_GWINDS
                   the INS position is not specified then it is assumed to be
                   in the nose bay, 7.06m behind the vanes, but on the axis of
                   the boom.  All data is assumed to be at 32 Hz.
-                  
+
                   This routine will not be called if there is no True
                   Airspeed, or no INS information (with the exception of roll
                   rate).  If there is no information from the angle of attack
                   and sideslip vanes, winds will be computed using values of
                   zero for these angles flagged with
                   1's.  If there is no roll rate available (this wasn't
-                  recorded for the Ferranti 1012 INS), a value of 0 is used. 
+                  recorded for the Ferranti 1012 INS), a value of 0 is used.
                   This doesn't matter if the INS is located on the boom axis,
                   since in this case roll rate has no effect on winds.
-                  
+
                   The output vertical wind takes the worst flag present on the
                   AOA, VZ, TAS and pitch data.  The output horizontal wind
                   components take the worst flag present on the AOSS, VN, VE,
                   TAS, and heading data.  This is suitable when the
                   aircraft is not banking and reflects the fact that good
                   horizontal winds can be found even when the vertical
-                  velocity is bad.  However this flagging scheme fails to 
+                  velocity is bad.  However this flagging scheme fails to
                   reflect coupling between the vertical and horizontal
                   measurement when the aircraft is banking.
                   In addition horizontal wind components greater
@@ -83,7 +83,7 @@ FORTRAN routine C_GWINDS
                   Para 714   Northward wind component + 1000, m s-1
                   Para 715   Eastward wind component + 1000, m s-1
                   Para 716   Vertical wind component + 1000, m s-1
-            
+
  VERSION          1.00  10-5-93  W.D.N.JACKSON
 
  ARGUMENTS        IRAW(64,512) I*4 IN  Up to 64 samples for up to 512 DRS pars
@@ -93,7 +93,7 @@ FORTRAN routine C_GWINDS
                                        each of 1024 parameters
 
  CHANGES          1.01  20-04-98 W.D.N.JACKSON
-                  Error in computation of airspeed corrected. 
+                  Error in computation of airspeed corrected.
                   1.02  14-06-2004 Phil Brown
                   AoA and AoSS now compulsory input parameters to ensure
                   this routine gets called after C_TURB
@@ -110,12 +110,12 @@ FORTRAN routine C_GWINDS
 
 """
     def __init__(self,dataset):
-        self.input_names=['INSPOSN', 'SECS_GIN', 
-        'TAS', 'VELN_GIN', 'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 
+        self.input_names=['INSPOSN', 'SECS_GIN',
+        'TAS', 'VELN_GIN', 'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN',
         'AOA', 'AOSS']
-        self.outputs=[parameter('V_C',units='m s-1',frequency=32,number=714,long_name='Northward wind component from turbulence probe and GIN')
-                     ,parameter('U_C',units='m s-1',frequency=32,number=715,long_name='Eastward wind component from turbulence probe and GIN')
-                     ,parameter('W_C',units='m s-1',frequency=32,number=716,long_name='Vertical wind component from turbulence probe and GIN')]
+        self.outputs=[parameter('V_C',units='m s-1',frequency=32,number=714,long_name='Northward wind component from turbulence probe and GIN',standard_name='northward_wind')
+                     ,parameter('U_C',units='m s-1',frequency=32,number=715,long_name='Eastward wind component from turbulence probe and GIN',standard_name='eastward_wind')
+                     ,parameter('W_C',units='m s-1',frequency=32,number=716,long_name='Vertical wind component from turbulence probe and GIN',standard_name='upward_air_velocity')]
         #self.name='GWINDS'
         self.version=1.00
         fort_cal.__init__(self,dataset)
