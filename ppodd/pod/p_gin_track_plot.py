@@ -44,7 +44,7 @@ class gin_track_plot(cal_base):
 
         m.drawmeridians(np.arange(0, 360, 2))
         m.drawparallels(np.arange(-90, 90, 2))
-        x,y=m(self.dataset[lon].ravel(),self.dataset[lat].ravel())
+        x,y=m(self.dataset[lon][::50],self.dataset[lat][::50])
         plt.plot(x,y,color=trackcolor,linewidth=trackwidth)
         strdate='/'.join([str(e) for e in self.dataset['DATE'].data])
         plt.title('Flight Track %s - %s (%s,%s)' % (self.dataset['FLIGHT'].data,strdate,lon,lat))
