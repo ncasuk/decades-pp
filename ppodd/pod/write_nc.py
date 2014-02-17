@@ -6,21 +6,21 @@ import os.path
 from netCDF4 import Dataset
 import ppodd
 class write_nc(cal_base):
-    """ Write data out to a NetCDF 
+    """ Write data out to a NetCDF
 It will try and write whatever is in input_names
 beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
     """
     def __init__(self,dataset):
-        self.input_names=['DATE','FLIGHT','IR_UP_C', 'SOL_AZIM', 'SOL_ZEN', 
-        'IAS_RVSM', 'TAS_RVSM', 'PA_TURB', 'PB_TURB', 'TAT_DI_R', 'PSAP_LOG', 
-        'P9_STAT', 'TAS', 'TAT_ND_R', 'CO_AERO', 'SW_DN_C', 'TDEW_GE', 'NO2_TECO', 
-        'CAB_TEMP', 'NOX_TECO', 'LWC_JW_U', 'TWC_DET', 'BTHEIM_U', 'TWC_TSAM', 
-        'P0_S10', 'AOA', 'AOSS', 'RED_DN_C', 'PSAP_LIN', 'RED_UP_C', 'CPC_CONC', 
-        'TWC_EVAP', 'O3_TECO', 'HGT_RADR', 'PS_RVSM', 'Q_RVSM', 'PALT_RVS', 'CAB_PRES', 
-        'V_C', 'U_C', 'W_C', 'V_NOTURB', 'U_NOTURB', 'PSP_TURB', 'NO_TECO', 'SO2_TECO', 'BTHEIM_C', 'TWC_TDEW', 
-        'IR_DN_C', 'NV_LWC_U', 'NV_TCW_U', 'LAT_GIN', 'LON_GIN', 'ALT_GIN', 'VELN_GIN', 
-        'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'TRCK_GIN', 'GSPD_GIN', 
-        'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 'ACLF_GIN', 'ACLS_GIN', 'ACLD_GIN', 'SW_UP_C', 
+        self.input_names=['DATE','FLIGHT','IR_UP_C', 'SOL_AZIM', 'SOL_ZEN',
+        'IAS_RVSM', 'TAS_RVSM', 'PA_TURB', 'PB_TURB', 'TAT_DI_R', 'PSAP_LOG',
+        'P9_STAT', 'TAS', 'TAT_ND_R', 'CO_AERO', 'SW_DN_C', 'TDEW_GE', 'NO2_TECO',
+        'CAB_TEMP', 'NOX_TECO', 'LWC_JW_U', 'TWC_DET', 'BTHEIM_U', 'TWC_TSAM',
+        'P0_S10', 'AOA', 'AOSS', 'RED_DN_C', 'PSAP_LIN', 'RED_UP_C', 'CPC_CONC',
+        'TWC_EVAP', 'O3_TECO', 'HGT_RADR', 'PS_RVSM', 'Q_RVSM', 'PALT_RVS', 'CAB_PRES',
+        'V_C', 'U_C', 'W_C', 'V_NOTURB', 'U_NOTURB', 'PSP_TURB', 'NO_TECO', 'SO2_TECO', 'BTHEIM_C', 'TWC_TDEW',
+        'IR_DN_C', 'NV_LWC_U', 'NV_TWC_U', 'LAT_GIN', 'LON_GIN', 'ALT_GIN', 'VELN_GIN',
+        'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'TRCK_GIN', 'GSPD_GIN',
+        'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 'ACLF_GIN', 'ACLS_GIN', 'ACLD_GIN', 'SW_UP_C',
         'NEPH_PR', 'NEPH_T', 'TSC_BLUU', 'TSC_GRNU', 'TSC_REDU', 'BSC_BLUU', 'BSC_GRNU', 'BSC_REDU',
         'EXX_ZEUS', 'EXX_JCI']
 
@@ -32,7 +32,7 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         self.comment="""
 FAAM data core_faam_yyyymmdd_vnnn_rn_cnnn.nc
 
- where yyyymmdd is the flight start date, vnnn the processing version cnnn is 
+ where yyyymmdd is the flight start date, vnnn the processing version cnnn is
  the flight number and rn the revision number.
 
 The NetCDF file comprises a header followed by the actual data.  The header
@@ -43,7 +43,7 @@ details of the quality of each measurement.  The FLAG parameters take four
 possible values:
 
 0 - measurement believed to be good.
-Other flags need to be checked in the metadata for each measurement, which 
+Other flags need to be checked in the metadata for each measurement, which
 is stored at the BADC
 
 The NetCDF file header also contains:
@@ -123,7 +123,7 @@ Saving as output.nc""")
         for p in paras:
             try:
                 par=self.dataset[p]
-                try:                    
+                try:
                     t=par.times
                     if(onehz):
                         dims=('data_point',)
@@ -145,7 +145,7 @@ Saving as output.nc""")
                         for att in par.attributes:
                             if att not in ['units','number','standard_name']:
                                 setattr(paraf,att,par.attributes[att])
-                        paraf.long_name='Flag for '+par.long_name                    
+                        paraf.long_name='Flag for '+par.long_name
                     try:
                         para.number=par.number
                     except:
@@ -164,8 +164,8 @@ Saving as output.nc""")
                         # Not a data parameter so no worries
                         pass
             except KeyError:
-                ppodd.logger.warning('No %s' % str(p))       
-                             
+                ppodd.logger.warning('No %s' % str(p))
+
         t0=time.time()
         try:
             self.coredata.timeinterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
@@ -202,7 +202,7 @@ Saving as output.nc""")
                         paraf[:]=data.flagmasked(start=start,end=end,fill_value=-1)
                 except ValueError:
                     ppodd.logger.warning("Can't write %s" % par)
-                
+
             self.coredata.close()
             ppodd.logger.debug('Total write time %f seconds' % (time.time()-t0))
             ppodd.logger.info('Written NetCDF:%s' % self.filename)
