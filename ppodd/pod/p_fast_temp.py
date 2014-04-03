@@ -30,6 +30,9 @@ class fast_temperature_sensor(cal_base):
         F=-1.481141E-7
         G=0.4003893
 
+        #d['TRFCTR'].data
+        TRFCTR = 0.9928
+
         d=self.dataset
         match=d.matchtimes(['CORCON_fast_temp', 'CORCON_fasttemp_hi_lo', 'PS_RVSM', 'Q_RVSM'])
         fast_temp_adc_counts=d['CORCON_fast_temp'].data.ismatch(match)
@@ -45,7 +48,7 @@ class fast_temperature_sensor(cal_base):
         #calculate mach number
         MACHNO=np.sqrt(5.0*((1.0+pitot/sp)**(2./7.)-1.))
         #calculate true air temperature
-        TAT=IAT/(1.0+(0.2*MACHNO**2*d['TRFCTR']))
+        TAT=IAT/(1.0+(0.2*MACHNO**2*TRFCTR))
 
         #TODO:
         #Flag all data as 3
