@@ -143,35 +143,21 @@ def vp2dp(vp,p=[],temp=[],enhance=False):
     Optional enhancement factors for non ideal 
     """  
     vp=np.atleast_1d(vp)
-    c=np.array([2.0798233e2,-2.0156028e1,4.6778925e-1,-9.2288067e-6],dtype='f8')
-    d=np.array([1,-1.3319669e-1,5.6577518e-3,-7.5172865e-5],dtype='f8')
-    c1=np.zeros(vp.shape)
-    d1=np.zeros(vp.shape)
+    c=np.array([-9.2288067e-06, 0.46778925, -20.156028, 207.98233],dtype='f8')
+    d=np.array([-7.5172865e-05, 0.0056577518, -0.13319669, 1],dtype='f8')
+    lnes=np.log(vp*1e2)
+    dp=np.polyval(c,lnes)/np.polyval(d,lnes)
     if(enhance and len(p)>0) :
-        if(len(temp)==0) :
-            lnes=np.log(vp*100)
-            for i in range(4) :
-                c1=c1+c[i]*lnes**i
-                d1=d1+d[i]*lnes**i
-            fp=c1/d1
-            temp=fp
-        A=np.array([-1.6302041e-1,1.8071570e-3,-6.7703064e-6,8.5813609e-9],dtype='f8')
-        B=np.array([-5.9890467e1,3.4378043e-1,-7.7326396e-4,6.3405286e-7],dtype='f8')
-        alpha=np.zeros(vp.shape)
-        beta=np.zeros(vp.shape)
-        for i in range(4) :
-            alpha=alpha+(A[i]*(temp**i))
-            beta=beta+(B[i]*(temp**i))
-        beta=np.exp(beta)
+        if(len(temp)==0):
+            temp=dp
+        A=np.array([8.5813609e-09, -6.7703064e-06, 0.001807157, -0.16302041],dtype='f8')
+        B=np.array([6.3405286e-07, -0.00077326396, 0.34378043, -59.890467],dtype='f8')
+        alpha=np.polyval(A,temp)
+        beta=np.exp(np.polyval(B,temp))
         ef=np.exp(alpha*(1-vp/p)+beta*(p/vp-1))
         vp=vp/ef
-    c1[:]=0
-    d1[:]=0
-    lnes=np.log(vp*1e2)
-    for i in range(4) :
-        c1=c1+c[i]*lnes**i
-        d1=d1+d[i]*lnes**i
-    dp=c1/d1
+        lnes=np.log(vp*1e2)
+        dp=np.polyval(c,lnes)/np.polyval(d,lnes)
     return dp
 
 

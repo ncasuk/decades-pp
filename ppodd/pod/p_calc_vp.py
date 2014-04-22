@@ -19,9 +19,9 @@ class calc_vp(cal_base):
     def process(self):
         tdew=self.dataset['TDEW_GE'].data
         vpw=dp2vp(tdew)
-        vpi=fp2vp(tdew)
+        vpi=fp2vp(tdew).raw_data
         vp=vpw[:]
-        vp[np.where(tdew<273)]=vpi[np.where(tdew<273)].astype(vp.dtype)
+        vp[np.where(tdew<273)]=vpi[np.where(tdew<273)]
         vp.flag[(tdew<273) & (tdew>258) & (vp.flag==0)]=1
         self.outputs[0].data=vpw
         self.outputs[1].data=vpi
