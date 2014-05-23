@@ -26,6 +26,19 @@ Routine for reading in WVSS2A data
         parameter(self.wvss+'_PT',units='',frequency=1,long_name=self.wvss+' unitless Pressure/Temperature correction factor'),
         parameter(self.wvss+'_BLCF',units='',frequency=1,long_name=self.wvss+' unitless Beers Law correction factor for non-linearity')]
         
+
+    def strconv(self,arr,length=11):
+        ''' Converts a line of serial data to floats - if there is an error returns nans '''
+        for line in arr:
+            try:
+                if(len(line)!=length):
+                    raise(ValueError('Wrong number of values in %s' % ' '.join(line)))
+                yield np.array(line).astype(np.float)
+            except ValueError as ve:
+                ppodd.logger.warning(ve)
+                yield np.empty((length,))+np.nan
+
+
     def readfile(self,filename):
         read_crio.readfile(self,filename)
         for o in self.outputs:
@@ -36,9 +49,8 @@ Routine for reading in WVSS2A data
                 tx=timestamp(tx)
                 o.times+=msec_offset
                 times=o.times
-        for o in self.outputs:
             if o.name==self.wvss+'_serial_data':
-                data=(np.array([np.array(y) for y in np.char.split(o.data)])).astype(np.float)
+                data=np.array([y for y in self.strconv(np.char.split(o.data))])
         for i,o in enumerate(self.outputs[:3]):
             d=timed_data(data[:,i],times)
             inter=d.interp1d()
