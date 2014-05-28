@@ -54,7 +54,7 @@ Routine for reading in WVSS2A data
         for i,o in enumerate(self.outputs[:3]):
             d=timed_data(data[:,i],times)
             inter=d.interp1d()
-            o.data=timed_data(d.interpolated(tx),tx)
+            o.data=flagged_data(d.interpolated(tx),tx,np.ones(len(tx),dtype='i1'))
         for i,o in enumerate(self.outputs[3:14]):
             o.data=timed_data(data[:,i],times)
         
