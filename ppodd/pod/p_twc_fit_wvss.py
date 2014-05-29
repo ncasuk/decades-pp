@@ -12,8 +12,8 @@ class twc_fit_wvss(cal_base):
     
     """
     def __init__(self,dataset):
-        self.input_names=['PS_RVSM','TAT_DI_R','TWC_DET','TWC_TSAM','WVSS2A_VMR','SAT_VP_W']
-        self.outputs=[constants_parameter('TWC_FIT_WVSSA',[])]
+        self.input_names=['PS_RVSM','TAT_DI_R','TWC_DET','TWC_TSAM','WVSS2F_VMR','SAT_VP_W']
+        self.outputs=[constants_parameter('TWC_FIT_WVSSF',[])]
         self.version=1.00
         cal_base.__init__(self,dataset)
         
@@ -31,7 +31,7 @@ class twc_fit_wvss(cal_base):
         t2f=t2.flag==0
         v=d['TWC_DET'].data.ismatch(match).get1Hz()
         vf=v.flag==0
-        wv=d['WVSS2A_VMR'].data.ismatch(match).get1Hz()/1e6
+        wv=d['WVSS2F_VMR'].data.ismatch(match).get1Hz()/1e6
         svp=d['SAT_VP_W'].data.ismatch(match).get1Hz()
         svpf=svp.flag==0
         vp1=vmr2vp(wv,p1)
@@ -54,5 +54,5 @@ class twc_fit_wvss(cal_base):
             plt.plot(v,ans,'r')
             plt.xlim(np.min(v[iuse]),np.max(v[iuse]))
             plt.ylim(np.polyval(fit,plt.xlim()))
-            plt.title('TWC vs WVSSA fit=%f + %f*x' % (fit[1],fit[0]))
+            plt.title('TWC vs WVSSF fit=%f + %f*x' % (fit[1],fit[0]))
 
