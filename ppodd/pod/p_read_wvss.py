@@ -19,12 +19,12 @@ Routine for reading in WVSS2 data
             else:
                 self.ident="Rosemount inlet WVSSII serial no. 0388"
         self.wvss="WVSS2"+self.ident[0] # R for Rosemount and F for Flush
-        long_name="Water Vapor Measurement from "+self.ident+" linearly interpolated to 1Hz"
+        long_name="Water Vapour Measurement from "+self.ident+" linearly interpolated to 1Hz"
         self.outputs=[
         parameter(self.wvss+'_VMR',units='ppmv',frequency=1,long_name=long_name),
         parameter(self.wvss+'_PRESS',units='hPa',frequency=1,long_name=self.wvss+' Pressure inside sample cell linearly interpolated to 1Hz'),
         parameter(self.wvss+'_TEMP',units='C',frequency=1,long_name=self.wvss+' Temperature of sample cell linearly interpolated to 1Hz'),
-        parameter(wvss+'_VMR_RAW',units='ppmv',frequency=1,long_name=self.wvss+' Water Vapor Measurement'),
+        parameter(wvss+'_VMR_RAW',units='ppmv',frequency=1,long_name=self.wvss+' Water Vapour Measurement'),
         parameter(wvss+'_PRESS_RAW',units='hPa',frequency=1,long_name=self.wvss+' Pressure inside sample cell'),
         parameter(wvss+'_TEMP_RAW',units='C',frequency=1,long_name=self.wvss+' Temperature of sample cell'),
         parameter(wvss+'_PP2F',units='C',frequency=1,long_name=self.wvss+' 2F2F (PP2F in digital counts)'),
