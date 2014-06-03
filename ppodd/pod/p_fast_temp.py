@@ -22,13 +22,17 @@ class fast_temperature_sensor(cal_base):
     def process(self):
         #TODO:
         #calibration coefficients should be moved calibration file
-        A=1.437798
-        B=-32.38704
-        C=365.651552
+        #A=1.437798
+        #B=-32.38704
+        #C=365.651552
         D=-1.020386E-21
         E=2.035221E-14
         F=-1.481141E-7
         G=0.4003893
+        # new calibration constants:  03/06/2014
+        A = 1.1692
+        B =-29.609
+        C = 361.04
 
         #d['TRFCTR'].data
         TRFCTR = 0.9928
