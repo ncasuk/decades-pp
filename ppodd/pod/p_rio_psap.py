@@ -1,63 +1,42 @@
-#from ppodd.pod import *
 from ppodd.core import *
-class rio_psap(fort_cal):
-    """
-FORTRAN routine C_PSAP
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         ROUTINE      C_PSAP
 
-         PURPOSE      Calibrates the parameters from the Particle Soot
-                      Absorbtion Photometer (PSAP).
+class rio_psap(cal_base):
 
-         DESCRIPTION  All raw parameters are digital conversions of the input
-                      voltage. The digital values are converted using a
-                      linear fit then the instrument cals are
-                      applied to obtain the output derived values.
-                      Parameter 175 is linear thus
-
-                           output = v * 0.5E-5
-
-                      v the derived voltage and vfs the full scale voltage.
-                      Parameter 177 is logrithmic so
-
-                          ouput = 10**((v/2.0) - 7.0)
-
-
-         VERSION      1.00  D.P.Briggs
-
-         SUBROUTINES  ISETFLG
-
-         FILES        NONE
-
-         PARAMETERS   RAW      DERIVED    FREQ   RANGE   UNITS
-  PSAP LIN ABS COEFF  185        648      1Hz    0-10V    /m
-  PSAP LOG ABS COEFF  186        649      1Hz    0-10V    /m
-  PSAP TRANSMITTANCE  187                 1Hz    0-10V
-  PSAP FLOW RATE      188                 1Hz    0-10V
-
-         PSAP CONSTANT KEYWORDS
-  CALPLIN   i j    NOTE : i & j are multiplexer calibrations.
-  CALPLOG   i j
- 
-         CHANGES 
-
-         V1.01  01/10/02  W.D.N.JACKSON
-         Adjusted for 16 bit data from the new DRS
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-"""
     def __init__(self,dataset):
-        self.input_names=['CALPLIN', 'CALPLOG', 'psap_lin', 'psap_log', 'psap_transmission', 'psap_flow']
-        self.outputs=[parameter('PSAP_LIN',units='m-1',frequency=1,number=648,long_name='Uncorrected absorption coefficient at 565nm, linear, from PSAP.')
-                     ,parameter('PSAP_LOG',units='*',frequency=1,number=649,long_name='Uncorrected absorption coefficient at 565nm, log, from PSAP.')]
-        #self.name='RIO_PSAP'
-        self.fortname='PSAP'
+        self.input_names=['AERACK_psap_flow',
+                          'AERACK_psap_lin',
+                          'AERACK_psap_log',
+                          'AERACK_psap_transmission']
+
+        self.outputs=[parameter('PSAP_LIN', units='m-1', frequency=1, number=648, long_name='Uncorrected absorption coefficient at 565nm, linear, from PSAP'),
+                      parameter('PSAP_LOG', units='*',   frequency=1, number=649, long_name='Uncorrected absorption coefficient at 565nm, log, from PSAP'),
+                      parameter('PSAP_FLO', units='standard l min-1', frequency=1, long_name='PSAP Flow'),
+                      parameter('PSAP_TRA', units='percent', frequency=1, long_name='PSAP Transmittance')]
+
         self.version=1.00
-        fort_cal.__init__(self,dataset)
+        cal_base.__init__(self,dataset)
 
 
-    def process(self): 
-        for i in range(4):
-            self.dataset[self.input_names[i+2]].number=i+185
-        fort_cal.process(self)
+    def process(self):
+        match=self.dataset.matchtimes(self.input_names)
+        psap_flow=self.dataset['AERACK_psap_flow'].ismatch(match)
+        psap_flow*=0.5
+        psap_lin=self.dataset['AERACK_psap_lin'].ismatch(match)
+        pasp_lin=psap_lin*0.5E-5
+        psap_log=self.dataset['AERACK_psap_log'].ismatch(match)
+        pasp_log=10.0**((psap_log/2.0)-7.0)
+        psap_transmission=self.dataset['AERACK_psap_transmission'].ismatch(match)
+        psap_transmission*=0.125
+
+        n=psap_flow.size
+        # create default flag array set to 3
+        flag=np.array([0]*n, dtype=np.int8)
+        # Flagging using flow threshold
+        flag[psap_flow<1.0]=2
+        flag[(psap_transmission<0.5) | (psap_transmission>1.0)]=1
+        flag[((psap_transmission<0.5) | (psap_transmission>1.0)) & (psap_flow<1.0)]=3
+        self.outputs[0].data=flagged_data(psap_lin, psap_lin.times, flag)
+        self.outputs[1].data=flagged_data(psap_log, psap_log.times, flag)
+        self.outputs[2].data=flagged_data(psap_flow, psap_flow.times, flag)
+        self.outputs[3].data=flagged_data(psap_transmission, psap_transmission.times, flag)
+        return
