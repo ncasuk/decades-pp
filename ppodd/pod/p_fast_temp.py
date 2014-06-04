@@ -6,7 +6,7 @@ class fast_temperature_sensor(cal_base):
 
     def __init__(self,dataset):
         self.input_names=['CORCON_fast_temp', 'CORCON_fasttemp_hi_lo', 'PS_RVSM', 'Q_RVSM',  'TRFCTR']
-        self.outputs=[parameter('IAT_R',
+        self.outputs=[parameter('R_FT',
                                 units='ohm',
                                 frequency=32,
                                 long_name='Resistance of the indicated air temperature sensor'),
@@ -67,5 +67,6 @@ class fast_temperature_sensor(cal_base):
         result1=flagged_data(IAT, fast_temp_adc_counts.times, flag)
         result2=flagged_data(TAT, fast_temp_adc_counts.times, flag)
 
+        self.outputs[0].data=result0
         self.outputs[1].data=result1
         self.outputs[2].data=result2
