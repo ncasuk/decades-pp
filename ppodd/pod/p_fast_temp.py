@@ -2,7 +2,7 @@ from ppodd.core import *
 
 import numpy as np
 
-class fast_temperature_sensor(cal_base):
+class rio_fast_thermistor(cal_base):
 
     def __init__(self,dataset):
         self.input_names=['CORCON_fast_temp', 'CORCON_fasttemp_hi_lo', 'PS_RVSM', 'Q_RVSM',  'TRFCTR']
@@ -24,33 +24,22 @@ class fast_temperature_sensor(cal_base):
         cal_base.__init__(self,dataset)
 
     def process(self):
-        #TODO:
-        #calibration coefficients should be moved calibration file
-        #A=1.437798
-        #B=-32.38704
-        #C=365.651552
-        D=-1.020386E-21
-        E=2.035221E-14
-        F=-1.481141E-7
-        G=0.4003893
-        # new calibration constants:  03/06/2014
-        A = 1.1692
-        B =-29.609
-        C = 361.04
+        # TODO:
+        # calibration coefficients should be moved calibration file
+        # new calibration constants:  06/06/2014
+        A,B,C,D,E,F,G,H=(1.1692, -29.609, 361.04, -0.030927, 0.23438, -2.4769E-7, 0.59181, -9.7277E-7)
 
-        #d['TRFCTR'].data
-        TRFCTR = 0.9928
+        TRFCTR=self.dataset['TRFCTR'].data
 
-        d=self.dataset
-        match=d.matchtimes(['CORCON_fast_temp', 'CORCON_fasttemp_hi_lo', 'PS_RVSM', 'Q_RVSM'])
-        fast_temp_adc_counts=d['CORCON_fast_temp'].data.ismatch(match)
+        match=self.dataset.matchtimes(['CORCON_fast_temp', 'CORCON_fasttemp_hi_lo', 'PS_RVSM', 'Q_RVSM'])
+        fast_temp_adc_counts=self.dataset['CORCON_fast_temp'].data.ismatch(match)
         #convert to float for further processing
         fast_temp_adc_counts=fast_temp_adc_counts.astype(np.float)
-        sp=d['PS_RVSM'].data.ismatch(match)
-        pitot=d['Q_RVSM'].data.ismatch(match)
+        sp=self.dataset['PS_RVSM'].data.ismatch(match)
+        pitot=self.dataset['Q_RVSM'].data.ismatch(match)
 
         #calculate resistance (R in kOhm)
-        R=1.0/(D*(fast_temp_adc_counts**3)+E*(fast_temp_adc_counts**2)+F*fast_temp_adc_counts+G)
+        R=1.0/(D+E*np.exp(fast_temp_adc_counts*F)+G*np.exp(H*fast_temp_adc_counts))
         #calculate indicated air temperature in Kelvin
         IAT=A*np.log(R)**2+B*np.log(R)+C
         #calculate mach number
@@ -60,9 +49,8 @@ class fast_temperature_sensor(cal_base):
 
         #TODO:
         #Flag all data as 3
-        flag=TAT*0+3
-        flag=flag.astype(np.int8)
-        
+        flag=np.int8(TAT[:]*0+3)
+
         result0=flagged_data(R, fast_temp_adc_counts.times, flag)
         result1=flagged_data(IAT, fast_temp_adc_counts.times, flag)
         result2=flagged_data(TAT, fast_temp_adc_counts.times, flag)
