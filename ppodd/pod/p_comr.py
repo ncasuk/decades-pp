@@ -1,72 +1,41 @@
 from ppodd.core import *
-
-
-def interpolate_cal_coefficients(sens, zero, cal_status, utc_time):
-    """The calibration coefficients for the AL5002
-    instrument drift linearly between calibrations. To take account of
-    this new coefficients are calculated for every data point, which
-    can be used to recalculate the CO concentrations.
+class comr(fort_cal):
     """
-    n=sens.size
-    sens_new, zero_new=np.zeros(n), np.zeros(n)
-    ix=np.where(cal_status[1:]-cal_status[:-1] == -1)[0]
-    ix=ix[ix>100]
-    # the +20 is a dodgy way to make sure that the values have changed.
-    # Apparently the zero and sens parameters do not change at
-    # exactly the same time in the data stream
-    ix=[10]+list(ix+20)+[n-1]
-    for i in range(len(ix)-1):
-        ix1=ix[i]
-        ix2=ix[i+1]
-        sens_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [sens[ix1], sens[ix2]])
-        zero_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [zero[ix1], zero[ix2]])
-    return (sens_new, zero_new)
+FORTRAN routine C_COMR
+
+ ROUTINE        C_COMR SUBROUTINE FORTVAX
+
+ PURPOSE        A subroutine to calculate Carbon monoxide.
+
+ DESCRIPTION    The CO analyser outputs one measurement.
+                This is input to the program as DRS bits, and converted
+                into PPB by multiplying the DRS bits by a calibration factor.
 
 
-class rio_co_mixingratio(cal_base):
-    """Routine to calculate the Carbon Monoxide concentration from the AL52002 Instrument.
+ TO COMPILE     $FORT C_COMR
 
-    The routine works with the data from the TCP packages that are stored by fish.
-    Flagging is done using the static pressure and the pressure measurement in the
-    calibration chamber of the instrument.
+ VERSION        1.00  8-Jul-2004        D.Tiddeman
+               1.01  27-OCT-2005
+               1.02
+               1.03 31-JAN-2007 R Purvis Changed timedelay after cal to 20
+               1.04 18-SEP-2007 R Purvis        RCONST(5) added for correction factor
+               1.05 30-JUL-2010 S Bauguitte increased CO flag count threshold from 8000 to 10000
+               1.06 15-OCT-2012 A Wellpott CO upper threshold flagging added. Now values above
+                                4995 are flagged with 3
 
-    Is the static pressure from the RVSM system lower than 500mb the data are unreliable
-    and flagged 2. Is the pressure inside the calibration chamber greater than 3.1 bar
-    the instrument is performing a calibration and data points are flagged 3.
+ ARGUMENTS      IRAW(1,154) - on entry contains the raw CO signal
+                IRAW(1,223) - on entry contains raw RVSM airspeed
+                IRAW(1,113) - cal info ?
+                RCONST(1,2,3,4) XO and X1 voltage cal for CO, v to ppb, ppb offs
+                RDER(1,782) - on exit contains the derived CO signal
+
+*******************************************************************************
 
     """
-
     def __init__(self,dataset):
-        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_counts', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'PS_RVSM']
-        self.outputs=[parameter('CO_AERO',
-                                units='ppb',
-                                frequency=1,
-                                long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument',
-                                standard_name='mole_fraction_of_carbon_monoxide_in_air')]
+        self.input_names=['CALCOMR', 'CALCOMX', 'Horace_CO', 'Horace_RVAS']
+        self.outputs=[parameter('CO_AERO',units='ppb',frequency=1,number=782,long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument')]
+        #self.name='COMR'
         self.version=1.00
-        cal_base.__init__(self,dataset)
+        fort_cal.__init__(self,dataset)
 
-    def process(self):
-        match=self.dataset.matchtimes(self.input_names)
-        co_mr=self.dataset['AL52CO_conc'].data.ismatch(match)
-        calpress=self.dataset['AL52CO_calpress'].data.ismatch(match)
-        cal_status=self.dataset['AL52CO_cal_status'].data.ismatch(match)
-        cal_status=np.int8(cal_status)
-        sp=self.dataset['PS_RVSM'].data.ismatch(match)
-        sens=self.dataset['AL52CO_sens'].data.ismatch(match)
-        zero=self.dataset['AL52CO_zero'].data.ismatch(match)
-        utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
-        counts=self.dataset['AL52CO_counts'].data.ismatch(match)
-
-        sens_new, zero_new=interpolate_cal_coefficients(sens, zero, cal_status, utc_time)
-        conc_new=(counts-zero_new)*1.0/sens_new
-
-        flag=np.zeros(co_mr.size) # create empty flag array, with all flags set to 0
-        flag[sp[:,0]<500]=2       # flag all values at altitudes, where static pressure is smaller than 500mb
-        flag[co_mr<-10]=3         # flag very negative co_mr as 3
-        flag[cal_status==1]=3     # flag calibration data points
-        flag[calpress>3.1]=3      # flag when calibration gas pressure is increased
-
-        co_aero=flagged_data(conc_new, match, flag)
-
-        self.outputs[0].data=co_aero
