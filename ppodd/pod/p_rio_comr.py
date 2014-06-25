@@ -37,7 +37,7 @@ class rio_co_mixingratio(cal_base):
     """
 
     def __init__(self,dataset):
-        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_counts', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'PS_RVSM']
+        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_counts', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time']
         self.outputs=[parameter('CO_AERO',
                                 units='ppb',
                                 frequency=1,
@@ -51,8 +51,7 @@ class rio_co_mixingratio(cal_base):
         co_mr=self.dataset['AL52CO_conc'].data.ismatch(match)
         calpress=self.dataset['AL52CO_calpress'].data.ismatch(match)
         cal_status=self.dataset['AL52CO_cal_status'].data.ismatch(match)
-        cal_status=np.int8(cal_status)
-        sp=self.dataset['PS_RVSM'].data.ismatch(match)
+        cal_status=np.int8(cal_status) # cal_status is a character and needs to be converted to integer to do anything useful with it
         sens=self.dataset['AL52CO_sens'].data.ismatch(match)
         zero=self.dataset['AL52CO_zero'].data.ismatch(match)
         utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
@@ -61,8 +60,7 @@ class rio_co_mixingratio(cal_base):
         sens_new, zero_new=interpolate_cal_coefficients(sens, zero, cal_status, utc_time)
         conc_new=(counts-zero_new)*1.0/sens_new
 
-        flag=np.zeros(co_mr.size) # create empty flag array, with all flags set to 0
-        flag[sp[:,0]<500]=2       # flag all values at altitudes, where static pressure is smaller than 500mb
+        flag=np.array([0]*co_mr.size, dtype=np.int8) # initialize empty flag array, with all flags set to 0
         flag[co_mr<-10]=3         # flag very negative co_mr as 3
         flag[cal_status==1]=3     # flag calibration data points
         flag[calpress>3.1]=3      # flag when calibration gas pressure is increased
