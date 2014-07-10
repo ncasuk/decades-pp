@@ -63,7 +63,7 @@ class rio_co_mixingratio(cal_base):
         flag=np.array([0]*co_mr.size, dtype=np.int8) # initialize empty flag array, with all flags set to 0
         flag[co_mr<-10]=3         # flag very negative co_mr as 3
         flag[cal_status==1]=3     # flag calibration data points
-        flag[calpress>3.1]=3      # flag when calibration gas pressure is increased
+        flag[calpress>3.2]=3      # flag when calibration gas pressure is increased
 
         co_aero=flagged_data(conc_new, match, flag)
 
