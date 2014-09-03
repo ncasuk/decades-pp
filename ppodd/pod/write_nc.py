@@ -11,7 +11,7 @@ It will try and write whatever is in input_names
 beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
     """
     def __init__(self,dataset):
-        self.input_names=['DATE','FLIGHT','IR_UP_C', 'SOL_AZIM', 'SOL_ZEN',
+        self.input_names=['DATE','FLIGHT', 'Flight_Constants', 'IR_UP_C', 'SOL_AZIM', 'SOL_ZEN',
         'IAS_RVSM', 'TAS_RVSM', 'PA_TURB', 'PB_TURB', 'TAT_DI_R', 'PSAP_LOG',
         'P9_STAT', 'PSAP_FLO', 'PSAP_TRA', 'TAS', 'TAT_ND_R', 'CO_AERO', 'SW_DN_C', 'TDEW_GE', 'NO2_TECO',
         'CAB_TEMP', 'NOX_TECO', 'LWC_JW_U', 'TWC_DET', 'BTHEIM_U', 'TWC_TSAM',

@@ -19,6 +19,7 @@ Routine for reading in CONST data
         self.dataset.flight_constants=f.readlines()
         f.close()
         self.outputs=[]
+        self.outputs.append(constants_parameter('Flight_Constants', ''.join(self.dataset.flight_constants)))
         for l in self.dataset.flight_constants:
             l=l.strip()
             if(l.startswith('!')):
