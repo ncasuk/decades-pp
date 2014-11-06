@@ -11,7 +11,7 @@ class rio_weight_on_wheels(cal_base):
         self.outputs=[parameter('WOW_FLAG',
                                 units='-',
                                 frequency=1,
-                                long_name='Weight on wheel indicator')]
+                                long_name='Weight on wheels indicator')]
         self.version=1.00
         cal_base.__init__(self,dataset)
 
@@ -22,4 +22,3 @@ class rio_weight_on_wheels(cal_base):
         flag=np.array([0]*wow.size, dtype=np.int8)
         wow_par=flagged_data(wow, match, flag)
         self.outputs[0].data=wow_par
-
