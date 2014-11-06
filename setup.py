@@ -9,7 +9,9 @@ class fortbuild(distbuild):
         d=os.getcwd()
         print self.build_lib
         os.chdir(os.path.join(self.build_lib,'ppodd/pod/fortran_modules'))
-        subprocess.call('make')
+        #environment variables are copied, otherwise the ifort command
+        #does not exist.
+        subprocess.call('make', env=os.environ.copy())
         os.chdir(d)
 
 
@@ -23,6 +25,6 @@ setup(name = "ppodd",
     package_data = {'ppodd.pod' : ["runmod.so","fortran_modules/*.for","fortran_modules/makefile"] },
     include_package_data=True,
     scripts = ["PPODD"],
-    long_description = """Post-processing of decades data."""
-    ,cmdclass={'build': fortbuild}   
-) 
+    long_description = """Post-processing of decades data.""",
+    cmdclass={'build': fortbuild}
+)
