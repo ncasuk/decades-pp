@@ -6,14 +6,14 @@
 # The compiler
 FC = ifort
 CALLIB = callib.a
-AC = ar rc 
+AC = ar rc
 OUT = ../.
 # flags for debugging or for maximum performance, comment as necessary
-FCFLAGS = -extend_source -fPIC 
-F2PYFLAGS = --f77exec=$(FC)
+FCFLAGS = -extend_source -fPIC
+F2PYFLAGS = -lifcore --f77exec=$(FC)
 F2PYARGS = -c -m c_runmod c_runmod.for $(CALLIB)
 # List of modules to be built within the package
-MODULES = c_airspd 
+MODULES = c_airspd
 MODULES+= c_cnc
 MODULES+= c_drs
 #MODULES+= c_fwvs
@@ -54,9 +54,9 @@ ifneq ($(OUT),.)
 endif
 # "make" builds runmod.so
 c_runmod.so: $(CALLIB)
-	f2py $(F2PYFLAGS) $(F2PYARGS) 
+	f2py $(F2PYFLAGS) $(F2PYARGS)
 
-# Removes object files 
+# Removes object files
 
 $(CALLIB): $(MODULES)
 	rm -f *.o
@@ -65,6 +65,6 @@ $(CALLIB): $(MODULES)
 %: %.o
 	$(AC) $(CALLIB) $<
 
-# General rules for building prog.o from prog.for 
+# General rules for building prog.o from prog.for
 %.o: %.for
 	$(FC) $(FCFLAGS) -c $<
