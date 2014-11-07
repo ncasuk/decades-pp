@@ -22,11 +22,11 @@ FORTRAN routine C_RADAL1
 
  VERSION	1.00  02/10/02  W.D.N.JACKSON
 
- ARGUMENTS	IRAW(X,37)  - where x=1 or 2, on entry this contains the raw 
-			      radar height. 
-		IFRQ(37)    - on entry contains 2, the frequency of the raw 
+ ARGUMENTS	IRAW(X,37)  - where x=1 or 2, on entry this contains the raw
 			      radar height.
-		RDER(X,575) - where x= 1 or 2, on exit contains the derived 
+		IFRQ(37)    - on entry contains 2, the frequency of the raw
+			      radar height.
+		RDER(X,575) - where x= 1 or 2, on exit contains the derived
 			      radar height in meters.
 
  CHANGES	V1.01  WDNJ  05/11/04
@@ -36,14 +36,14 @@ FORTRAN routine C_RADAL1
 
 """
     def __init__(self,dataset):
-        self.input_names=['PRTAFT_rad_alt']
-        self.outputs=[parameter('HGT_RADR',units='m',frequency=2,number=575,long_name='Radar height from the aircraft radar altimeter.')]
+        self.input_names=['PRTAFT_rad_alt',]
+        self.outputs=[parameter('HGT_RADR',units='m',frequency=2,number=575,long_name='Radar height from the aircraft radar altimeter')]
         #self.name='RIO_RADAL'
         self.fortname='RADAL1'
         self.version=1.00
         fort_cal.__init__(self,dataset)
 
 
-    def process(self): 
+    def process(self):
         self.dataset[self.input_names[0]].number=37
         fort_cal.process(self)
