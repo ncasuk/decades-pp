@@ -8,27 +8,27 @@ def create_plot(match, co_orig, co_interp, ds):
     """
     import matplotlib.pyplot as plt
     from matplotlib.dates import date2num, DateFormatter, HourLocator
-    
+
     ts=match/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
     title= ds['FLIGHT'].data.upper() + ' %.2i-%.2i-%i' % (tuple(ds['DATE']))
     plt.clf()
     plt.plot_date(ts, co_orig, '-', label='CO raw')
-    plt.plot_date(ts, co_interp, '-', label='CO interp')    
-    
+    plt.plot_date(ts, co_interp, '-', label='CO interp')
+
     plt.title(title)
     plt.xlabel('utc (-)')
     plt.ylabel('CO mixing ratio (ppbV)')
     plt.legend(loc=2)
-    plt.gca().xaxis.set_major_locator(HourLocator())      
+    plt.gca().xaxis.set_major_locator(HourLocator())
     plt.gca().xaxis.set_major_formatter(DateFormatter('%H:%M'))
-    
+
     plt.twinx()
     plt.plot_date(ts, co_orig-co_interp, '-', color='red', label='CO delta')
     plt.gca().set_ylim(-10, 10)
     plt.grid()
-    
+
     plt.legend()
-    
+
     wow_min=np.where(ds['WOW_FLAG'] == 0)[0].min()
     wow_max=np.where(ds['WOW_FLAG'] == 0)[0].max()
 
@@ -39,17 +39,17 @@ def create_plot(match, co_orig, co_interp, ds):
 
 def interpolate_cal_coefficients(sens, zero, cal_status, utc_time):
     """The calibration coefficients for the AL5002 instrument drift
-    linearly between calibrations. To take account of this new 
-    coefficients are calculated for each data point, which 
+    linearly between calibrations. To take account of this new
+    coefficients are calculated for each data point, which
     can be used to recalculate the CO concentrations.
-    
+
     """
     n=sens.size
     sens_new, zero_new=np.zeros(n, dtype=np.float32), np.zeros(n, dtype=np.float32)
-    
+
     #get calibration periods
     ix=np.where(cal_status[1:]-cal_status[:-1] == -1)[0]
-    #ignore data at the beginning    
+    #ignore data at the beginning
     ix=ix[ix>100]
     # the +2 is a dodgy way to make sure that the values have changed.
     # Apparently the zero and sens parameters do not change at
@@ -88,9 +88,11 @@ class rio_co_mixingratio(cal_base):
         calpress=self.dataset['AL52CO_calpress'].data.ismatch(match)
         cal_status=self.dataset['AL52CO_cal_status'].data.ismatch(match)
         # cal_status is a character and needs to be converted to integer to do anything useful with it
-        cal_status=np.int8(cal_status) 
+        cal_status=np.int8(cal_status)
         sens=self.dataset['AL52CO_sens'].data.ismatch(match)
+        sens[sens == 0.0] = np.nan
         zero=self.dataset['AL52CO_zero'].data.ismatch(match)
+        zero[zero == 0.0] = np.nan
         utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
         wow_flag=self.dataset['WOW_FLAG'].data.ismatch(match)
 
@@ -99,7 +101,7 @@ class rio_co_mixingratio(cal_base):
         #concentration. The data stream that is sent by the labview script is sent several times
         #a second while only *one* value in the stream is updated at a time. For example see:
         #
-        #$ cat AL52CO01_20140126_060103_B828.cs  
+        #$ cat AL52CO01_20140126_060103_B828.cs
         #...
         #$AL52CO01,66,1390716327,0,0,B828,77.721321,8821.000000, ...
         #$AL52CO01,66,1390716327,0,0,B828,77.721321,8475.000000, ...
@@ -110,11 +112,11 @@ class rio_co_mixingratio(cal_base):
         #...
         #
         #The concentration changes in the forth line to 81.42 but the counts value is only update
-        #the subsequent line.        
+        #the subsequent line.
         counts=co_mr/(1.0/sens)+zero
         #calc new interpolated calibration coefficients
         sens_new, zero_new=interpolate_cal_coefficients(sens, zero, cal_status, utc_time)
-        apply
+
         conc_new=(counts-zero_new)*1.0/sens_new
 
         flag=np.zeros(co_mr.size, dtype=np.int8)     # initialize empty flag array, with all flag values set to 0
@@ -123,7 +125,7 @@ class rio_co_mixingratio(cal_base):
         flag[calpress>3.2]=3                         # flag when calibration gas pressure is increased
 
         co_aero=flagged_data(conc_new, match, flag)
-               
+
         try:
             create_plot(match, co_mr, co_aero, self.dataset)
         except:

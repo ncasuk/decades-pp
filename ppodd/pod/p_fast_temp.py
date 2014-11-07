@@ -25,11 +25,11 @@ class rio_fast_thermistor(cal_base):
 
     def process(self):
         # TODO:
-        # calibration coefficients should be moved calibration file
+        # calibration coefficients should be moved to calibration file
         # new calibration constants:  06/06/2014
         A,B,C,D,E,F,G,H=(1.1692, -29.609, 361.04, -0.030927, 0.23438, -2.4769E-7, 0.59181, -9.7277E-7)
 
-        TRFCTR=self.dataset['TRFCTR'].data
+        TRFCTR=self.dataset['TRFCTR'].data[0]
 
         match=self.dataset.matchtimes(['CORCON_fast_temp', 'CORCON_fasttemp_hi_lo', 'PS_RVSM', 'Q_RVSM'])
         fast_temp_adc_counts=self.dataset['CORCON_fast_temp'].data.ismatch(match)
@@ -40,15 +40,18 @@ class rio_fast_thermistor(cal_base):
 
         #calculate resistance (R in kOhm)
         R=1.0/(D+E*np.exp(fast_temp_adc_counts*F)+G*np.exp(H*fast_temp_adc_counts))
+
         #calculate indicated air temperature in Kelvin
-        IAT=A*np.log(R)**2+B*np.log(R)+C
+        #set errstate to get rid off annoying RuntimeWarning
+        with np.errstate(invalid='ignore'):
+            IAT=A*np.log(R)**2+B*np.log(R)+C
         #calculate mach number
         MACHNO=np.sqrt(5.0*((1.0+pitot/sp)**(2./7.)-1.))
         #calculate true air temperature
         TAT=IAT/(1.0+(0.2*MACHNO**2*TRFCTR))
 
         #TODO:
-        #Flag all data as 3
+        #Flag all data as 3 for the moment
         flag=np.int8(TAT[:]*0+3)
 
         result0=flagged_data(R, fast_temp_adc_counts.times, flag)
