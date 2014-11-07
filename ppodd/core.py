@@ -500,10 +500,13 @@ class timed_data(np.ndarray):
         if(len(data.shape)==2):
             obj.frequency=data.shape[1]
         obj.times=None
-        if(times!=None):
+
+        #if (times!=None):
+        if hasattr(times, '__iter__'):
             if(len(times)==len(data)):
                 obj.times=times               
-        if(obj.times==None):
+        #if(obj.times==None):
+        if not hasattr(obj.times, '__iter__'):
             raise Exception,'No times'
         else:                    
             return obj

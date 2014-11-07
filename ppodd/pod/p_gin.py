@@ -47,7 +47,8 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
         ginhdgoffset=0.0
         if('GINHDGOFFSET' in self.dataset):
             ginhdgoffset=self.dataset['GINHDGOFFSET'][0]
-        if(self.dataset['GINDAT_time1'].data!=None):
+        #if(self.dataset['GINDAT_time1'].data!=None):
+        if hasattr(self.dataset['GINDAT_time1'].data, '__iter__'):
             tgin=self.dataset['GINDAT_time1'].times
             #tstep=timestamp((np.round(tgin[0]),np.round(tgin[-1])))
             tstep=timestamp(createtimes(tgin))
