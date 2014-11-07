@@ -1,6 +1,6 @@
 * uploading of the flight-cst files to the badc is not working at the moment.
 The files are not move out of the incoming directory at the badc, due to a bad
-md5 checksum. This is most likely caused by a mix-up of binary or ascii upload. 
+md5 checksum. This is most likely caused by a mix-up of binary or ascii upload.
 I remember that we had a very similar issue a few years back.
 
 
@@ -12,12 +12,13 @@ dew point from the General Eastern instrument.(degK)
 Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument         (ppb)
 Radar height from the aircraft radar altimeter.(m)
 
+(*DONE*)
 
 * Using the code snippet below does not return a decades_dataset that contains
 TEIOZO parameters. The rawdlu.zip does not contain a TEIOZ_TCP definiton file,
-but adding it via add_file did not solve this. 
+but adding it via add_file did not solve this.
 
-The solution was to add the defintion file to the rawdlu.zip file. I don't think that is 
+The solution was to add the defintion file to the rawdlu.zip file. I don't think that is
 the intention.
 
 
@@ -47,14 +48,14 @@ The build directory has to be deleted manually before reinstalling the code.
 
 * makefile has no clean option
 
-* Installation issue: When I run "python setup.py install" the script 
-can't find the ifort option and therefore the c_runmod.so is not 
+* Installation issue: When I run "python setup.py install" the script
+can't find the ifort option and therefore the c_runmod.so is not
 created and not copied to /usr/local/lib/python2.7/dist-packages.
 Not sure yet if this affects every machine. At the moment the solution is
-to build c_runmod.so and to copy it manually.
+to build c_runmod.so from the fortran_modules directory and to copy it manually. (*DONE*)
 
-* IR_UP_C and IR_DWN_C data end up in netcdf although instrument is not fitted. 
-Maybe the default setting for the IR should be not to be added (edit self.input_names in write_nc)
+* IR_UP_C and IR_DWN_C data end up in netcdf although instrument is not fitted.
+Maybe the default setting for the IR should be not to be added (edit self.input_names in write_nc) (*DONE*)
 
 * ppodd netcdf files contain nan values; but they should not
 
@@ -67,27 +68,25 @@ Maybe the default setting for the IR should be not to be added (edit self.input_
    scipy.stats.circmean
   might be the solution
 
-* adding gin offset constants to the flight constants file
+* adding gin offset constants to the flight constants file (*DONE*)
 
-* adding the noturb code to the gin decades-pp
+* adding the noturb code to the gin decades-pp (*DONE*)
 
-* From an email from Alan Blyth on the 5/7/13: 
-  "When I try to run ncplot on the 4 July 1Hz data file, it 
+* From an email from Alan Blyth on the 5/7/13:
+  "When I try to run ncplot on the 4 July 1Hz data file, it
    gives me an error message "File does not contain Time dimension".
 
    ncrename -d data_point,Time core_faam_20130704_v004_r0_b785_1Hz.nc out.nc
 
   fixes this problem.
 
-* buck processing code and flagging; add it to the ppod code; translation from idl to python
+* buck processing code and flagging; add it to the ppod code; translation from idl to python (*DONE*)
 
 * double check flagging to make sure that missing values do match the defintion of missing_values for all variables
 
-
-
-* Below is a short bash script that can be run on the core netcdf file to make it compliant with some american 
+* Below is a short bash script that can be run on the core netcdf file to make it compliant with some american
   3d plotting software (I can't remember the name). But maybe it would be worthwhile to add the global
-  coordinates to the netcdf file too 
+  coordinates to the netcdf file too
 
 #!/bin/bash
 
@@ -99,7 +98,7 @@ ncatted \
  -a 'coordinates,global,c,c,LON_GPS LAT_GPS GPS_ALT Time' \
  -a '_FillValue,LAT_GPS,m,f,0' \
  -a '_FillValue,LON_GPS,m,f,0' \
- -o $ofile $1 
+ -o $ofile $1
 ncwa -a sps01 -O $ofile $ofile
 ncrename -d data_point,Time -O $ofile
 
