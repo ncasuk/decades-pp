@@ -1,0 +1,33 @@
+Requiremenets
+
+matplotlib
+numpy
+Basemap
+netCDF4
+
+
+The installation of ppodd currently requires a working intel fortran installation on your machine. You can check by typing 
+
+which ifort
+
+if it is available.
+
+The workflow for installation is
+
+(1) pull the repository
+    
+    git clone git@77.68.61.13:decades-pp
+
+(2) move into the folder
+
+    cd decades-pp
+
+(3) python setup.py clean --all
+
+(4) python setup.py build
+
+(5) sudo python setup.py install
+
+
+Make sure that you execute command (4) as normal user and not as root. This is necessary, because many environment variables 
+are needed to run the intel fortran compiler, which might not be set correctly for the root user.
