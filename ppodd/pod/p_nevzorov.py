@@ -17,8 +17,8 @@ class nevzorov(cal_base):
                             'CALNVLWC',
                             'CALNVTWC',
                             'CALNVL']
-        self.outputs=[parameter('NV_LWC_U',units='gram m-3',frequency=64,number=602,long_name='Uncorrected liquid water content from the Nevzorov probe')
-                     ,parameter('NV_TWC_U',units='gram m-3',frequency=64,number=605,long_name='Uncorrected total condensed water content from the Nevzorov probe.')]
+        self.outputs=[parameter('NV_LWC_U',units='gram m-3',frequency=64,number=602,long_name='Uncorrected liquid water content from the Nevzorov probe'),
+                      parameter('NV_TWC_U',units='gram m-3',frequency=64,number=605,long_name='Uncorrected total condensed water content from the Nevzorov probe.')]
 
         self.version=1.00
         cal_base.__init__(self,dataset)
@@ -39,8 +39,8 @@ class nevzorov(cal_base):
         tas=tas.interpolated(times).reshape(sh)
         for n,i in enumerate(insts):
             #For each instrument (i)
-            area=self.dataset[('calnv%s' % i).upper()][0]
-            K=self.dataset[('calnv%s' % i).upper()][1]
+            area=self.dataset[('calnv%s' % i).upper()][1]
+            K=self.dataset[('calnv%s' % i).upper()][0]
             for m in measurements:
                 raw=self.dataset['CORCON_nv_%s_%s' % (i,m)].ismatch(t)
                 cons=self.dataset[('c%s%s' % (i,m)).upper()]
@@ -51,4 +51,6 @@ class nevzorov(cal_base):
             ref_p=cal['%siref' % i]*cal['%svref' % i]
             p=col_p-K*ref_p
             self.outputs[n].data=p/(tas*area*nvl)
+
+
 
