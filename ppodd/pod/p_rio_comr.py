@@ -12,9 +12,15 @@ def create_plot(match, co_orig, co_interp, ds):
     ts=match/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
     title= ds['FLIGHT'].data.upper() + ' %.2i-%.2i-%i' % (tuple(ds['DATE']))
     plt.clf()
-    plt.plot_date(ts, co_orig, '-', label='CO raw')
-    plt.plot_date(ts, co_interp, '-', label='CO interp')
+    perc=np.percentile(co_orig, [5, 95])
+    co_orig_clean=co_orig[:]
+    co_orig_clean[(co_orig_clean < perc[0]) | (co_orig_clean > perc[1])]=np.nan
+    plt.plot_date(ts, co_orig_clean, 'b-')
+    yl=plt.gca().get_ylim()
+    plt.plot_date(ts, co_orig, 'b-', label='CO raw')
+    plt.plot_date(ts, co_interp, 'g-', label='CO interp')
 
+    plt.gca().set_ylim(yl)
     plt.title(title)
     plt.xlabel('utc (-)')
     plt.ylabel('CO mixing ratio (ppbV)')
