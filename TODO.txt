@@ -1,5 +1,11 @@
+* TWC fit plots: add xy labels and add legend, add grid
+
+* Packet separation and packet length figures: (i) correct legend it should
+be packet_length in the legend instead of packet_separation, (ii) make it a
+bar plot rather than a line plot (iii) add units to the xy axis
+
 * uploading of the flight-cst files to the badc is not working at the moment.
-The files are not move out of the incoming directory at the badc, due to a bad
+The files are not moved out of the incoming directory at the badc, due to a bad
 md5 checksum. This is most likely caused by a mix-up of binary or ascii upload.
 I remember that we had a very similar issue a few years back.
 
