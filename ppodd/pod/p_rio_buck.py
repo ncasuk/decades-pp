@@ -340,7 +340,7 @@ class rio_buck_cr2(cal_base):
         buck_mirr_temp=self.dataset['AERACK_buck_mirr_temp'].ismatch(match)       
         buck_mirr_temp+=273.15 #convert to Kelvin
         #apply calibration
-        p=np.poly1d(d['BUCK'][::-1])
+        p=np.poly1d(self.dataset['BUCK'][::-1])
         buck_mirr_temp=p(buck_mirr_temp)
         buck_pressure=self.dataset['AERACK_buck_pressure'].ismatch(match)
         buck_mirr_ctrl_flag=self.dataset['AERACK_buck_mirr_cln_flag'].ismatch(match)
