@@ -1,9 +1,9 @@
 import sys
 from ppodd.core import *
 
+import numpy as np
 
-
-def get_no_cloud_mask(twc_col_p, ias):
+def get_no_cloud_mask(twc_col_p, wow):
     """Create a mask where times in cloud are indicated by zero
     and time outside of cloud (*no* total water) are indicated by a
     one.
@@ -11,12 +11,12 @@ def get_no_cloud_mask(twc_col_p, ias):
     range (max-min) of the power reading of the total water collector. The
     variance in a cloud should be much higher than outside.
 
-    """    
+    """
     rng_limits=(0.01, 0.1)
     mask=np.zeros(twc_col_p.shape[0], dtype=np.int8)
-    
+
     rng=np.max(twc_col_p, axis=1)-np.min(twc_col_p, axis=1)
-    mask[(rng > rng_limits[0]) & (rng < rng_limits[1]) & (np.min(ias, axis=1) > 95.0)]=1
+    mask[(rng > rng_limits[0]) & (rng < rng_limits[1]) & (np.max(wow, axis=1) == 0)]=1
     #add two seconds buffer, so that all data two seconds before and after
     #are flagged as in clouds
     mask=np.min(np.vstack([mask,
@@ -32,9 +32,9 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
     """The Nevzorov baseline is not constant, but varies as a function of
     indicated air speed (IAS_RVSM) and static air pressure (PS_RVSM).
     Abel et al. (2014) provide a fitting formula in the Appendix A to correct
-    the K value (ratio between collector and reference power, when outside of 
+    the K value (ratio between collector and reference power, when outside of
     clouds) to remove the zero offset of the liquid and total water measurements.
-    
+
     Reference:
       S J Abel, R J Cotton, P A Barrett and A K Vance. A comparison of ice water
       content measurement techniques on the FAAM BAe-146 aircraft.
@@ -42,10 +42,10 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
 
     """
     from scipy.optimize import curve_fit
-    
+
     def func(x, a, b):
         return x[0,:]/x[1,:]-k-(a*(1.0/x[2,:])+b*np.log10(x[3,:]))
-    ix=np.where(no_cloud_mask == 1)[0]    
+    ix=np.where(no_cloud_mask == 1)[0]
     xdata=np.vstack([col_p[ix,:].ravel(),
 		     ref_p[ix,:].ravel(),
 		     ias[ix,:].ravel(),
@@ -55,7 +55,7 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
 
 
 class nevzorov(cal_base):
-    """ 
+    """
     """
     def __init__(self,dataset):
         self.input_names=[  'CORCON_nv_lwc_vcol',
@@ -80,8 +80,10 @@ class nevzorov(cal_base):
 
         self.version=1.00
         cal_base.__init__(self,dataset)
-        
+
     def process(self):
+        #suppress divide by zero messages
+        np.seterr(divide='ignore')
         t=self.dataset.matchtimes(self.input_names)
         insts=['twc','lwc']
         measurements=['icol','vcol','iref','vref']
@@ -105,7 +107,7 @@ class nevzorov(cal_base):
         wow_flag=self.dataset['WOW_FLAG'].ismatch(t).ravel()
         wow_flag.interp1d()
         wow_flag=wow_flag.interpolated(times).reshape(sh)
-        
+
         for n,i in enumerate(insts):
             #For each instrument (i)
             area=self.dataset[('calnv%s' % i).upper()][1]
@@ -119,7 +121,7 @@ class nevzorov(cal_base):
             col_p=cal['%sicol' % i]*cal['%svcol' % i]  # V*I
             ref_p=cal['%siref' % i]*cal['%svref' % i]
             if i.lower() == 'twc':
-                no_cloud_mask=get_no_cloud_mask(col_p, ias)
+                no_cloud_mask=get_no_cloud_mask(col_p, wow_flag)
             try:
                 K, params=get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, K)
                 sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(),params[0], params[1]))
@@ -129,4 +131,3 @@ class nevzorov(cal_base):
             flag=np.zeros(sh, dtype=np.int8)
             flag[wow_flag != 0]=3
             self.outputs[n].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
-
