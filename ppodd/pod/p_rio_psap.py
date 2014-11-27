@@ -33,8 +33,14 @@ class rio_psap(cal_base):
         flag=np.array([0]*n, dtype=np.int8)
         # Flagging using flow and transmission thresholds
         flag[(psap_transmission<0.5) | (psap_transmission>1.05)]=1
-        flag[psap_flow<1.0]=2
+        #flag[psap_flow<1.0]=2
+        ix=np.where(psap_flow < 1.0)[0]
+        #add two second buffer to the index
+        ix=np.unique(np.array([list(ix+i) for i in range(-2,3)]))
+        ix=ix[(ix >= 0) & (ix < n-1)]
+        flag[ix]=2
         flag[((psap_transmission<0.5) | (psap_transmission>1.05)) & (psap_flow<1.0)]=3
+           
         self.outputs[0].data=flagged_data(psap_lin, psap_lin.times, flag)
         self.outputs[1].data=flagged_data(psap_log, psap_log.times, flag)
         self.outputs[2].data=flagged_data(psap_flow, psap_flow.times, flag)
