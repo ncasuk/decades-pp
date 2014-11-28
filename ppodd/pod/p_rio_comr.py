@@ -35,10 +35,10 @@ def create_plot(match, co_orig, co_interp, ds):
 
     plt.legend()
 
-    wow_min=np.where(ds['WOW_FLAG'] == 0)[0].min()
-    wow_max=np.where(ds['WOW_FLAG'] == 0)[0].max()
+    wow_min=np.where(ds['WOW_IND'] == 0)[0].min()
+    wow_max=np.where(ds['WOW_IND'] == 0)[0].max()
 
-    wow_times=ds['WOW_FLAG'].data.times/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
+    wow_times=ds['WOW_IND'].data.times/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
     for i in [wow_min, wow_max]:
         plt.axvline(wow_times[i], lw=4, color='0.7', alpha=0.7)
 
@@ -79,7 +79,7 @@ class rio_co_mixingratio(cal_base):
     """
 
     def __init__(self,dataset):
-        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'WOW_FLAG']
+        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'WOW_IND']
         self.outputs=[parameter('CO_AERO',
                                 units='ppb',
                                 frequency=1,
@@ -100,7 +100,7 @@ class rio_co_mixingratio(cal_base):
         zero=self.dataset['AL52CO_zero'].data.ismatch(match)
         zero[zero == 0.0] = np.nan
         utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
-        wow_flag=self.dataset['WOW_FLAG'].data.ismatch(match)
+        wow_ind=self.dataset['WOW_IND'].data.ismatch(match)
 
         #We calculate the raw counts from the CO concentration and the calibration coefficients.
         #The AL52CO_counts variable can not be used because it does not necessarily match the

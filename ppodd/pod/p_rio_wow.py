@@ -8,7 +8,7 @@ class rio_weight_on_wheels(cal_base):
 
     def __init__(self,dataset):
         self.input_names=['PRTAFT_utc_time', 'PRTAFT_wow_flag']
-        self.outputs=[parameter('WOW_FLAG',
+        self.outputs=[parameter('WOW_IND',
                                 units='-',
                                 frequency=1,
                                 long_name='Weight on wheels indicator')]

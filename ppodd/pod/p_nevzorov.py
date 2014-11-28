@@ -69,7 +69,7 @@ class nevzorov(cal_base):
                             'TAS',
                             'IAS_RVSM',
                             'PS_RVSM',
-                            'WOW_FLAG',
+                            'WOW_IND',
                             'CLWCIREF','CLWCVREF','CLWCICOL','CLWCVCOL',
                             'CTWCIREF','CTWCVREF','CTWCICOL','CTWCVCOL',
                             'CALNVLWC',
@@ -104,9 +104,9 @@ class nevzorov(cal_base):
         ps.interp1d()
         ps=ps.interpolated(times).reshape(sh)
 
-        wow_flag=self.dataset['WOW_FLAG'].ismatch(t).ravel()
-        wow_flag.interp1d()
-        wow_flag=wow_flag.interpolated(times).reshape(sh)
+        wow_ind=self.dataset['WOW_IND'].ismatch(t).ravel()
+        wow_ind.interp1d()
+        wow_ind=wow_ind.interpolated(times).reshape(sh)
 
         for n,i in enumerate(insts):
             #For each instrument (i)
@@ -121,7 +121,7 @@ class nevzorov(cal_base):
             col_p=cal['%sicol' % i]*cal['%svcol' % i]  # V*I
             ref_p=cal['%siref' % i]*cal['%svref' % i]
             if i.lower() == 'twc':
-                no_cloud_mask=get_no_cloud_mask(col_p, wow_flag)
+                no_cloud_mask=get_no_cloud_mask(col_p, wow_ind)
             try:
                 K, params=get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, K)
                 sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(),params[0], params[1]))
@@ -129,5 +129,5 @@ class nevzorov(cal_base):
                 pass
             p=col_p-K*ref_p
             flag=np.zeros(sh, dtype=np.int8)
-            flag[wow_flag != 0]=3
+            flag[wow_ind != 0]=3
             self.outputs[n].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
