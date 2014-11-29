@@ -19,10 +19,6 @@ class gin_track_plot(cal_base):
         trackcolor='green'
         trackwidth=2.0
 
-        from mpl_toolkits.basemap import Basemap
-        import matplotlib.pyplot as plt
-        import numpy as np
-
         # make sure the value of resolution is a lowercase L,
         #  for 'low', not a numeral 1
         min_lat=np.nanmin(self.dataset[lat])-2.0
@@ -42,8 +38,8 @@ class gin_track_plot(cal_base):
         m.fillcontinents(color=cont_color)
         m.drawmapboundary()
 
-        m.drawmeridians(np.arange(0, 360, 2))
-        m.drawparallels(np.arange(-90, 90, 2))
+        m.drawmeridians(np.arange(0, 360, 2), labels=[1,0,0,1], fontsize=12)
+        m.drawparallels(np.arange(-90, 90, 2), labels=[1,1,0,1], fontsize=12)
         x,y=m(self.dataset[lon][::160],self.dataset[lat][::160])
         plt.plot(x,y,color=trackcolor,linewidth=trackwidth)
         strdate='/'.join([str(e) for e in self.dataset['DATE'].data])
