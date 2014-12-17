@@ -12,18 +12,19 @@ def get_no_cloud_mask(twc_col_p, wow):
     variance in a cloud should be much higher than outside.
 
     """
-    rng_limits=(0.01, 0.1)
+    #set range limits for a one second measurement interval (=64 single measurements)
+    rng=(0.01, 0.1)
     mask=np.zeros(twc_col_p.shape[0], dtype=np.int8)
 
     rng=np.max(twc_col_p, axis=1)-np.min(twc_col_p, axis=1)
     mask[(rng > rng_limits[0]) & (rng < rng_limits[1]) & (np.max(wow, axis=1) == 0)]=1
-    #add two seconds buffer, so that all data two seconds before and after
-    #are flagged as in clouds
+    #add two second time buffer, so that all data two seconds before and after
+    #the estimated mask are also flagged as in cloud
     mask=np.min(np.vstack([mask,
-			   np.roll(mask, -2),
-			   np.roll(mask, -1),
-			   np.roll(mask, 1),
-			   np.roll(mask, 2)]), axis=0)
+                           np.roll(mask, -2),
+                           np.roll(mask, -1),
+                           np.roll(mask, 1),
+                           np.roll(mask, 2)]), axis=0)
     return mask
 
 
@@ -34,7 +35,14 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
     Abel et al. (2014) provide a fitting formula in the Appendix A to correct
     the K value (ratio between collector and reference power, when outside of
     clouds) to remove the zero offset of the liquid and total water measurements.
-
+    
+    Input: 
+        col_p: collector Power
+        ref_p: Reference Power
+        ias:   Indicated airspeed
+        ps:    Static pressure
+        no_cloud_mask: array indicating if in (0) or out (1) of cloud
+        k:     K value from the flight-cst file
     Reference:
       S J Abel, R J Cotton, P A Barrett and A K Vance. A comparison of ice water
       content measurement techniques on the FAAM BAe-146 aircraft.
@@ -47,9 +55,9 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
         return x[0,:]/x[1,:]-k-(a*(1.0/x[2,:])+b*np.log10(x[3,:]))
     ix=np.where(no_cloud_mask == 1)[0]
     xdata=np.vstack([col_p[ix,:].ravel(),
-		     ref_p[ix,:].ravel(),
-		     ias[ix,:].ravel(),
-		     ps[ix,:].ravel()])
+                     ref_p[ix,:].ravel(),
+                     ias[ix,:].ravel(),
+                     ps[ix,:].ravel()])
     popt, pcov=curve_fit(func, xdata, xdata[0,:]*0.0)
     return (k+(popt[0]*(1.0/ias)+popt[1]*np.log10(ps)), popt)
 
@@ -76,7 +84,9 @@ class nevzorov(cal_base):
                             'CALNVTWC',
                             'CALNVL']
         self.outputs=[parameter('NV_TWC_U',units='gram m-3',frequency=64,number=605,long_name='Uncorrected total condensed water content from the Nevzorov probe.'),
-		      parameter('NV_LWC_U',units='gram m-3',frequency=64,number=602,long_name='Uncorrected liquid water content from the Nevzorov probe')]
+		      parameter('NV_LWC_U',units='gram m-3',frequency=64,number=602,long_name='Uncorrected liquid water content from the Nevzorov probe'),
+		      parameter('NV_TWC_C',units='gram m-3',frequency=64,number=605,long_name='Corrected total condensed water content from the Nevzorov probe.'),
+		      parameter('NV_LWC_C',units='gram m-3',frequency=64,number=602,long_name='Corrected liquid water content from the Nevzorov probe')]
 
         self.version=1.00
         cal_base.__init__(self,dataset)
@@ -122,12 +132,17 @@ class nevzorov(cal_base):
             ref_p=cal['%siref' % i]*cal['%svref' % i]
             if i.lower() == 'twc':
                 no_cloud_mask=get_no_cloud_mask(col_p, wow_ind)
+            FITTING_SUCCESS=False
             try:
-                K, params=get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, K)
+                fitted_K, params=get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, K)
                 sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(),params[0], params[1]))
+                FITTING_SUCCESS=True
             except:
-                pass
-            p=col_p-K*ref_p
+                pass            
             flag=np.zeros(sh, dtype=np.int8)
             flag[wow_ind != 0]=3
+            p=col_p-K*ref_p
             self.outputs[n].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
+            if FITTING_SUCCESS:
+                col_p-fittedK*ref_p
+                self.outputs[n+2].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
