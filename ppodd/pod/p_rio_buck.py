@@ -66,7 +66,7 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag):
             buck_unc_b[i]=dpi-buck_mirr_temp[i]
             Ub=dpi-buck_mirr_temp[i]
 
-        buck_unc_k[i]=2.0*np.sqrt( Uc**2+Ur**2+Ut**2+Ui**2+Ub**2)
+        buck_unc_k[i]=2.0*np.sqrt(Uc**2+Ur**2+Ut**2+Ui**2+Ub**2)
 
     ix=np.where(buck_mirr_ctrl_flag[i] == 3)[0]
     buck_unc_k[ix]=np.nan
@@ -224,8 +224,8 @@ def get_vp_coeff(buck_mirror_ctl):
 def calc_vp(buck_mirr_temp, buck_mirror_ctl, buck_unc_k=None):
     """Calculate vapour pressure depending on
     likely mirror state (ie water above 273.15K, Ice below that)
-    """
 
+    """
     # check if buck_unc_k is an array or not
     if not hasattr(buck_unc_k, 'size'):
         n=buck_mirr_temp.size
@@ -310,7 +310,7 @@ def get_flag(buck_mirr_flag, buck_status):
 
 
 class rio_buck_cr2(cal_base):
-    """Routine to process data from the buck CR2 instrument.
+    """Routine to process data from the buck CR2 Hygrometer.
 
     """
 
@@ -339,7 +339,7 @@ class rio_buck_cr2(cal_base):
 
         buck_mirr_temp=self.dataset['AERACK_buck_mirr_temp'].ismatch(match)       
         buck_mirr_temp+=273.15 #convert to Kelvin
-        #apply calibration
+        #apply calibration using coefficients from the flight constants file
         p=np.poly1d(self.dataset['BUCK'][::-1])
         buck_mirr_temp=p(buck_mirr_temp)
         buck_pressure=self.dataset['AERACK_buck_pressure'].ismatch(match)
@@ -358,9 +358,7 @@ class rio_buck_cr2(cal_base):
 
         flag=get_flag(buck_mirr_flag, buck_status)
         vmr_buck=flagged_data(vmr_buck, match, flag)
-        vmr_unc=flagged_data(vmr_buck, match, flag)
-        #tdew_cr2=flagged_data(vmr_buck, match, flag)
-        #tdew_c_u=flagged_data(vmr_buck, match, flag)
+        vmr_unc=flagged_data(vmr_unc, match, flag)
         tdew_cr2=flagged_data(buck_mirr_temp, match, flag)
         tdew_c_u=flagged_data(buck_unc_k, match, flag)
 
