@@ -1,6 +1,7 @@
 import ppodd
 from ppodd.core import *
 from os.path import getsize
+import numpy as np
 from ppodd.resample import createtimes
 
 class gin(cal_base):
@@ -66,12 +67,20 @@ parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs p
                    o.data=timed_data(tstep,tstep)
                 else:
                     name='GINDAT_'+(o.name[:-4].lower())
-                    if(name=='GINDAT_hdg'):
+                    #heading and track need special treatment for the interpolation because
+                    #of the values are in degrees. Crossing 360 degrees causes issue when you
+                    #perform a normal linear interpolation. The 'wrong' heading resulted in
+                    #unreasonable wind vector values when the 360 degree was crossed.
+                    if name in ['GINDAT_hdg', 'GINDAT_trck']:
+                        #see: http://stackoverflow.com/questions/27295494/bounded-circular-interpolation-in-python
                         d=(ginhdgoffset+self.dataset[name].data) % 360
+                        d[:]=np.rad2deg(np.unwrap(np.deg2rad(d[:])))
                     else:
                         d=self.dataset[name].data
                     d.interp1d()
-                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)
+                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)                    
+                    if name in ['GINDAT_hdg', 'GINDAT_trck']:
+                        o.data%=360.
                     x=~np.isfinite(o.data)
                     o.data.flag[x]=3
                     o.data[x]=0
