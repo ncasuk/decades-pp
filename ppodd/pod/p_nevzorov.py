@@ -13,7 +13,7 @@ def get_no_cloud_mask(twc_col_p, wow):
 
     """
     #set range limits for a one second measurement interval (=64 single measurements)
-    rng=(0.01, 0.1)
+    rng_limits=(0.01, 0.1)
     mask=np.zeros(twc_col_p.shape[0], dtype=np.int8)
 
     rng=np.max(twc_col_p, axis=1)-np.min(twc_col_p, axis=1)
@@ -144,5 +144,5 @@ class nevzorov(cal_base):
             p=col_p-K*ref_p
             self.outputs[n].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
             if FITTING_SUCCESS:
-                col_p-fittedK*ref_p
+                col_p-fitted_K*ref_p
                 self.outputs[n+2].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
