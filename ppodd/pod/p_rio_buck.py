@@ -66,6 +66,13 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag):
             buck_unc_b[i]=dpi-buck_mirr_temp[i]
             Ub=dpi-buck_mirr_temp[i]
 
+        Uc=buck_unc_c[i]
+        Ur=buck_unc_r[i]
+        Ut=buck_unc_t[i]
+        Ui=buck_unc_i[i]
+        Ub=buck_unc_b[i]
+        Uk=buck_unc_k[i]
+        
         buck_unc_k[i]=2.0*np.sqrt(Uc**2+Ur**2+Ut**2+Ui**2+Ub**2)
 
     ix=np.where(buck_mirr_ctrl_flag[i] == 3)[0]
