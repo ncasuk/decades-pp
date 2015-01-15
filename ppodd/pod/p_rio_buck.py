@@ -6,12 +6,12 @@ import numpy as np
 def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag):
 
     n=buck_mirr_temp.size
-    buck_unc_c=np.zeros(n)*np.nan
-    buck_unc_r=np.zeros(n)*np.nan
-    buck_unc_t=np.zeros(n)*np.nan
-    buck_unc_i=np.zeros(n)*np.nan
-    buck_unc_b=np.zeros(n)*np.nan
-    buck_unc_k=np.zeros(n)*np.nan
+    buck_unc_c=np.zeros(n)
+    buck_unc_r=np.zeros(n)
+    buck_unc_t=np.zeros(n)
+    buck_unc_i=np.zeros(n)
+    buck_unc_b=np.zeros(n)
+    buck_unc_k=np.zeros(n)
 
     buck_unc_temp=np.zeros(n)*np.nan
     #buck_mirr_t = data.mirr_t
