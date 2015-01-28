@@ -132,6 +132,8 @@ class rio_co_mixingratio(cal_base):
 
         co_aero=flagged_data(conc_new, match, flag)
 
+        create_plot(match, co_mr, co_aero, self.dataset)
+
         try:
             create_plot(match, co_mr, co_aero, self.dataset)
         except:
