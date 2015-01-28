@@ -144,5 +144,5 @@ class nevzorov(cal_base):
             p=col_p-K*ref_p
             self.outputs[n].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
             if FITTING_SUCCESS:
-                col_p-fitted_K*ref_p
+                p=col_p-fitted_K*ref_p
                 self.outputs[n+2].data=flagged_data(p/(tas*area*nvl), times[:,0], flag)
