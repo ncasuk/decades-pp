@@ -85,8 +85,8 @@ class nevzorov(cal_base):
                             'CALNVL']
         self.outputs=[parameter('NV_TWC_U',units='gram m-3',frequency=64,number=605,long_name='Uncorrected total condensed water content from the Nevzorov probe.'),
 		      parameter('NV_LWC_U',units='gram m-3',frequency=64,number=602,long_name='Uncorrected liquid water content from the Nevzorov probe'),
-		      parameter('NV_TWC_C',units='gram m-3',frequency=64,number=605,long_name='Corrected total condensed water content from the Nevzorov probe.'),
-		      parameter('NV_LWC_C',units='gram m-3',frequency=64,number=602,long_name='Corrected liquid water content from the Nevzorov probe')]
+		      parameter('NV_TWC_C',units='gram m-3',frequency=64,number=608,long_name='Corrected total condensed water content from the Nevzorov probe.'),
+		      parameter('NV_LWC_C',units='gram m-3',frequency=64,number=609,long_name='Corrected liquid water content from the Nevzorov probe')]
 
         self.version=1.00
         cal_base.__init__(self,dataset)
