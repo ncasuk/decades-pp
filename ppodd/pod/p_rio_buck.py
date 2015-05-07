@@ -3,7 +3,7 @@ from ppodd.core import *
 import numpy as np
 
 
-def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag):
+def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control):
 
     n=buck_mirr_temp.size
     buck_unc_c=np.zeros(n)
@@ -55,11 +55,11 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag):
         buck_unc_i[i]=Ui
 
         # Bias uncertainty depending on knowledge of mirror state
-        if (buck_mirr_ctrl_flag[i] < 2):
+        if (buck_mirr_control[i] < 2):
             Ub=0
             buck_unc_b[i]=0
 
-        if (buck_mirr_ctrl_flag[i] == 2):
+        if (buck_mirr_control[i] == 2):
             # dew_frost_diff(c,Buck_mirror_control,Buck_Mirr_T,Buck_Pressure,Ub)
             lnesw=np.log(611.2)+(17.62*(buck_mirr_temp[i]-273.15))/(243.12+buck_mirr_temp[i]-273.15)
             dpi=273.15+(272.0*(lnesw-np.log(611.2))/(22.46-(lnesw-np.log(611.2))))
@@ -75,7 +75,7 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag):
         
         buck_unc_k[i]=2.0*np.sqrt(Uc**2+Ur**2+Ut**2+Ui**2+Ub**2)
 
-    ix=np.where(buck_mirr_ctrl_flag[i] == 3)[0]
+    ix=np.where(buck_mirr_control[i] == 3)[0]
     buck_unc_k[ix]=np.nan
 
     #Buck_Unc_K[c]=2*sqrt(Buck_Unc_c[c]^2+Buck_Unc_r[c]^2+Buck_Unc_t[c]^2+Buck_Unc_i[c]^2+Buck_Unc_b[c]^2)+10*Buck_Mirror_Control[c] //root sum square. Coverage factor of 2
@@ -89,6 +89,7 @@ def get_buck_mirror_ctl(buck_mirr_temp):
 for Mirror Temperature measurement based on whether
 in control, ice or water layer (or unknown) on the mirror.
 
+    buck_mirr_temp: Temperature of the BUCK mirror in Kelvin
     """
 
     c=0
@@ -115,12 +116,13 @@ in control, ice or water layer (or unknown) on the mirror.
         #culm2=0
         #e=0
         #do a moving average of [interval] data to determine the rate of change of Mirror Temp
-        while e < interval:
-            culm1=culm1+(buck_mirr_temp[i+e])-(buck_mirr_temp[i+e-1])
+        #while e < interval:
+        #    culm1=culm1+(buck_mirr_temp[i+e])-(buck_mirr_temp[i+e-1])
             #culm2=culm2+(buck_mirr_temp[i+e-interval] )-(buck_mirr_temp[i+e-1-interval])
-            e+=1
-        DT=float(culm1)/float(interval)
-
+        #    e+=1
+        #culm1=np.sum(buck_mirr_temp[i:i+interval]-buck_mirr_temp[i-1:i+interval-1])
+        #DT=float(culm1)/float(interval)
+        DT=np.mean(buck_mirr_temp[i:i+interval]-buck_mirr_temp[i-1:i+interval-1])
         #Calculate acceptable range of Delta Mirror T based on Mirror Temp
         if (buck_mirr_temp[i] < 220.0):
             DTmax=1.0/(220.0*0.0172438-3.6602)*0.5
@@ -191,7 +193,7 @@ in control, ice or water layer (or unknown) on the mirror.
 
     return buck_mirror_control
 
-
+#TODO: The wat_min50to0_coeff is never used; is this correct?
 def get_enhance_coeff(buck_mirror_ctl):
     """
     """
@@ -269,70 +271,38 @@ def calc_enhance_factor(vp_buck, buck_mirror_t, buck_pressure, buck_mirror_ctl):
     result=np.exp((1.0-vp_buck/(buck_pressure*100.0))*\
                   c[:,0]+\
                   c[:,1]*buck_mirror_t+\
-                  c[:,2]*buck_mirror_t**2+
+                  c[:,2]*buck_mirror_t**2+\
                   c[:,3]*buck_mirror_t**3)+\
                   ((buck_pressure*100.0)/vp_buck-1.0)*\
                   np.exp(c[:,4]+c[:,5]*buck_mirror_t+c[:,6]*buck_mirror_t**2+c[:,7]*buck_mirror_t**3)
     return result
 
 
-def get_flag(buck_mirr_flag, buck_status):
+def get_flag(buck_mirr_flag, buck_dewpoint_flag):
     flag=np.zeros(buck_mirr_flag.size, dtype=np.int)
     flag[buck_mirr_flag == 1]=2
-    flag[buck_status == 2]=3
+    flag[buck_dewpoint_flag == 2]=3
     return flag
-
-
-def calc_vmr(vp, enhance, buck_pressure):
-    """Calculate volume mixing ratio
-
-    """
-    vmr=vp/(buck_pressure*100.0-vp*enhance)*enhance*10.0E5
-    vmr[vmr < 0]=np.nan
-    return vmr
-
-
-def calc_enhance_factor(vp_buck, buck_mirror_t, buck_pressure, buck_mirror_ctl):
-    """
-    """
-    c=get_enhance_coeff(buck_mirror_ctl)
-
-    # Calculate the enhancement factors and calculate the mixing ratio as ppmV
-    result=np.exp((1.0-vp_buck/(buck_pressure*100.0))*\
-                  c[:,0]+\
-                  c[:,1]*buck_mirror_t+\
-                  c[:,2]*buck_mirror_t**2+
-                  c[:,3]*buck_mirror_t**3)+\
-                  ((buck_pressure*100.0)/vp_buck-1.0)*\
-                  np.exp(c[:,4]+c[:,5]*buck_mirror_t+c[:,6]*buck_mirror_t**2+c[:,7]*buck_mirror_t**3)
-    return result
-
-
-def get_flag(buck_mirr_flag, buck_status):
-    flag=np.zeros(buck_mirr_flag.size, dtype=np.int)
-    flag[buck_mirr_flag == 1]=2
-    flag[buck_status == 2]=3
-    return flag
-
 
 
 class rio_buck_cr2(cal_base):
-    """Routine to process data from the buck CR2 Hygrometer.
+    """Routine to process data from the BUCK CR2 Hygrometer.
 
     """
 
     def __init__(self,dataset):
+        """AERACK_buck_ppm: raw ppm reading for the buck hygrometer
+           AERACK_buck_mirr_temp: the reading to represent the buck mirror temperature
+           AERACK_buck_dewpoint_flag: the reading to represent the buck mirror flag (0=clean mirror, 1=mirror contaminated, sshould be cleaned soon)
+           AERACK_buck_pressure: the reading to represent the buck pressure transducer
+"""
+
 
         self.input_names=['BUCK',
                           'AERACK_buck_ppm',
                           'AERACK_buck_mirr_temp',
                           'AERACK_buck_pressure',
-                          'AERACK_buck_coldfinger_temp',
-                          'AERACK_buck_board_temp',
-                          'AERACK_buck_mirr_cln_flag',
-                          'AERACK_buck_balance',
-                          'AERACK_buck_dewpoint_flag',
-                          'AERACK_buck_pwm']
+                          'AERACK_buck_dewpoint_flag']
 
         self.outputs=[parameter('VMR_CR2', units='ppmv', frequency=1, number=783, long_name='Water vapour volume mixing ratio measured by the Buck CR2', standard_name='volume_mixing_ratio_of_water_in_air'),
                       parameter('VMR_C_U', units='ppmv', frequency=1, number=784, long_name='Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2'),
@@ -350,20 +320,18 @@ class rio_buck_cr2(cal_base):
         p=np.poly1d(self.dataset['BUCK'][::-1])
         buck_mirr_temp=p(buck_mirr_temp)
         buck_pressure=self.dataset['AERACK_buck_pressure'].ismatch(match)
-        buck_mirr_ctrl_flag=self.dataset['AERACK_buck_mirr_cln_flag'].ismatch(match)
-        buck_mirr_flag=self.dataset['AERACK_buck_dewpoint_flag'].ismatch(match)
-        buck_status=self.dataset['AERACK_buck_pwm'].ismatch(match)
+        buck_dewpoint_flag=self.dataset['AERACK_buck_dewpoint_flag'].ismatch(match)        
 
         buck_mirror_control=get_buck_mirror_ctl(buck_mirr_temp)
-        vp_buck=calc_vp(buck_mirr_temp, buck_mirr_ctrl_flag)
-        buck_unc_k=calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag)
-        vp_max=calc_vp(buck_mirr_temp, buck_mirr_ctrl_flag, buck_unc_k=buck_unc_k)
-        enhance=calc_enhance_factor(vp_buck, buck_mirr_temp, buck_pressure, buck_mirr_ctrl_flag)
+        vp_buck=calc_vp(buck_mirr_temp, buck_mirr_control)
+        buck_unc_k=calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control)
+        vp_max=calc_vp(buck_mirr_temp, buck_mirr_control, buck_unc_k=buck_unc_k)
+        enhance=calc_enhance_factor(vp_buck, buck_mirr_temp, buck_pressure, buck_mirr_control)
         vmr_buck=calc_vmr(vp_buck, enhance, buck_pressure)
         vmr_max=calc_vmr(vp_max, enhance, buck_pressure)
         vmr_unc=vmr_max-vmr_buck
 
-        flag=get_flag(buck_mirr_flag, buck_status)
+        flag=get_flag(buck_mirr_flag, buck_dewpoint_flag)
         vmr_buck=flagged_data(vmr_buck, match, flag)
         vmr_unc=flagged_data(vmr_unc, match, flag)
         tdew_cr2=flagged_data(buck_mirr_temp, match, flag)
