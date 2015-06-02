@@ -1,23 +1,72 @@
+"""
+Decades processing routine for processing the data stream from the AERO AL5002 instrument.
+
+Variables available are:
+
+ AL52CO_cal_status
+ AL52CO_calpress
+ AL52CO_cellpress
+ AL52CO_conc
+ AL52CO_counts
+ AL52CO_err
+ AL52CO_flight_num
+ AL52CO_lampflow
+ AL52CO_lamptemp
+ AL52CO_monoflow
+ AL52CO_monopress
+ AL52CO_monotemp
+ AL52CO_packet_length
+ AL52CO_ptp_sync
+ AL52CO_sens
+ AL52CO_temppmt
+ AL52CO_ue9LJ_temp
+ AL52CO_utc_time
+ AL52CO_zero
+
+
+Carbon Monoxide concentrations are calculated by linearly interpolation of the zero and sens
+values inbetween calibrations.
+
+The concentration of the calibration gas might be revised after a campaign and therefore the
+CO concentration needs to be scaled. This is taken care off by a scaling factor which is the
+fourth number in the CALCOMX flight constant. If the scaling factor is not available it is
+assumed to be 1.0.
+  
+Data are flagged as "3" if either the AL52CO_cal_status flag is "1" or if the pressure in the 
+calibration chamber (AL52CO_calpress) exceeds as defined threshold (3.4).
+
+"""
+
 from ppodd.core import *
 
 import datetime
+import sys
 
 
-def create_plot(match, co_orig, co_interp, ds):
-    """
+def create_plot(match, co_orig, co_interp, cal_status, ds):
+    """Creates an overview plot, that shows the CO timeseries before and after
+    the interpolation of the calibration coefficients.
+    
+    On the second y-axis the CO delta is plotted. Calibration periods are indicated
+    by black dots.
+
     """
     import matplotlib.pyplot as plt
-    from matplotlib.dates import date2num, DateFormatter, HourLocator
+    from matplotlib.dates import date2num, num2date, DateFormatter, HourLocator
+    
+    dt=datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y')
+    
+    ts=match/86400.+date2num(dt)    
+    dt=datetime.datetime.strptime('%0.2i-%0.2i-%0.4i' % tuple(ds['DATE']), '%d-%m-%Y')
+    title='QA-CO Aerolaser\n'+'%s - %s' % (ds['FLIGHT'].data.lower(), dt.strftime('%d-%b-%Y'))
 
-    ts=match/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
-    title= ds['FLIGHT'].data.upper() + ' %.2i-%.2i-%i' % (tuple(ds['DATE']))
-    plt.clf()
-    perc=np.percentile(co_orig, [5, 95])
+    perc=np.percentile(co_orig, [2, 98])
     co_orig_clean=co_orig[:]
-    co_orig_clean[(co_orig_clean < perc[0]) | (co_orig_clean > perc[1])]=np.nan
+    co_orig_clean[(co_orig_clean > perc[1]) | (co_orig_clean < 0) | (cal_status == 1)]=np.nan
     plt.plot_date(ts, co_orig_clean, 'b-')
     yl=plt.gca().get_ylim()
     plt.plot_date(ts, co_orig, 'b-', label='CO raw')
+    co_interp[cal_status == 1]=np.nan
     plt.plot_date(ts, co_interp, 'g-', label='CO interp')
 
     plt.gca().set_ylim(yl)
@@ -26,60 +75,89 @@ def create_plot(match, co_orig, co_interp, ds):
     plt.ylabel('CO mixing ratio (ppbV)')
     plt.legend(loc=2)
     plt.gca().xaxis.set_major_locator(HourLocator())
-    plt.gca().xaxis.set_major_formatter(DateFormatter('%H:%M'))
-
+    plt.gca().xaxis.set_major_formatter(DateFormatter('%H:%M'))    
+    plt.gca().xaxis.grid(True)
+    
     plt.twinx()
     plt.plot_date(ts, co_orig-co_interp, '-', color='red', label='CO delta')
     plt.gca().set_ylim(-10, 10)
     plt.grid()
-
+    
+    # overplot time periods when instrument is calibrating
+    cal_status_ix=np.where(cal_status == 1)[0]
+    if len(cal_status_ix > 0):
+        plt.plot_date(ts[cal_status_ix], ts[cal_status_ix]*0.0, 'o', markersize=5, color='black', label='Cal')
+    
+    # add padding to the left and right of the plot
+    plt.gca().set_xlim((np.nanmin(ts)-(600./86400.), np.nanmax(ts)+(600./86400.)))
+    
     plt.legend()
 
-    wow_min=np.where(ds['WOW_IND'] == 0)[0].min()
-    wow_max=np.where(ds['WOW_IND'] == 0)[0].max()
-
+    # estimate T/O and Landing and plot two vertical lines
+    wow_min=np.where((ds['WOW_IND'] == 0) & (ds['HGT_RADR'][:,0] > 100))[0].min()
+    wow_max=np.where(ds['WOW_IND'] == 0)[0].max()    
+    # overplot T/O and Landing on the figure
     wow_times=ds['WOW_IND'].data.times/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
     for i in [wow_min, wow_max]:
         plt.axvline(wow_times[i], lw=4, color='0.7', alpha=0.7)
 
 
-def interpolate_cal_coefficients(sens, zero, cal_status, utc_time):
+def interpolate_cal_coefficients(utc_time, sens, zero):
     """The calibration coefficients for the AL5002 instrument drift
-    linearly between calibrations. To take account of this new
-    coefficients are calculated for each data point, which
-    can be used to recalculate the CO concentrations.
+    inbetween calibrations. It is assumed that the drifting is linear
+    and too take account of this new coefficients are calculated for
+    each data point, which are then used to recalculate the CO concentrations.
 
     """
-    n=sens.size
-    sens_new, zero_new=np.zeros(n, dtype=np.float32), np.zeros(n, dtype=np.float32)
-
-    #get calibration periods
-    ix=np.where(cal_status[1:]-cal_status[:-1] == -1)[0]
-    #ignore data at the beginning
+    # create copies of sens and zero calibration coefficients
+    sens_new, zero_new = sens[:], zero[:]
+    # get calibration periods
+    ix=np.where(sens[1:]-sens[:-1] != 0)[0]
+    # ignore the first 100 data points 
     ix=ix[ix>100]
     # the +2 is a dodgy way to make sure that the values have changed.
     # Apparently the zero and sens parameters do not change at
     # exactly the same time in the data stream
-    ix=[10]+list(ix+2)+[n-1]
-    for i in range(len(ix)-1):
+    ix=[10]+list(ix+2)+[sens.size-2]
+    # loop over all calibration periods    
+    for i in range(len(ix)-1):        
         ix1=ix[i]
         ix2=ix[i+1]
         sens_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [sens[ix1], sens[ix2]])
         zero_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [zero[ix1], zero[ix2]])
+        
+        # Print out calibration information to stdout
+        timestamp=datetime.datetime.fromtimestamp(utc_time[ix1]).strftime('%Y-%m-%d %H:%M:%S')
+        if i == 0:
+            sys.stdout.write('\n    CO AERO Calibrations\n')	  
+            sys.stdout.write('    '+41*'-'+'\n')
+            sys.stdout.write('    | time                |   sens |   zero |\n')
+            sys.stdout.write('    |'+39*'-'+'|\n')
+        if np.isnan(sens[ix1]):
+            sens_string='   nan'
+        else:
+            sens_string='%6.2f' % (sens[ix1],)
+        if np.isnan(zero[ix1]):
+            zero_string='   nan'
+        else:
+	    zero_string='%6i' % (zero[ix1],)
+        sys.stdout.write('    | %s | %s | %s |\n' % (timestamp, sens_string, zero_string))
+
+    sys.stdout.write('    '+41*'-'+'\n')
     return (sens_new, zero_new)
 
 
 class rio_co_mixingratio(cal_base):
     """Routine to calculate the Carbon Monoxide concentration from the AL52002 Instrument.
 
-    The routine works with the data from the TCP packages that are stored on fish.
-    Flagging is done using the static pressure and the pressure measurement in the
-    calibration chamber of the instrument.
+    The routine works with the data from the TCP packages that are stored on Fish and Septic. 
+    Flagging is done using the cal_status flag ( AL52CO_cal_status) and the pressure measurement
+    in the calibration chamber of the instrument (AL52CO_calpress).
 
     """
 
     def __init__(self,dataset):
-        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'WOW_IND']
+        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'WOW_IND', 'HGT_RADR', 'CALCOMX']
         self.outputs=[parameter('CO_AERO',
                                 units='ppb',
                                 frequency=1,
@@ -96,46 +174,66 @@ class rio_co_mixingratio(cal_base):
         # cal_status is a character and needs to be converted to integer to do anything useful with it
         cal_status=np.int8(cal_status)
         sens=self.dataset['AL52CO_sens'].data.ismatch(match)
-        sens[sens == 0.0] = np.nan
+        sens[sens == 0.0]=np.nan
         zero=self.dataset['AL52CO_zero'].data.ismatch(match)
-        zero[zero == 0.0] = np.nan
+        zero[zero == 0.0]=np.nan
         utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
         wow_ind=self.dataset['WOW_IND'].data.ismatch(match)
-
-        #We calculate the raw counts from the CO concentration and the calibration coefficients.
-        #The AL52CO_counts variable can not be used because it does not necessarily match the
-        #concentration. The data stream that is sent by the labview script is sent several times
-        #a second while only *one* value in the stream is updated at a time. For example see:
         #
-        #$ cat AL52CO01_20140126_060103_B828.cs
-        #...
-        #$AL52CO01,66,1390716327,0,0,B828,77.721321,8821.000000, ...
-        #$AL52CO01,66,1390716327,0,0,B828,77.721321,8475.000000, ...
-        #$AL52CO01,66,1390716328,0,0,B828,77.721321,8475.000000, ...
-        #$AL52CO01,66,1390716328,0,0,B828,81.419006,8475.000000, ...
-        #$AL52CO01,66,1390716328,0,0,B828,81.419006,8660.000000, ...
-        #$AL52CO01,66,1390716329,0,0,B828,81.419006,8660.000000, ...
-        #...
+        # We calculate the raw counts from the CO concentration and the calibration coefficients.
+        # The *AL52CO_counts variable can not be used* because it does not necessarily match the
+        # concentration. The data stream that is sent by the labview script is produced several times
+        # a second while only *one* value in the stream is updated at a time. For example see:
         #
-        #The concentration changes in the forth line to 81.42 but the counts value is only update
-        #the subsequent line.
+        # $ cat AL52CO01_20140126_060103_B828.csv
+        # ...
+        # $AL52CO01,66,1390716327,0,0,B828,77.721321,8821.000000, ...
+        # $AL52CO01,66,1390716327,0,0,B828,77.721321,8475.000000, ...
+        # $AL52CO01,66,1390716328,0,0,B828,77.721321,8475.000000, ...
+        # $AL52CO01,66,1390716328,0,0,B828,81.419006,8475.000000, ...
+        # $AL52CO01,66,1390716328,0,0,B828,81.419006,8660.000000, ...
+        # $AL52CO01,66,1390716329,0,0,B828,81.419006,8660.000000, ...
+        # ...
+        #
+        # The concentration changes in the fourth line to 81.42 but the counts value is only updated
+        # in the subsequent line.
+        #        
+        # The scaling factor is needed to take care of revised CO calibration gas concentrations, which
+        # FAAM learns only about post flight/campaign, when the calibration gas is reanalysed by an authority.
+        if len(self.dataset['CALCOMX'].data) <= 3:
+            scaling_factor=1.0
+            sys.stdout.write('    Scaling factor not defined in flight-cst file.\n')
+        else:
+            scaling_factor=self.dataset['CALCOMX'][3]       
+            sys.stdout.write('    Scaling factor defined in flight-cst file.\n')
+        sys.stdout.write('    Scaling factor set to %f.\n' % (scaling_factor))
+        co_mr*=scaling_factor
+        
         counts=co_mr/(1.0/sens)+zero
-        #calc new interpolated calibration coefficients
-        sens_new, zero_new=interpolate_cal_coefficients(sens, zero, cal_status, utc_time)
-
-        conc_new=(counts-zero_new)*1.0/sens_new
-
-        flag=np.zeros(co_mr.size, dtype=np.int8)     # initialize empty flag array, with all flag values set to 0
+        # calc new interpolated calibration coefficients
+        sens_new, zero_new=interpolate_cal_coefficients(utc_time, sens, zero)
+        
+        # recalculate the CO concentration using the interpolated calibration coefficients
+        # zero_new and sens_new
+        conc_new=(counts-zero_new)/sens_new
+                       
+        # add buffer to cal_status
+        cal_status_buffer=3
+        cal_status_ix=np.where(cal_status == 1)[0]
+        cal_status_ix=list(set(list(cal_status_ix-cal_status_buffer)+list(cal_status_ix+cal_status_buffer)))
+        cal_status[cal_status_ix]=1
+        flag=np.zeros(co_mr.size, dtype=np.int8)     # initialize flag array, with all values set to 0
         flag[co_mr<-10]=3                            # flag very negative co_mr as 3
         flag[cal_status==1]=3                        # flag data while calibration is running
-        flag[calpress>3.2]=3                         # flag when calibration gas pressure is increased
+        flag[calpress>3.4]=3                         # flag when calibration gas pressure is increased
 
         co_aero=flagged_data(conc_new, match, flag)
 
-        create_plot(match, co_mr, co_aero, self.dataset)
-
+        # creating a plot which shows the "raw" time series and the one that uses
+        # interpolated calibration coefficients
         try:
-            create_plot(match, co_mr, co_aero, self.dataset)
+            create_plot(match, co_mr, conc_new, cal_status, self.dataset)
         except:
             pass
+        
         self.outputs[0].data=co_aero
