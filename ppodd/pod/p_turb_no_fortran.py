@@ -231,7 +231,16 @@ FORTRAN routine C_TURB
 
         match=d.matchtimes(['TAT_DI_R', 'TAT_ND_R', 'PS_RVSM', 'Q_RVSM', 'P0_S10', 'PA_TURB', 'PB_TURB'])
 
-        rconst=d['AOA_A0'].data + d['AOA_A1'].data + d['AOSS_B0'].data + d['AOSS_B1'].data + d['TOLER'].data + d['TASCOR1'].data + d['ALPH0'].data + d['ALPH1'].data + d['BET0'].data + d['BET1'].data
+        rconst=d['AOA_A0'].data + 
+               d['AOA_A1'].data + 
+               d['AOSS_B0'].data + 
+               d['AOSS_B1'].data + 
+               d['TOLER'].data + 
+               d['TASCOR1'].data + 
+               d['ALPH0'].data + 
+               d['ALPH1'].data + 
+               d['BET0'].data + 
+               d['BET1'].data
 
         #ias_rvsm=d['IAS_RVSM'].data.ismatch(match)
         tat_di_r=d['TAT_DI_R'].data.ismatch(match)
@@ -253,12 +262,9 @@ FORTRAN routine C_TURB
                                        np.array(pa_turb),
                                        np.array(pb_turb),
                                        rconst)
-
-
-        #def py__c_turb(ttdi,ttnd,spr,psp,tp0,tpa,tpb,rconst, itermax=None):
         
-        #Flagging needs to be done
-        flag=aoa*0.
+        #TODO: Flagging needs to be done
+        flag=np.zeros(aoa.size, dtype=np.int8) 
         #times=ias_rvsm.times
         times=tat_di_r.times
         aoa=flagged_data(aoa, times, flag)
