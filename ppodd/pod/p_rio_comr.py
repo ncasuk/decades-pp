@@ -60,28 +60,30 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     dt=datetime.datetime.strptime('%0.2i-%0.2i-%0.4i' % tuple(ds['DATE']), '%d-%m-%Y')
     title='QA-CO Aerolaser\n'+'%s - %s' % (ds['FLIGHT'].data.lower(), dt.strftime('%d-%b-%Y'))
 
+    fig=plt.figure()
+    ax0=fig.add_subplot(111)
     perc=np.percentile(co_orig, [2, 98])
     co_orig_clean=co_orig[:]
     co_orig_clean[(co_orig_clean > perc[1]) | (co_orig_clean < 0) | (cal_status == 1)]=np.nan
-    plt.plot_date(ts, co_orig_clean, 'b-')
-    yl=plt.gca().get_ylim()
+    ax0.plot_date(ts, co_orig_clean, 'b-')
+    yl=ax0.get_ylim()
     plt.plot_date(ts, co_orig, 'b-', label='CO raw')
     co_interp[cal_status == 1]=np.nan
-    plt.plot_date(ts, co_interp, 'g-', label='CO interp')
+    ax0.plot_date(ts, co_interp, 'g-', label='CO interp')
 
-    plt.gca().set_ylim(yl)
-    plt.title(title)
-    plt.xlabel('utc (-)')
-    plt.ylabel('CO mixing ratio (ppbV)')
-    plt.legend(loc=2)
-    plt.gca().xaxis.set_major_locator(HourLocator())
-    plt.gca().xaxis.set_major_formatter(DateFormatter('%H:%M'))    
-    plt.gca().xaxis.grid(True)
+    ax0.set_ylim(yl)
+    ax0.set_title(title)
+    ax0.set_xlabel('utc (-)')
+    ax0.set_ylabel('CO mixing ratio (ppbV)')
+    ax0.legend(loc=2)
+    ax0.xaxis.set_major_locator(HourLocator())
+    ax0.xaxis.set_major_formatter(DateFormatter('%H:%M'))    
+    ax0.xaxis.grid(True)
     
-    plt.twinx()
-    plt.plot_date(ts, co_orig-co_interp, '-', color='red', label='CO delta')
-    plt.gca().set_ylim(-10, 10)
-    plt.grid()
+    ax1=ax0.twinx()
+    ax1.plot_date(ts, co_orig-co_interp, '-', color='red', label='CO delta')
+    ax1.set_ylim(-10, 10)
+    #axplt.grid()
     
     # overplot time periods when instrument is calibrating
     cal_status_ix=np.where(cal_status == 1)[0]
@@ -89,17 +91,26 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
         plt.plot_date(ts[cal_status_ix], ts[cal_status_ix]*0.0, 'o', markersize=5, color='black', label='Cal')
     
     # add padding to the left and right of the plot
-    plt.gca().set_xlim((np.nanmin(ts)-(600./86400.), np.nanmax(ts)+(600./86400.)))
+    ax0.set_xlim((np.nanmin(ts)-(600./86400.), np.nanmax(ts)+(600./86400.)))
     
-    plt.legend()
+    ax0.legend()
 
     # estimate T/O and Landing and plot two vertical lines
-    wow_min=np.where((ds['WOW_IND'] == 0) & (ds['HGT_RADR'][:,0] > 100))[0].min()
-    wow_max=np.where(ds['WOW_IND'] == 0)[0].max()    
+    wow_min, wow_max = 0, 0
+    counter=np.arange(ds['WOW_IND'][:].size)
+    wow_min=np.where((ds['WOW_IND'][:] == 0) & (ds['HGT_RADR'][:,0] > 100))[0]
+    if wow_min.size:
+        wow_min=wow_min[0]
+    wow_max=np.where((ds['WOW_IND'][:] == 1) & (counter > wow_min))[0]
+    if wow_max.size:
+        wow_max=wow_max[0]
+      
+    
     # overplot T/O and Landing on the figure
     wow_times=ds['WOW_IND'].data.times/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
     for i in [wow_min, wow_max]:
-        plt.axvline(wow_times[i], lw=4, color='0.7', alpha=0.7)
+        if i:
+            ax0.axvline(wow_times[i], lw=4, color='0.7', alpha=0.7)
 
 
 def interpolate_cal_coefficients(utc_time, sens, zero):
@@ -127,7 +138,7 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
         zero_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [zero[ix1], zero[ix2]])
         
         # Print out calibration information to stdout
-        timestamp=datetime.datetime.fromtimestamp(utc_time[ix1]).strftime('%Y-%m-%d %H:%M:%S')
+        timestamp=datetime.datetime.fromtimestamp(utc_time[ix1]-3600).strftime('%Y-%m-%d %H:%M:%S')
         if i == 0:
             sys.stdout.write('\n    CO AERO Calibrations\n')	  
             sys.stdout.write('    '+41*'-'+'\n')
@@ -218,7 +229,7 @@ class rio_co_mixingratio(cal_base):
         conc_new=(counts-zero_new)/sens_new
                        
         # add buffer to cal_status
-        cal_status_buffer=3
+        cal_status_buffer=5
         cal_status_ix=np.where(cal_status == 1)[0]
         cal_status_ix=list(set(list(cal_status_ix-cal_status_buffer)+list(cal_status_ix+cal_status_buffer)))
         cal_status[cal_status_ix]=1
@@ -235,5 +246,4 @@ class rio_co_mixingratio(cal_base):
             create_plot(match, co_mr, conc_new, cal_status, self.dataset)
         except:
             pass
-        
         self.outputs[0].data=co_aero
