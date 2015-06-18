@@ -137,8 +137,8 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
         sens_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [sens[ix1], sens[ix2]])
         zero_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [zero[ix1], zero[ix2]])
         
-        # Print out calibration information to stdout
-        timestamp=datetime.datetime.fromtimestamp(utc_time[ix1]-3600).strftime('%Y-%m-%d %H:%M:%S')
+        # write calibration information to stdout
+        timestamp=datetime.datetime.utcfromtimestamp(utc_time[ix1]).strftime('%Y-%m-%d %H:%M:%S')
         if i == 0:
             sys.stdout.write('\n    CO AERO Calibrations\n')	  
             sys.stdout.write('    '+41*'-'+'\n')
