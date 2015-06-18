@@ -67,7 +67,7 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     co_orig_clean[(co_orig_clean > perc[1]) | (co_orig_clean < 0) | (cal_status == 1)]=np.nan
     ax0.plot_date(ts, co_orig_clean, 'b-')
     yl=ax0.get_ylim()
-    plt.plot_date(ts, co_orig, 'b-', label='CO raw')
+    ax0.plot_date(ts, co_orig, 'b-', label='CO raw')
     co_interp[cal_status == 1]=np.nan
     ax0.plot_date(ts, co_interp, 'g-', label='CO interp')
 
@@ -75,7 +75,6 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     ax0.set_title(title)
     ax0.set_xlabel('utc (-)')
     ax0.set_ylabel('CO mixing ratio (ppbV)')
-    ax0.legend(loc=2)
     ax0.xaxis.set_major_locator(HourLocator())
     ax0.xaxis.set_major_formatter(DateFormatter('%H:%M'))    
     ax0.xaxis.grid(True)
@@ -90,11 +89,12 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     if len(cal_status_ix > 0):
         plt.plot_date(ts[cal_status_ix], ts[cal_status_ix]*0.0, 'o', markersize=5, color='black', label='Cal')
     
-    # add padding to the left and right of the plot
-    ax0.set_xlim((np.nanmin(ts)-(600./86400.), np.nanmax(ts)+(600./86400.)))
+    # add padding (3 percent) to the left and right of the plot
+    xlim_margin=(ax0.get_xlim()[1]-ax0.get_xlim()[0])*0.03
+    ax0.set_xlim((ax0.get_xlim()[0]-xlim_margin, ax0.get_xlim()[1]+xlim_margin))
     
-    ax0.legend()
-
+    ax0.legend(loc='upper left')
+    ax1.legend(loc='upper right')
     # estimate T/O and Landing and plot two vertical lines
     wow_min, wow_max = 0, 0
     counter=np.arange(ds['WOW_IND'][:].size)
