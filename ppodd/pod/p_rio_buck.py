@@ -302,7 +302,8 @@ class rio_buck_cr2(cal_base):
                           'AERACK_buck_ppm',
                           'AERACK_buck_mirr_temp',
                           'AERACK_buck_pressure',
-                          'AERACK_buck_dewpoint_flag']
+                          'AERACK_buck_dewpoint_flag',
+                          'AERACK_buck_mirr_cln_flag']
 
         self.outputs=[parameter('VMR_CR2', units='ppmv', frequency=1, number=783, long_name='Water vapour volume mixing ratio measured by the Buck CR2', standard_name='volume_mixing_ratio_of_water_in_air'),
                       parameter('VMR_C_U', units='ppmv', frequency=1, number=784, long_name='Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2'),
@@ -321,8 +322,9 @@ class rio_buck_cr2(cal_base):
         buck_mirr_temp=p(buck_mirr_temp)
         buck_pressure=self.dataset['AERACK_buck_pressure'].ismatch(match)
         buck_dewpoint_flag=self.dataset['AERACK_buck_dewpoint_flag'].ismatch(match)        
+        buck_mirr_cln_flag=self.dataset['AERACK_buck_mirr_cln_flag'].ismatch(match)        
 
-        buck_mirror_control=get_buck_mirror_ctl(buck_mirr_temp)
+        buck_mirr_control=get_buck_mirror_ctl(buck_mirr_temp)
         vp_buck=calc_vp(buck_mirr_temp, buck_mirr_control)
         buck_unc_k=calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control)
         vp_max=calc_vp(buck_mirr_temp, buck_mirr_control, buck_unc_k=buck_unc_k)
@@ -331,7 +333,7 @@ class rio_buck_cr2(cal_base):
         vmr_max=calc_vmr(vp_max, enhance, buck_pressure)
         vmr_unc=vmr_max-vmr_buck
 
-        flag=get_flag(buck_mirr_flag, buck_dewpoint_flag)
+        flag=get_flag(buck_mirr_cln_flag, buck_dewpoint_flag)
         vmr_buck=flagged_data(vmr_buck, match, flag)
         vmr_unc=flagged_data(vmr_unc, match, flag)
         tdew_cr2=flagged_data(buck_mirr_temp, match, flag)
