@@ -124,6 +124,8 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
     sens_new, zero_new = sens[:], zero[:]
     # get calibration periods
     ix=np.where(sens[1:]-sens[:-1] != 0)[0]
+    # remove nan values
+    ix=ix[~np.isnan((sens[1:]-sens[:-1])[ix])]
     # ignore the first 100 data points 
     ix=ix[ix>100]
     # the +2 is a dodgy way to make sure that the values have changed.
@@ -168,7 +170,7 @@ class rio_co_mixingratio(cal_base):
     """
 
     def __init__(self,dataset):
-        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'WOW_IND', 'HGT_RADR', 'CALCOMX']
+        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'AL52CO_counts', 'WOW_IND', 'HGT_RADR', 'CALCOMX']
         self.outputs=[parameter('CO_AERO',
                                 units='ppb',
                                 frequency=1,
@@ -180,6 +182,8 @@ class rio_co_mixingratio(cal_base):
     def process(self):
         match=self.dataset.matchtimes(self.input_names)
         co_mr=self.dataset['AL52CO_conc'].data.ismatch(match)
+        counts=self.dataset['AL52CO_counts'].data.ismatch(match)
+        co_mr[counts == 0]=np.nan
         calpress=self.dataset['AL52CO_calpress'].data.ismatch(match)
         cal_status=self.dataset['AL52CO_cal_status'].data.ismatch(match)
         # cal_status is a character and needs to be converted to integer to do anything useful with it
@@ -228,16 +232,21 @@ class rio_co_mixingratio(cal_base):
         # zero_new and sens_new
         conc_new=(counts-zero_new)/sens_new
                        
+        # use both cal_status flag and pressure in calibration chamber for indexing calibration time periods
+        cal_status_ix=np.where((cal_status == 1) | (calpress > 3.4))[0]
         # add buffer to cal_status
-        cal_status_buffer=5
-        cal_status_ix=np.where(cal_status == 1)[0]
-        cal_status_ix=list(set(list(cal_status_ix-cal_status_buffer)+list(cal_status_ix+cal_status_buffer)))
+        cal_status_buffer=3
+        for i in range(cal_status_buffer*-1, cal_status_buffer+1):
+            cal_status_ix=list(set(list(np.concatenate((np.array(cal_status_ix), np.array(cal_status_ix)+i)))))
+        cal_status_ix=np.array(cal_status_ix)
+        cal_status_ix=cal_status_ix[cal_status_ix < len(cal_status)]
+        cal_status_ix=list(cal_status_ix)
         cal_status[cal_status_ix]=1
         flag=np.zeros(co_mr.size, dtype=np.int8)     # initialize flag array, with all values set to 0
         flag[co_mr<-10]=3                            # flag very negative co_mr as 3
         flag[cal_status==1]=3                        # flag data while calibration is running
         flag[calpress>3.4]=3                         # flag when calibration gas pressure is increased
-
+        flag[counts==0]=3
         co_aero=flagged_data(conc_new, match, flag)
 
         # creating a plot which shows the "raw" time series and the one that uses
@@ -245,5 +254,5 @@ class rio_co_mixingratio(cal_base):
         try:
             create_plot(match, co_mr, conc_new, cal_status, self.dataset)
         except:
-            pass
+            pass	
         self.outputs[0].data=co_aero
