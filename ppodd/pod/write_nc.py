@@ -93,7 +93,7 @@ Saving as output.nc""")
         ppodd.logger.info('Creating NetCDF %s' % self.filename)
         self.coredata=Dataset(self.filename,'w',format=self.netcdf_type)
         self.coredata.comment=self.comment
-        self.coredata.data_date=time.strftime('%Y%m%d',time.gmtime(time.time()))
+        self.coredata.Data_Date=time.strftime('%Y%m%d',time.gmtime(time.time()))
         for att in self.dataset.attributes:
             ppodd.logger.info('Setting attribute %s' % str(att))
             try:
@@ -104,10 +104,10 @@ Saving as output.nc""")
                         setattr(self.coredata,att,str(self.dataset.attributes[att]))
                 except TypeError:
                     ppodd.logger.debug("Cant write this one")
-        drstime = self.coredata.createDimension('data_point', None)
+        drstime = self.coredata.createDimension('Time', None)
         self.tdims={}
         paralist=[]
-        times = self.coredata.createVariable('Time','i4',('data_point',),fill_value=flag_fill)
+        times = self.coredata.createVariable('Time','i4',('Time',),fill_value=flag_fill)
         times.long_name='time of measurement'
         times.standard_name='time'
         try:
@@ -126,14 +126,14 @@ Saving as output.nc""")
                 try:
                     t=par.times
                     if(onehz):
-                        dims=('data_point',)
+                        dims=('Time',)
                     else:
                         f=par.frequency
                         if(f not in self.tdims):
                             name='sps%2.2i' % f
                             self.coredata.createDimension(name, f)
                             self.tdims.update({f:name})
-                        dims=('data_point',self.tdims[f])
+                        dims=('Time',self.tdims[f])
                     para=self.coredata.createVariable(
                        p,dtyp,dims,fill_value=fill_value)
                     paralist.append(p)
@@ -168,7 +168,7 @@ Saving as output.nc""")
 
         t0=time.time()
         try:
-            self.coredata.timeinterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
+            self.coredata.TimeInterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
         except NameError:
             ppodd.logger.warning("No start time, probably NO DATA ! Can't write file")
             self.coredata.close()
