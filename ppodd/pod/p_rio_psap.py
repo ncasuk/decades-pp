@@ -22,9 +22,9 @@ class rio_psap(cal_base):
         psap_flow=self.dataset['AERACK_psap_flow'].ismatch(match)
         psap_flow*=0.5
         psap_lin=self.dataset['AERACK_psap_lin'].ismatch(match)
-        pasp_lin=psap_lin*0.5E-5
+        psap_lin=psap_lin*0.5E-5
         psap_log=self.dataset['AERACK_psap_log'].ismatch(match)
-        pasp_log=10.0**((psap_log/2.0)-7.0)
+        psap_log=10.0**((psap_log/2.0)-7.0)
         psap_transmission=self.dataset['AERACK_psap_transmission'].ismatch(match)
         psap_transmission*=0.125
 
@@ -40,7 +40,7 @@ class rio_psap(cal_base):
         ix=ix[(ix >= 0) & (ix < n-1)]
         flag[ix]=2
         flag[((psap_transmission<0.5) | (psap_transmission>1.05)) & (psap_flow<1.0)]=3
-           
+
         self.outputs[0].data=flagged_data(psap_lin, psap_lin.times, flag)
         self.outputs[1].data=flagged_data(psap_log, psap_log.times, flag)
         self.outputs[2].data=flagged_data(psap_flow, psap_flow.times, flag)
