@@ -315,8 +315,9 @@ class rio_buck_cr2(cal_base):
     def process(self):
         match=self.dataset.matchtimes(self.input_names[1:])
 
-        buck_mirr_temp=self.dataset['AERACK_buck_mirr_temp'].ismatch(match)       
+        buck_mirr_temp=self.dataset['AERACK_buck_mirr_temp'].ismatch(match)               
         buck_mirr_temp+=273.15 #convert to Kelvin
+        buck_mirr_temp[buck_mirr_temp == 273.15]=-9999.0
         #apply calibration using coefficients from the flight constants file
         p=np.poly1d(self.dataset['BUCK'][::-1])
         buck_mirr_temp=p(buck_mirr_temp)
