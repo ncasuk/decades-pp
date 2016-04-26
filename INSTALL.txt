@@ -16,7 +16,7 @@ The workflow for installation is
 
 (1) pull the repository
     
-    git clone git@77.68.61.13:decades-pp
+    git clone git@213.171.204.22:decades-pp
 
 (2) move into the folder
 
