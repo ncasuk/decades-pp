@@ -233,8 +233,8 @@ class rio_co_mixingratio(cal_base):
         conc_new=(counts-zero_new)/sens_new
 
         # use both cal_status flag and pressure in calibration chamber for indexing calibration time periods
-        cal_status_ix=np.where((cal_status == 1) | (calpress > 3.4))[0]
-        # add buffer to cal_status
+        cal_status_ix=np.where((cal_status == 1) | (calpress > 1.6))[0]
+        # add time buffer to cal_status
         cal_status_buffer=5
         for i in range(cal_status_buffer*-1, cal_status_buffer+1):
             cal_status_ix=list(set(list(np.concatenate((np.array(cal_status_ix), np.array(cal_status_ix)+i)))))
