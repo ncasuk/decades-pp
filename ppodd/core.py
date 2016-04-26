@@ -586,11 +586,12 @@ class timed_data(np.ndarray):
             arr=self.times
         if frequency is None:
             frequency=self.frequency
+        
         try:
             if(indexes1d):
-                return np.squeeze(np.resize(arr,(frequency,len(arr))).T)*frequency+np.arange(frequency)
+                return np.squeeze(np.resize(np.array(arr),(frequency,len(arr))).T)*frequency+np.arange(frequency)
             else:
-                return np.squeeze(np.resize(arr,(frequency,len(arr))).T)
+                return np.squeeze(np.resize(np.array(arr),(frequency,len(arr))).T)
         except:
             return arr
         

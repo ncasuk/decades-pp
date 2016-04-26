@@ -11,15 +11,15 @@ class twc_rio(cal_base):
                           'TWCDAT_twc_srce_temp', 'TWCDAT_twc_evap1','TWCDAT_twc_evap2',                                                  
                           'TWCDAT_twc_srce_i','TWCDAT_twc_evap2_on','TWCDAT_status']
         
-        self.outputs=[parameter('TWC_DET',units='bits',frequency=64,number=664,long_name='Raw data from the TWC probe Lyman alpha detector')
-                     ,parameter('TNOS_CAL',units='DEG K',frequency=1,number=665,long_name='TWC NOSE TEMP')
-                     ,parameter('TWC_TSAM',units='K',frequency=1,number=666,long_name='Sample temperature in Kelvin from the TWC evaporator probe')
-                     ,parameter('TAMB_CAL',units='DEG K',frequency=1,number=667,long_name='TWC AMBIENT TEMP')
-                     ,parameter('TSRC_CAL',units='DEG K',frequency=1,number=668,long_name='TWC SOURCE TEMP')
-                     ,parameter('HTR1_CAL',units='AMPS',frequency=1,number=669,long_name='TWC EVAP1 CURRENT')
-                     ,parameter('HTR2_CAL',units='AMPS',frequency=1,number=670,long_name='TWC EVAP2 CURRENT')
-                     ,parameter('ISRC_CAL',units='AMPS',frequency=1,number=671,long_name='TWC SOURCE CURRENT')
-                     ,parameter('STAT_CAL',units='RBITS',frequency=1,number=672,long_name='TWC STATUS WORD')]
+        self.outputs=[parameter('TWC_DET',units='bits',frequency=64,number=664,long_name='Raw data from the TWC probe Lyman alpha detector'),
+                      parameter('TNOS_CAL',units='DEG K',frequency=1,number=665,long_name='TWC NOSE TEMP'),
+                      parameter('TWC_TSAM',units='K',frequency=1,number=666,long_name='Sample temperature in Kelvin from the TWC evaporator probe'),
+                      parameter('TAMB_CAL',units='DEG K',frequency=1,number=667,long_name='TWC AMBIENT TEMP'),
+                      parameter('TSRC_CAL',units='DEG K',frequency=1,number=668,long_name='TWC SOURCE TEMP'),
+                      parameter('HTR1_CAL',units='AMPS',frequency=1,number=669,long_name='TWC EVAP1 CURRENT'),
+                      parameter('HTR2_CAL',units='AMPS',frequency=1,number=670,long_name='TWC EVAP2 CURRENT'),
+                      parameter('ISRC_CAL',units='AMPS',frequency=1,number=671,long_name='TWC SOURCE CURRENT'),
+                      parameter('STAT_CAL',units='RBITS',frequency=1,number=672,long_name='TWC STATUS WORD')]
         #self.name='TWC'
         self.version=1.00
         cal_base.__init__(self,dataset)
@@ -69,7 +69,7 @@ class twc_rio(cal_base):
         caltsrc=self.dataset['CALTSRC'].data
         calhtr1=self.dataset['CALHTR1'].data
         calhtr2=self.dataset['CALHTR2'].data
-        calisrc=self.dataset['CALISRC'].data
+        calisrc=self.dataset['CALISRC'].data       
         # ranges ( min, max, max rate of change )
         # These should really be in the constants 
         ranges={'TWC_DET':(-9*1024,9*1024,20*1024),
@@ -101,7 +101,8 @@ class twc_rio(cal_base):
             mn,mx,rate=ranges[o.name]
             o.data.flag[o.data<mn]=1
             o.data.flag[o.data>mx]=1
-            rchange=np.append([0],np.abs(np.diff(o.data.ravel())/np.diff(o.data.ravel().times)))
+            #rchange=np.append([0],np.abs(np.diff(o.data.ravel())/np.diff(o.data.ravel().times)))
+            rchange=np.append([0],np.abs(np.diff(np.array(o.data.ravel()))/(1./o.frequency)))
             rchange.shape=o.data.shape
             o.data.flag[rchange>rate]=1
         
