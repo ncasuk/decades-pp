@@ -122,8 +122,15 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
     """
     # create copies of sens and zero calibration coefficients
     sens_new, zero_new = sens[:], zero[:]
+    #fill nan values with previous non-nan value
+    for i in range(1, len(sens_new)):
+        if np.isnan(sens_new[i]):
+            sens_new[i]=sens_new[i-1]
+        if np.isnan(zero_new[i]):
+            zero_new[i]=zero_new[i-1]
     # get calibration periods
     ix=np.where(sens[1:]-sens[:-1] != 0)[0]
+    #ix=np.where(sens[1:] != sens[:-1])[0]
     # remove nan values
     ix=ix[~np.isnan((sens[1:]-sens[:-1])[ix])]
     # ignore the first 100 data points
@@ -131,7 +138,7 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
     # the +2 is a dodgy way to make sure that the values have changed.
     # Apparently the zero and sens parameters do not change at
     # exactly the same time in the data stream
-    ix=[10]+list(ix+2)+[sens.size-2]
+    ix=[10]+list(ix+4)+[sens.size-4]
     # loop over all calibration periods
     for i in range(len(ix)-1):
         ix1=ix[i]
@@ -190,8 +197,12 @@ class rio_co_mixingratio(cal_base):
         cal_status=np.int8(cal_status)
         sens=self.dataset['AL52CO_sens'].data.ismatch(match)
         sens[sens == 0.0]=np.nan
+        #remove outliers: threshold is 25% difference from the overall median
+        sens[np.abs(sens-np.nanmedian(sens)) > 0.25*np.nanmedian(sens)]=np.nan
         zero=self.dataset['AL52CO_zero'].data.ismatch(match)
         zero[zero == 0.0]=np.nan
+        #remove outliers: threshold is 25% difference from the overall median
+        zero[np.abs(zero-np.nanmedian(zero)) > 0.25*np.nanmedian(zero)]=np.nan
         utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
         wow_ind=self.dataset['WOW_IND'].data.ismatch(match)
         #
@@ -256,3 +267,4 @@ class rio_co_mixingratio(cal_base):
         except:
             pass
         self.outputs[0].data=co_aero
+
