@@ -236,6 +236,13 @@ class rio_co_mixingratio(cal_base):
         co_mr*=scaling_factor
 
         counts=co_mr/(1.0/sens)+zero
+        
+        #try flagging erroneous data points        
+        counts[counts == 0]=np.nan
+        ix=np.where((counts-np.roll(counts, 1) < -2000) &
+                    (counts-np.roll(counts, -1) < -2000) &
+                    (counts < np.nanmedian(counts)*0.8))[0]
+        counts[ix]=np.nan
         # calc new interpolated calibration coefficients
         sens_new, zero_new=interpolate_cal_coefficients(utc_time, sens, zero)
 
