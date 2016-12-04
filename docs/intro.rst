@@ -1,16 +1,15 @@
 PPODD: Post Processing Of Decades Data
 
 ==========
-Background
+Intro
 ==========
 
-The core data from the FAAM BAe146, and previously the C-130 have always been calibrated post flight with the TARDIS (*T*ranscription of *A*ircraft *R*aw *D*ata *I*nto *S*cientific units) routines. These are a suite of FORTRAN routines written in a modular way so as each instrument or small group of similar instruments are calibrated with a particular module. Raw data were all recorded in one standard raw data file, and the data were processed one second at a time, and written to an output file of an in house binary format (MRF2 or MRF5). The modules had to be run in a particular order so within the main CALIBRATE.FOR routine an array was set up defining inputs and outputs of each module from whence an order could be calculated.
+The core data from the FAAM BAe146, and previously the C-130 have always been calibrated post flight with the TARDIS (**T**ranscription of **A**ircraft **R**aw **D**ata **I**nto **S**cientific units) routines. These are a suite of FORTRAN routines written in a modular way so as each instrument or small group of similar instruments are calibrated with a particular module. Raw data were all recorded in one standard raw data file, and the data were processed one second at a time, and written to an output file of an in house binary format (MRF2 or MRF5). The modules had to be run in a particular order so within the main CALIBRATE.FOR routine an array was set up defining inputs and outputs of each module from whence an order could be calculated.
 
 For FAAM it was decided to output in the more standard NetCDF so routines were written to convert the format, but leaving the basic output as MRF5. There has also been a need to include data not recorded by the standard DRS (data recording system), and hence in a different raw format. PSAP photometer, Buck hygrometer and notably the GIN (combined GPS and inertial navigation system) had to be squeezed in after the main processing. The GIN in particular had to be merged into the output dataset, and then parts of the processing re-run to calculate winds.
 
 The interactive side of the processing was abandoned with the move to processing on Linux rather than the original VMS. Some data still couldn't be calculated one second at a time, notably the Total Water Content, which needs to be fitted against another hygrometer for all or part of the flight. These extra routines were written in PVwave/IDL and run after the rest of the code. 
 
-======
 Motive
 ======
 
@@ -21,7 +20,6 @@ The main reason for changing the code is the arrival of a new data recording sys
 * Reliance on old in house data formats, which were designed for a different operating system.
 * There is a mix of input data formats, so having the main processing relying on just one format means all the other data have to be treated as bolt ons. 
 
-============
 Initial Plan
 ============
 
@@ -33,7 +31,7 @@ Internal data will be in numpy arrays, with associated timestamps. Matching thes
 
 Modules will be written to read in both new, and old format data for comparison purposes, and a limited level of backwards compatibility. However not every older data format has been ported, but should the need arise new modules can be added.
 
-==============
+
 Implementation
 ==============
 

@@ -43,8 +43,6 @@ There are various options to select which modules to use, which parameters to ca
       
 The output can be at 1Hz or full frequency, or both with the -w,--write option. The -o, --output option chooses the folder or the full file name of the output (if not chosen, the default folder is $NCDATA, and the default file name created from the flight number and date as prescribed by BADC).
 
-
-=========
 PPODD GUI
 =========
 

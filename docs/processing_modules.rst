@@ -5,7 +5,7 @@ Processing Modules
 
 Like previous versions the processing is divided up in to a collection of modules. Each one will most likely deal with one instrument, or small group thereof. The modules can also perform more basic functions ( eg. Unzipping files ), what they have in common is identified inputs and outputs, and a run method to go from one to the other.
 
-The standard modules are all stored in the package ppodd.pod. For the most common uses, these need not be changed, but there will be new instruments, changes to existing, and even bugs found in the current.  These are the basis of any processing, but there is facility to amend these or add in modules from elsewhere. Within ppodd.pod each module with a name with p_* is assumed to contain a class *. These are placed in the dictionary ppodd.pod.modules which the decades_dataset will load into it's own modules attribute.
+The standard modules are all stored in the package ppodd.pod. For the most common uses, these need not be changed, but there will be new instruments, changes to existing, and even bugs found in the current.  These are the basis of any processing, but there is facility to amend these or add in modules from elsewhere. Within ppodd.pod each module with a name with p\_\* is assumed to contain a class. These are placed in the dictionary ppodd.pod.modules which the decades_dataset will load into it's own modules attribute.
 
 There are three basic types of module.
 
@@ -46,7 +46,7 @@ An example of a test module sub-classing from cal_base::
             pote.flag[t1.flag>p1.flag]=t1.flag[t1.flag>p1.flag]
             self.outputs[0].data=pote
     
-""" An example of how to add a module for testing before being added to the main processing suite in ppodd.pod """
+    """ An example of how to add a module for testing before being added to the main processing suite in ppodd.pod """
 
     import ppodd.pod
     
