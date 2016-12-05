@@ -110,6 +110,7 @@ Saving as output.nc""")
         times = self.coredata.createVariable('Time','i4',('Time',),fill_value=flag_fill)
         times.long_name='time of measurement'
         times.standard_name='time'
+        times.calendar='gregorian'
         try:
             times.units='seconds since %4.4i-%2.2i-%2.2i 00:00:00 +0000' % tuple(self.dataset['DATE'][-1::-1])
         except KeyError:
