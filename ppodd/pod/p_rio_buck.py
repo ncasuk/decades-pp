@@ -286,9 +286,16 @@ def get_flag(buck_mirr_flag, buck_dewpoint_flag):
 
 
 class rio_buck_cr2(cal_base):
-    """Routine to process data from the BUCK CR2 Hygrometer.
-
     """
+Processing of the BUCK CR2 data
+
+:Output:
+  | VMR_CR2 - Water vapour volume mixing ratio measured by the Buck CR2 
+  | VMR_C_U - Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2
+  | TDEW_CR2 - Mirror Temperature measured by the Buck CR2 Hygrometer
+  | TDEW_C_U - Uncertainty estimate for Buck CR2 Mirror Temperature'
+"""
+
 
     def __init__(self,dataset):
         """AERACK_buck_ppm: raw ppm reading for the buck hygrometer

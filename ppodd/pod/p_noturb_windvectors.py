@@ -14,10 +14,14 @@ def add_hdg_offset(hdg, hdg_offset):
 
 
 def correct_tas_rvsm(tas_rvsm, dit, tas_scale_factor=None):
-    """Correcting true airspeed measurement for temperature effect.
-       dit is the deiced temperature measurements.
+    """
+    Correcting true airspeed measurement for temperature effect.
+    dit is the deiced temperature measurements.
 
-       see: http://en.wikipedia.org/wiki/Airspeed
+    see: http://en.wikipedia.org/wiki/Airspeed
+    :param tas_rvsm: True Air Speed from the flight computer
+    :param dit: deiced temperature
+    :param tas_scale_factor: Correction factor for the true air speed
 
     """
     if not tas_scale_factor:
@@ -30,10 +34,11 @@ def correct_tas_rvsm(tas_rvsm, dit, tas_scale_factor=None):
 
 def calc_noturb_wspd(tas_rvsm, hdg_gin, gspd_north, gspd_east, dit, hdg_offset=None, tas_scale_factor=None):
 
-    """calculates u and v as the aircraft does it
+    """
+    Calculates u and v as the aircraft does it
 
-       see: http://delphiforfun.org/programs/Math_Topics/WindTriangle.htm
-            http://www.pilotfriend.com/training/flight_training/nav/calcs.htm
+    see: http://delphiforfun.org/programs/Math_Topics/WindTriangle.htm
+         http://www.pilotfriend.com/training/flight_training/nav/calcs.htm
 
     """
     if hdg_offset:
@@ -53,7 +58,8 @@ def calc_noturb_wspd(tas_rvsm, hdg_gin, gspd_north, gspd_east, dit, hdg_offset=N
 
 
 def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, roll_threshold=None):
-    """uses the flags for the variables that are used to calculate the
+    """
+    uses the flags for the variables that are used to calculate the
     noturb winds. noturb wind speeds are invalid in turns. This is taken care of
     by flagging those values using a roll_threshold (default=1.5)
 
@@ -72,11 +78,11 @@ def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, 
                          roll_gin*0+3)
 
     flag_data = np.column_stack((tas_rvsm_flag,
-                            hdg_gin_flag,
-                            gspd_north_flag,
-                            gspd_east_flag,
-                            dit_flag,
-                            roll_flag))
+                                 hdg_gin_flag,
+                                 gspd_north_flag,
+                                 gspd_east_flag,
+                                 dit_flag,
+                                 roll_flag))
     flag_data = np.max(flag_data, axis=1)
     flag_data[flag_data < 0] = 3
     flag_data[flag_data > 3] = 3
@@ -85,7 +91,29 @@ def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, 
 
 
 class noturb_windvectors(cal_base):
-    """ """
+    """
+    Calculation of windvectors that do not rely on the turbulence probe in the radom of the aircraft. The data are
+    espially useful in icing conditions, when the 
+
+:Input:
+  | VELE_GIN
+  | VELN_GIN
+  | HDG_GIN
+  | TAT_DI_R
+  | TAS_RVSM
+  | ROLL_GIN
+
+
+    tas_scale_factor = 0.9984
+    
+:Flagging:
+  The flag is inherited from the input data. The flag is the worst from all the Input
+  variables. In addtion to this all a roll angle threshold is used, which is set by default
+  to 1.5 degrees. All values with a absolute greater roll value than this is flagged "3".
+
+
+     
+    """
     def __init__(self,dataset):
         #print('   *** ADD NOTURB WINDVECTORS - INIT ***')
         self.input_names=['VELE_GIN', 'VELN_GIN', 'HDG_GIN', 'TAT_DI_R', 'TAS_RVSM', 'ROLL_GIN']
@@ -128,9 +156,3 @@ class noturb_windvectors(cal_base):
         v_noturb=flagged_data(v_noturb_data, tas_rvsm.times, flag_data)
         self.outputs[0].data=u_noturb
         self.outputs[1].data=v_noturb
-
-
-
-
-
-

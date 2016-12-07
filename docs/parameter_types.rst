@@ -15,9 +15,6 @@ Data types
 
 There are three main data types defined. They may in the future, be rewritten using some parts of the standard pandas library, as some of the functionality is similar. 
 
-timestamp
-=========
-
 The basis of the timed data classes. It is an ndarray with some extra functionality. 
 * Can hold a frequency value, and has methods to calculate times at different frequencies
 * Can match itself to other times

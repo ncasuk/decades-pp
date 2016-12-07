@@ -1,17 +1,18 @@
 from ppodd.core import *
 class rio_sols(fort_cal):
     """
-FORTRAN routine C_SOLS
------------------------------------------------------------------------------
- ROUTINE      C_SOLS    SUBROUTINE  FORTVAX
+:ROUTINE:
+  C_SOLS    SUBROUTINE  FORTVAX
 
- PURPOSE     CALIBRATE  PYRANOMETER & PYRGEOMETER RAW SIGNALS AND THERMISTORS.
+:PURPOSE:
+  CALIBRATE  PYRANOMETER & PYRGEOMETER RAW SIGNALS AND THERMISTORS.
 
- DESCRIPTION  Apply calibration coefficients to RAW parameters 81-89 and 91-99
-	       to obtain uncorrected values of signal flux, zero offset signal
-              (W/m-2) and thermistor output (deg K)  for  each  of  the 
-              upward-facing and downward-facing sets of: clear dome & red dome
-              pyranometers and pyrgeometer.
+:DESCRIPTION:
+  Apply calibration coefficients to RAW parameters 81-89 and 91-99
+  to obtain uncorrected values of signal flux, zero offset signal
+  (W/m-2) and thermistor output (deg K)  for  each  of  the 
+  upward-facing and downward-facing sets of: clear dome & red dome
+  pyranometers and pyrgeometer.
 
  NOTE             The actual configuration is specified by the array
                   ICONF, which has six elements whose meaning interpreted as:
@@ -35,100 +36,96 @@ FORTRAN routine C_SOLS
                   values for a red dome - rather than clear dome - pyranometer.
                   and should be range-checked for that type of output only.
 
- METHOD       For each RAW parameter to be calibrated, for the six instruments:
+:METHOD:
+  For each RAW parameter to be calibrated, for the six instruments:
+    1. Check all its required constants are present (Flag <3)
+       (if not, the calibration of that parameter will not proceed)
+       [Also check that the normal configuration of instruments is to
+       be used. Any changes are indicated by the presence of a large
+       offset to the second calibration constant for any instrument.
+       If this is present the offset is decoded to generate a revised
+       ICONF indicator for that instrument. See note below.]
+    2. Obtain the raw signal/zero value and float the result.
+    3. Calibrate by applying the appropriate instrument cal in RCALB
+       (which is loaded from the RCONST arguments) to both raw 
+       signal flux and zero offset, which  use the same coefficients
+       The gains are in W/m-2 /DRS count. DRS counts are related
+       to radiometer output Voltage.
+       Note that the output Voltage from the instrument  is the
+       value after being amplified by the head amplifier.
+    4. Range check and Rate-of-change check: (S/R QCPT)
+       | the calibrated signal (Wm-2)
+       | Zero offset           (DRS units)
+       | temperature           (deg K)  
+   
+    5. Calibrate the thermistor input using two RCALB coefficients.
+       Add 273.15 deg to thermistor results to express the 
+       instrument thermopile temperature in degrees Kelvin.
+    6. Check the result is within pre-defined limits
+    7. Set the calibrated values flag bits (16+17) as follows:
+         0: Good data  
+         1: Data of lower quality
+         2: Data probably faulty, exceeding limits
+         3: Data absent or known to be invalid.
 
-              1. Check all its required constants are present (Flag <3)
-                 (if not, the calibration of that parameter will not proceed)
-                 [Also check that the normal configuration of instruments is to
-                 be used. Any changes are indicated by the presence of a large
-                 offset to the second calibration constant for any instrument.
-                 If this is present the offset is decoded to generate a revised
-                 ICONF indicator for that instrument. See note below.]
-              2. Obtain the raw signal/zero value and float the result.
-              3. Calibrate by applying the appropriate instrument cal in RCALB
-                 (which is loaded from the RCONST arguments) to both raw 
-                 signal flux and zero offset, which  use the same coefficients
-                 The gains are in W/m-2 /DRS count. DRS counts are related
-                 to radiometer output Voltage.
-                 Note that the output Voltage from the instrument  is the
-                 value after being amplified by the head amplifier.
-              4. Range check and Rate-of-change check: (S/R QCPT)
-                 - the calibrated signal (Wm-2)
-                 - Zero offset           (DRS units)
-                 - temperature           (deg K)  
+:VERSION:
+  1.04 250692   A D HENNINGS
 
-              5. Calibrate the thermistor input using two RCALB coefficients.
-                 Add 273.15 deg to thermistor results to express the 
-                 instrument thermopile temperature in degrees Kelvin.
-              6. Check the result is within pre-defined limits
-              7. Set the calibrated values flag bits (16+17) as follows:
-                         0: Good data  
-                         1: Data of lower quality
-                         2: Data probably faulty, exceeding limits
-                         3: Data absent or known to be invalid.
+:ARGUMENTS:
+  |     RCONST(1)  - REAL*4 IN  Upper Clear dome Signal & Zero const.
+  | \*  RCONST(2)  - REAL*4 IN  Upper Clear dome Signal & Zero gain.
+  |     RCONST(3)  - REAL*4 IN  Upper Clear dome Thermistor: constant
+  |     RCONST(4)  - REAL*4 IN  Upper Clear dome Thermistor: coeff x.
+  |     RCONST(5)  - REAL*4 IN  Upper Red   dome Signal & Zero const.
+  | \*  RCONST(6)  - REAL*4 IN  Upper Red   dome Signal & Zero gain.
+  |     RCONST(7)  - REAL*4 IN  Upper Red   dome Thermistor: constant
+  |     RCONST(8)  - REAL*4 IN  Upper Red   dome Thermistor: coeff x.
+  |     RCONST(9)  - REAL*4 IN  Upper I/R   dome Signal & Zero const.
+  | \*  RCONST(10) - REAL*4 IN  Upper I/R   dome Signal & Zero gain.
+  |     RCONST(11) - REAL*4 IN  Upper I/R   dome Thermistor: constant
+  |     RCONST(12) - REAL*4 IN  Upper I/R   dome Thermistor: coeff x.
+  |     RCONST(13) - REAL*4 IN  Lower Clear dome Signal & Zero const.
+  | \*  RCONST(14) - REAL*4 IN  Lower Clear dome Signal & Zero gain.
+  |     RCONST(15) - REAL*4 IN  Lower Clear dome Thermistor: constant
+  |     RCONST(16) - REAL*4 IN  Lower Clear dome Thermistor: coeff x.
+  |     RCONST(17) - REAL*4 IN  Lower Red   dome Signal & Zero const.
+  | \*  RCONST(18) - REAL*4 IN  Lower Red   dome Signal & Zero gain.
+  |     RCONST(19) - REAL*4 IN  Lower Red   dome Thermistor: constant
+  |     RCONST(20) - REAL*4 IN  Lower Red   dome Thermistor: coeff x.
+  |     RCONST(21) - REAL*4 IN  Lower I/R   dome Signal & Zero const.
+  | \*  RCONST(22) - REAL*4 IN  Lower I/R   dome Signal & Zero gain.
+  |     RCONST(23) - REAL*4 IN  Lower I/R   dome Thermistor: constant
+  |     RCONST(24) - REAL*4 IN  Lower I/R   dome Thermistor: coeff x.
+  |     (*  also contains an offset evaluated to ICONF() ).
 
- VERSION      1.04 250692   A D HENNINGS
-
- ARGUMENTS       RCONST(1)  - REAL*4 IN  Upper Clear dome Signal & Zero const.
-              *  RCONST(2)  - REAL*4 IN  Upper Clear dome Signal & Zero gain.
-                 RCONST(3)  - REAL*4 IN  Upper Clear dome Thermistor: constant
-                 RCONST(4)  - REAL*4 IN  Upper Clear dome Thermistor: coeff x.
-                 RCONST(5)  - REAL*4 IN  Upper Red   dome Signal & Zero const.
-              *  RCONST(6)  - REAL*4 IN  Upper Red   dome Signal & Zero gain.
-                 RCONST(7)  - REAL*4 IN  Upper Red   dome Thermistor: constant
-                 RCONST(8)  - REAL*4 IN  Upper Red   dome Thermistor: coeff x.
-                 RCONST(9)  - REAL*4 IN  Upper I/R   dome Signal & Zero const.
-              *  RCONST(10) - REAL*4 IN  Upper I/R   dome Signal & Zero gain.
-                 RCONST(11) - REAL*4 IN  Upper I/R   dome Thermistor: constant
-                 RCONST(12) - REAL*4 IN  Upper I/R   dome Thermistor: coeff x.
-                 RCONST(13) - REAL*4 IN  Lower Clear dome Signal & Zero const.
-              *  RCONST(14) - REAL*4 IN  Lower Clear dome Signal & Zero gain.
-                 RCONST(15) - REAL*4 IN  Lower Clear dome Thermistor: constant
-                 RCONST(16) - REAL*4 IN  Lower Clear dome Thermistor: coeff x.
-                 RCONST(17) - REAL*4 IN  Lower Red   dome Signal & Zero const.
-              *  RCONST(18) - REAL*4 IN  Lower Red   dome Signal & Zero gain.
-                 RCONST(19) - REAL*4 IN  Lower Red   dome Thermistor: constant
-                 RCONST(20) - REAL*4 IN  Lower Red   dome Thermistor: coeff x.
-                 RCONST(21) - REAL*4 IN  Lower I/R   dome Signal & Zero const.
-              *  RCONST(22) - REAL*4 IN  Lower I/R   dome Signal & Zero gain.
-                 RCONST(23) - REAL*4 IN  Lower I/R   dome Thermistor: constant
-                 RCONST(24) - REAL*4 IN  Lower I/R   dome Thermistor: coeff x.
-             (*  also contains an offset evaluated to ICONF() ).
-
-                 IFRQ(par)  _ INT*4  IN  Input frequency of each sample. 
-                 IRAW(n,par)- INT*4  IN  Raw instrument voltage conversion.
-                                         (samples n=1; par=81-89, 91-99)
-                 RDER(op,opar)REAL*4 OUT Raw flux signal, zero-offset signal
-                                         and instrument temperature.
-                                         (samples op=1; opar=673-690)
+  | IFRQ(par)  _ INT*4  IN  Input frequency of each sample. 
+  | IRAW(n,par)- INT*4  IN  Raw instrument voltage conversion. (samples n=1; par=81-89, 91-99)
+  | RDER(op,opar)REAL*4 OUT Raw flux signal, zero-offset signal and instrument temperature. (samples op=1; opar=673-690)
 
 
- SUBPROGRAMS  ITSTFLG, ISETFLG
+:SUBPROGRAMS:
+  ITSTFLG, ISETFLG
+ 
 
- FILES        none
+:REFERENCES:
+  Equations from MRF Instrument section.
 
- REFERENCES   Equations from MRF Instrument section.
-
- CHANGES      020490 Revised  range limits introduced.                 ADH
-              100191                                                   ADH
-                     a) Range limits revised to allow for Pyranometer changes
-               "     b) New arrays to hold raw input, constants etc for
-                        more straightforward indexing.
-               "     c) Include ICONF to aid reconfiguring instrument types.
-              010891 Range limits for ZERO now in terms of DRS units, revised
-                     limits in Wm-2 for signal.
-              030292 Rates of change checks instituted on all BBR inputs.  ADH
-              120698 Bug fixed in quality control processing when using non-
-                     standard configurations. MDG/WDNJ
-              270600 I/R signal maximum increased to stop flagging good data
-                     value arbitary, as no explanation of numbers found.
-                     1050. > 1500. DAT
-              V1.06  02/10/02  Changed to use 16 bit DRS data.
-              V1.07  27/11/02  Now takes X0 sensitivity constant as well as X1
-              V1.08  22/07/04  Bug so doesn't crash if first data flagged 3
-              V1.09  13/08/04  Quality Control zero limits increased for 
-                               16 bit data
-------------------------------------------------------------------------------
+:CHANGES:
+  020490 Revised  range limits introduced.                 ADH
+  100191                                                   ADH
+    a) Range limits revised to allow for Pyranometer changes
+    b) New arrays to hold raw input, constants etc for more straightforward indexing.
+    c) Include ICONF to aid reconfiguring instrument types.
+  010891 Range limits for ZERO now in terms of DRS units, revised limits in Wm-2 for signal.
+  030292 Rates of change checks instituted on all BBR inputs.  ADH
+  120698 Bug fixed in quality control processing when using non-
+    standard configurations. MDG/WDNJ
+  270600 I/R signal maximum increased to stop flagging good data
+    value arbitary, as no explanation of numbers found. 1050. > 1500. DAT
+  V1.06  02/10/02  Changed to use 16 bit DRS data.
+  V1.07  27/11/02  Now takes X0 sensitivity constant as well as X1
+  V1.08  22/07/04  Bug so doesn't crash if first data flagged 3
+  V1.09  13/08/04  Quality Control zero limits increased for 16 bit data
 
 """
     def __init__(self,dataset):

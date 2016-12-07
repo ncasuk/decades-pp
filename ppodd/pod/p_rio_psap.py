@@ -1,7 +1,34 @@
+# -*- coding: utf-8 -*-
+
 from ppodd.core import *
 
 class rio_psap(cal_base):
+    """
+    PSAP processing module
+    
+    :Input:
+      | AERACK_psap_flow
+      | AERACK_psap_lin
+      | AERACK_psap_log
+      | AERACK_psap_transmission
 
+    :Output:
+      | PSAP_LIN - Uncorrected absorption coefficient at 565nm, linear, from PSAP
+      | PSAP_LOG - Uncorrected absorption coefficient at 565nm, log, from PSAP
+      | PSAP_FLO - PSAP Flow
+      | PSAP_TRA - SAP Transmittance
+
+    :Flagging:
+      using flow and transmission thresholds
+      flag[(psap_transmission<0.5) | (psap_transmission>1.05)]=1
+      ix=np.where(psap_flow < 1.0)[0]
+      #add two second buffer to the index
+      ix=np.unique(np.array([list(ix+i) for i in range(-2,3)]))
+      ix=ix[(ix >= 0) & (ix < n-1)]
+      flag[ix]=2
+      flag[((psap_transmission<0.5) | (psap_transmission>1.05)) & (psap_flow<1.0)]=3
+    """
+    
     def __init__(self,dataset):
         self.input_names=['AERACK_psap_flow',
                           'AERACK_psap_lin',
@@ -15,7 +42,6 @@ class rio_psap(cal_base):
 
         self.version=1.00
         cal_base.__init__(self,dataset)
-
 
     def process(self):
         match=self.dataset.matchtimes(self.input_names)

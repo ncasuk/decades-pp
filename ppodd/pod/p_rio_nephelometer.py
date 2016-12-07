@@ -65,7 +65,22 @@ def create_nephelometer_flag(aerack_neph_status):
 
 
 class rio_nephelometer(cal_base):
+    """
+    No processing is done to the data that are recorded and streamed
+    by the RIO modules. However, the units of the scatter values are converted
+    from megameters-1 to meters-1 and the flags are set using the AERACk_neph_status
+    parameter.
+        
+    The status flag definition is described in the TSI 3563
+    manual on page 6-24.
+    
+    The flagging is done for the:
+      1. scattering values
+      2. the relative
+      3. temperature
+      4. pressure measurements.
 
+    """
     def __init__(self,dataset):
         self.input_names=['AERACK_neph_total_blue',
                           'AERACK_neph_total_green',

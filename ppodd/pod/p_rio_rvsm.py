@@ -4,83 +4,91 @@ from scipy.interpolate import interp1d
 
 class rio_rvsm(cal_base):
     """
-FORTRAN routine C_TPRESS
+:ROUTINE:
+  C_RVSM SUBROUTINE FORTVAX
+    
+:PURPOSE:
+  Computes static pressure, pitot-static pressure, and pressure
+  height from the 146 RVSM altitude and airspeed data.
 
- ROUTINE          C_TPRESS SUBROUTINE FORTVAX
-     
- PURPOSE          Calibrates the five turbulence probe pressure transducers
-                  into mb.
+:DESCRIPTION:
+  RVSM altitude is available in ARINC-429 message 203 and is
+  recorded as by the DRS as a 16 bit signed word, with the 
+  LSB representing 4 feet.
 
- DESCRIPTION      Apply calibration the combined transducer and DRS 
-                  coefficients to DRS parameters 215 to 219 to obtain derived
-                  parameters 773 to 777.  Invalid data is flagged with 3, data
-                  outside limits is flagged with 2.
+  RVSM computed airspeed is available in ARINC-429 message
+  206 and is recorded by the DRS as a 16 bit signed word, with
+  the LSB representing 1/32 kt, but always zero.
 
- METHOD           For each DRS parameter to be calibrated:
-                  1. If data is FFFF or FFFE then flag 3
-                  2. Apply the calibration constants
-                  3. Check the results for being within acceptable values.
-                  4. Set data flag bits (16+17) 0: Good data
-                                                1: Data of lower quality
-                                                2: Probably faulty, exceed lims
-                                                3: Data absent or invalid.
+  These values should be within the system accuracy
+  specification and do not require calibration.
 
-                  Flagging - If a value can't be computed, due to missing data
-                  missing constants, divide be zeroes, etc, a value of 0 is
-                  used, flagged with a three.  If a value is outside its 
-                  limits for range or rate of change, it is flagged with a two.
-                  If there are no problems with the data it is flagged with 0.
+  Note that altitude is updated by the RVSM at about 20 Hz
+  and airspeed is updated at about 10 Hz.  Both signals are
+  sampled by the DRS at 32 Hz so there will be multiple
+  values and aliasing effects.
 
- VERSION          1.00  23/07/03  W.D.N.JACKSON
+:METHOD:
+  For each DRS parameter to be calibrated:
+  1. If data is FFFF or FFFE or out of range then flag 3
+  2. Decode the altitude and use the tables in NASA TN D-822
+     to back compute the static pressure.
+  3. Decode the airspeed and use fundamental equations to 
+     compute pitot-static pressure.
+  4. Check the results for being within acceptable values.
+  5. Set data flag bits (16+17)
+    | 0: Good data
+    | 1: Data of lower quality
+    | 2: Probably faulty, exceed lims
+    | 3: Data absent or invalid.
 
- ARGUMENTS        Inputs:
-                    DRS para 215 TBP1 32 Hz Turbulence probe centre port
-                        para 216 TBP2 32 Hz Turbulence probe attack ports
-                        para 217 TBP3 32 Hz Turbulence probe sideslip ports
-                        para 218 TBP4 32 Hz Turbulence probe attack check
-                        para 219 TBP5 32 Hz Turbulence probe sideslip check
-
-                  Constants:
-                        RCONST(1 to 4) Para 215 cal constants X0 to X3
-                        RCONST(5 to 8) Para 216 cal constants X0 to X3
-                        RCONST(9 to 12) Para 217 cal constants X0 to X3
-                        RCONST(13 to 14) Para 218 cal constants X0 to X1
-                        RCONST(15 to 16) Para 219 cal constants X0 to X1
-
-                  Outputs:
-                    Derived para 773 TBP0 mb 32 Hz Centre pressure
-                            para 774 TBPA mb 32 Hz Attack pressure
-                            para 775 TBPB mb 32 Hz Sideslip pressure
-                            para 776 TBPC mb 32 Hz Attack check pressure
-                            para 777 TBPD mb 32 Hz Sideslip check pressure
-
-                  Flags:
-                    Missing/corrupt data output as 0 flagged 3.
-                    Out of range data flagged 2.
-
- SUBPROGRAMS      ISETFLG 
-
- REFERENCES       
-
- CHANGES          V1.00 23/07/03  WDNJ Original version
-                  Note that V1.00 has no limit checking and no use is made of
-                  the check pressures.
-                  V1.01 25/03/04  WDNJ
-                  Now takes third order calibration constants for the main
-                  transducers, and first order for the check transducers.
-                  V1.02 26/01/06 Phil Brown
-                  Realistic min/max values provided for centre-port, Pa, Pb
-                  for flagging purposes. Values alsoe provided for check
-                  pressures Ca, Cb based on current (and probably wrong)
-                  calibration coefficients.
-                  V1.03 09/02/11 Axel Wellpott
-                  From an email from Phil Brown: "The P0-S10 differential pressure
-                  (para 773) is flagged 2 if it exceeds 130.0 hPa. This is easily 
-                  exceeded when we do acceleration to max speed (min Angle of Attack)
-                  so all the subsequent parameters calculated n C_TURB.for end up with a
-                  flag-3 saetting. I reckon a better value would be 180.0 hPa."
-
-*******************************************************************************
+  Flagging - If a value can't be computed, due to missing data
+  missing constants, divide be zeroes, etc, a value of 0 is
+  used, flagged with a three.  If a value is outside its                                                                                                          
+  limits for range, it is flagged with a two.                                                                                                                     
+  If there are no problems with the data it is flagged with 0.                                                                                                    
+  Any flags on input data are propagated through subsequent                                                                                                       
+  calculations.                                                                                                                                                   
+                                                                                                                                                                  
+  Note that routine does not currently apply position error                                                                                                       
+  corrections, nor interpolate missing data.                                                                                                                      
+                                                                                                                                                                                 
+:VERSION:
+  1.00  23/07/03  W.D.N.JACKSON                                                                                                                                   
+                                                                                                                                                                                 
+:ARGUMENTS:
+  :Inputs:                                                                                                                                                         
+  | DRS para 222 RVAL 32 Hz RVSM altitude                                                                                                                         
+  |     para 223 RVAS 32 Hz RVSM computed airspeed                                                                                                                
+                                                                                                                                                                                 
+  :Outputs:                                                                                                                                                        
+  | Derived para 576 SPR  mb 32 Hz Static pressure                                                                                                                
+  |         para 577 PSP  mb 32 Hz Pitot-static pressure                                                                                                          
+  |         para 578 PHGT m  32 Hz Pressure height                                                                                                                
+                                                                                                                                                                               
+  :Flags:                                                                                                                                                          
+  | Missing/corrupt data output as 0 flagged 3.                                                                                                                   
+  | Out of range derived data flagged 2.                                                                                                                          
+                                                                                                                                                                                 
+:SUBPROGRAMS:
+  S_PSP, ALT2PRESS, ISETFLG                                                                                                                                       
+                                                                                                                                                                                 
+:REFERENCES:
+  NASA Technical Note D-822, Aug 1961, Tables of airspeed, altitude, and mach number.                                                                                                                                      
+                                                                                                                                                                                 
+  Interface Control Document, Air Data Display Unit, ISS 1G-80130-22.                                                                                                                                                    
+                                                                                                                                                                                 
+:CHANGES:
+  V1.00 23/07/03  WDNJ
+    Original version                                                                                                                           
+  V1.01 23/10/03  WDNJ
+    Now replicates data when missing                                                                                                           
+  V1.02 11/12/03  WDNJ
+    Fixes bug if initial data missing                                                                                                          
+  V1.03 11/03/04  DAT
+    Flags data outside altitude range 3                                                                                                         
+  V1.04 17/03/04  WDNJ
+    Now handles negative heights correctly and uses more accurate flagging criteria
 
 """
     def __init__(self,dataset):

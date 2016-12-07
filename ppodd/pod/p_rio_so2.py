@@ -3,10 +3,11 @@ from ppodd.core import *
 
 
 class rio_so2_mixingratio(cal_base):
-    """Routine to extract SO2 concentration from the SO2-TECO analyser.
+    """
+    Routine to extract SO2 concentration from the SO2-TECO analyser.
 
-    TODO:
-    So far no flagging implemented
+    This routine is not used at the moment because the SO2 data drift and the data needs to be processed before they
+    can make it into the faam core netCDF.
     
     """
 

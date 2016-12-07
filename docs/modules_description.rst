@@ -3,6 +3,9 @@
 List of Modules
 ===============
 
+.. autoclass:: ppodd.pod.doc_test.A
+
+.. autoclass:: ppodd.pod.p_rio_geneas.rio_geneas
 .. autoclass:: ppodd.pod.p_rio_buck.rio_buck_cr2
 .. autoclass:: ppodd.pod.p_rio_comr.rio_co_mixingratio
 .. autoclass:: ppodd.pod.p_rio_cpc.rio_cpc
@@ -26,5 +29,7 @@ List of Modules
 
 
    
+
+
 
 

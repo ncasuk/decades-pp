@@ -4,12 +4,26 @@ import numpy as np
 from ppodd.core import *
 
 
+
 class rio_cpc(cal_base):
-    """Routine to process CPC (Condensation Particle Counter) data from the TSI 3786 instrument.
-    
+    """
+Routine for processing the data from the CPC (Condensation Particle Counter) instrument TSI 3786. T
+
+:Flagging:
+  | 0 – Data OK
+  | 1 = Saturator temperature more than 6 degrees C, Growth or Optics Temp more/less than 10% from prescribed value
+  | 2 = Aerosol (Sample) flow more/less than 10% from prescribed value
+  | 3 = Sheath flow more/less than 10% from prescribed value
+        
+:output:    
+  CPC_CNTS
     """
 
     def __init__(self,dataset):
+        """
+        :param dataset: Dataset that should be processed
+        :type dataset: decades_dataset
+        """
         self.input_names=['CPC378_utc_time',
                           'CPC378_counts',
                           'CPC378_sample_flow',
