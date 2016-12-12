@@ -49,15 +49,20 @@ FORTRAN routine C_GSUN
 
 :CHANGES:
   01 Range checks for input data now done in S_SUN RWS 30/10/90
+  
   1.02 Check added if time RSECS has reached midnight and
-    if so to reduce RSECS to less than 86400 s and increase
-    the date.  JAS 1/5/92
+  if so to reduce RSECS to less than 86400 s and increase
+  the date.  JAS 1/5/92
+  
   1.03 Following the demise of the Omega, now uses INU position
-       for flights after 30/09/97.  Note that this routine is
-       now always called by CALIBRATE, even if neither Omega or
-       INU were available.  WDNJ 20/10/97
+  for flights after 30/09/97.  Note that this routine is
+  now always called by CALIBRATE, even if neither Omega or
+  INU were available.  WDNJ 20/10/97
+  
   1.04 Now strips flags from data before use.  WDNJ 22/12/97
+  
   1.05 Can take GIN input 05/09/07
+  
   1.06 Changes made how lon/lat input is derived AxW 29/03/10
 """
 

@@ -30,6 +30,7 @@ class rio_rvsm(cal_base):
 
 :METHOD:
   For each DRS parameter to be calibrated:
+  
   1. If data is FFFF or FFFE or out of range then flag 3
   2. Decode the altitude and use the tables in NASA TN D-822
      to back compute the static pressure.
@@ -80,15 +81,19 @@ class rio_rvsm(cal_base):
                                                                                                                                                                                  
 :CHANGES:
   V1.00 23/07/03  WDNJ
-    Original version                                                                                                                           
+  Original version                                                                                                                           
+  
   V1.01 23/10/03  WDNJ
-    Now replicates data when missing                                                                                                           
+  Now replicates data when missing                                                                                                           
+  
   V1.02 11/12/03  WDNJ
-    Fixes bug if initial data missing                                                                                                          
+  Fixes bug if initial data missing                                                                                                          
+  
   V1.03 11/03/04  DAT
-    Flags data outside altitude range 3                                                                                                         
+  Flags data outside altitude range 3                                                                                                         
+  
   V1.04 17/03/04  WDNJ
-    Now handles negative heights correctly and uses more accurate flagging criteria
+  Now handles negative heights correctly and uses more accurate flagging criteria
 
 """
     def __init__(self,dataset):

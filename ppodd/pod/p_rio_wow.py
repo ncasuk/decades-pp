@@ -2,7 +2,18 @@ from ppodd.core import *
 
 
 class rio_weight_on_wheels(cal_base):
-    """Weight on wheels flag; 1 indicates on the ground; 0 in the air
+    """
+Weight on wheels indicator
+
+:DESCRIPTION:    
+  | 1 aircraft is on the ground
+  | 0 aircraft is in the air
+  
+:FLAGGING:    
+  No flagging done for this variable. Dummy flag
+  added to core netCDF for consistency. A lot of
+  code will expect a _FLAG variable for each every
+  variable in the dataset.
 
     """
 

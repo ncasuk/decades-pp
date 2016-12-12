@@ -3,8 +3,6 @@
 List of Modules
 ===============
 
-.. autoclass:: ppodd.pod.doc_test.A
-
 .. autoclass:: ppodd.pod.p_rio_geneas.rio_geneas
 .. autoclass:: ppodd.pod.p_rio_buck.rio_buck_cr2
 .. autoclass:: ppodd.pod.p_rio_comr.rio_co_mixingratio
@@ -25,6 +23,10 @@ List of Modules
 .. autoclass:: ppodd.pod.p_rio_temps.rio_temps
 .. autoclass:: ppodd.pod.p_rio_tpress.rio_tpress
 .. autoclass:: ppodd.pod.p_rio_wow.rio_weight_on_wheels
+.. autoclass:: ppodd.pod.p_rio_wow.p_gin.py 
+.. autoclass:: ppodd.pod.p_rio_wow.p_turb.py
+.. autoclass:: ppodd.pod.p_rio_wow.p_twc_calc.py
+.. autoclass:: ppodd.pod.p_rio_wow.p_twc_fit_wvss.py
 .. autoclass:: ppodd.pod.p_noturb_windvectors.p_noturb_windvectors
 
 

@@ -19,6 +19,7 @@ FORTRAN routine C_TEMPS2
   | 524 - Indicated Air Temperature  from Non-deiced [K] at 32Hz
   | 525 - True Air Temperature       from Non-deiced [K] at 32Hz
 
+
   Note that this module only processes data recorded on the
   146 which only uses one parameter per temperature.
 
@@ -55,13 +56,14 @@ FORTRAN routine C_TEMPS2
              This is supplied as a constant from the
              flight constants file to this routine.
 
+
     It can be calculated from flight results of slow/fast runs as::
 
       (Tindfast-Tindslow)/(Ffast*Tindslow-Fslow*Tindfast)
         where: Tind = indicated temperature [K]
                F    = 0.2 * Machno * Machno
 
-:Flagging:
+:FLAGGING:
   Both deiced and non-deiced temperature calculations follow
   a similar scheme for error flagging, with worst case flags
   being propagated through the calculations.  Sources of error
@@ -74,13 +76,13 @@ FORTRAN routine C_TEMPS2
     | Max/min/rate of change errors       - flag 2
     | Mach No less than 0.1               - flag 1
   
-  Not all the above errors need affect all measurements.  For
+  Not all the above errors need affect all measurements. For
   instance pressure errors will not affect Indicated Air
-  Temperatures, unless the deicing heater is on.  Note that
+  Temperatures, unless the deicing heater is on. Note that
   this module cannot be called if any of the raw (not derived)
   parameters are missing.  Also note that no raw data on which
   this module can be used will be carrying flags (only raw
-  data transcribed on the Gould computer can carry flags).  If
+  data transcribed on the Gould computer can carry flags). If
   any temperature has a flag of three, its value is set to
   0.0 K (and flagged with a three).
    
@@ -124,10 +126,11 @@ FORTRAN routine C_TEMPS2
 
 :CHANGES:
   V1.01  27/09/02  W.D.N.JACKSON
-    Changed to handle 16 bit temperature recording.
+  Changed to handle 16 bit temperature recording.
+  
   V1.02  23/05/05  D.A.TIDDEMAN
-    Temperature heater correction changed to opposite sense
-    Now raw para 27 bit 5 on = heater on
+  Temperature heater correction changed to opposite sense
+  Now raw para 27 bit 5 on = heater on
 
 """
     def __init__(self,dataset):

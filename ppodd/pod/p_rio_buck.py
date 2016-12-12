@@ -287,13 +287,21 @@ def get_flag(buck_mirr_flag, buck_dewpoint_flag):
 
 class rio_buck_cr2(cal_base):
     """
-Processing of the BUCK CR2 data
+:DESCRIPTION:
+  Processing of the BUCK CR2 instrument data
 
-:Output:
-  | VMR_CR2 - Water vapour volume mixing ratio measured by the Buck CR2 
-  | VMR_C_U - Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2
-  | TDEW_CR2 - Mirror Temperature measured by the Buck CR2 Hygrometer
-  | TDEW_C_U - Uncertainty estimate for Buck CR2 Mirror Temperature'
+:FLAGGING:
+  Yes
+  
+:OUTPUT:
+  VMR_CR2 - Water vapour volume mixing ratio measured by the Buck CR2 
+  
+  VMR_C_U - Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2
+  
+  TDEW_CR2 - Mirror Temperature measured by the Buck CR2 Hygrometer
+
+  TDEW_C_U - Uncertainty estimate for Buck CR2 Mirror Temperature
+
 """
 
 

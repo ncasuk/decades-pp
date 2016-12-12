@@ -5,7 +5,7 @@ import numpy as np
 
 def create_nephelometer_flag(aerack_neph_status):
     """The status flag definition is described in the TSI 3563
-    manual on page 6-24.
+    manual on page 6-22.
 
     The flagging is done for the (i) scattering values, (ii) the relative
     humidity, (iii) temperature, and (iv) pressure measurements.
@@ -66,19 +66,39 @@ def create_nephelometer_flag(aerack_neph_status):
 
 class rio_nephelometer(cal_base):
     """
-    No processing is done to the data that are recorded and streamed
+    Module for the TSI 3563 Nephelometer
+    
+    No post processing is done to the data that are recorded and streamed
     by the RIO modules. However, the units of the scatter values are converted
-    from megameters-1 to meters-1 and the flags are set using the AERACk_neph_status
+    from megameters-1 to meters-1 and the flags are set using the AERACK_neph_status
     parameter.
         
     The status flag definition is described in the TSI 3563
-    manual on page 6-24.
+    manual on page 6-22.
     
-    The flagging is done for the:
+    Flagging is done for the:
+
       1. scattering values
       2. the relative
       3. temperature
       4. pressure measurements.
+
+
+   :Flagging:
+     RF returns a four-character hexadecimal value representing the
+     state of the Nephelometer. The values for the sixteen flags are as
+     follows:
+     
+     0 - Data OK
+     3 - Lamp not within 10% of SP setting
+         | Valve fault
+         | Chopper fault
+         | Shutter fault
+         | Heater active but not stabilized
+         | Pressure out of range
+         | Sample Temp out of range
+         | Inlet temp out of range
+         | RH out of range 
 
     """
     def __init__(self,dataset):
@@ -96,7 +116,7 @@ class rio_nephelometer(cal_base):
 
         self.outputs=[parameter('NEPH_PR', units='hPa',  frequency=1,number=760,long_name='Internal sample pressure of the Nephelometer'),
                       parameter('NEPH_T',  units='K',    frequency=1,number=761,long_name='Internal sample temperature of the Nephelometer'),
-                      parameter('NEPH_RH', units='%',     frequency=1,number=768,long_name='Relative humidity from TSI 3563 Nephelometer'),
+                      parameter('NEPH_RH', units='%',    frequency=1,number=768,long_name='Relative humidity from TSI 3563 Nephelometer'),
                       parameter('TSC_BLUU',units='m-1',  frequency=1,number=762,long_name='Uncorrected blue total scattering coefficient from TSI 3563 Nephelometer'),
                       parameter('TSC_GRNU',units='m-1',  frequency=1,number=763,long_name='Uncorrected green total scattering coefficient from TSI 3563 Nephelometer'),
                       parameter('TSC_REDU',units='m-1',  frequency=1,number=764,long_name='Uncorrected red total scattering coefficient from TSI 3563 Nephelometer'),

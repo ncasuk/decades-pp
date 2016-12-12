@@ -15,10 +15,12 @@ FORTRAN routine C_RADAL1
   number from the ARINC 429 data bus, with a least bit resolution
   of 0.25 ft.
 
-  The derived data is quality controlled to ensure that:
-    * data outside the range 0 to 8191.75 ft are flagged 3
-    * more than two values the same are flagged 3
-    * more than 1000' change between values is flagged 3
+:FLAGGING:
+  The derived data is quality controlled to ensure that
+
+    | data outside the range 0 to 8191.75 ft are flagged 3
+    | more than two values the same are flagged 3
+    | more than 1000' change between values is flagged 3
 
 :TO COMPILE:
   $FORT C_RADAL1
@@ -33,7 +35,7 @@ FORTRAN routine C_RADAL1
 
 :CHANGES:
   V1.01  WDNJ  05/11/04
-    Flagging criteria improved
+  Flagging criteria improved
     
 """
 

@@ -2,15 +2,27 @@ from ppodd.core import *
 
 class rio_ozone(cal_base):
     """
-Calibrated TEI Ozone instrument data
-The fllagging uses also the flow in the two chambers
+:DESCRIPTION:
+  Calibrated TEI Ozone instrument data
+  The flagging of the data uses mainly the 
+  flow measurements in the two chambers
+    | TEIOZO_FlowA
+    | TEIOZO_FlowB
+  Data points while on the ground (WOW_IND = 1) are
+  also flagged as '3' and so are all data points for
+  the first 20 seconds after take-off
+  
+  The TECO_49 also sends its own flag in the data
+  stream (TEIOZO_flag) which is used for flagging
 
-:Flagging:    
-  | flag=flag!='1c100000'
-  | flag[conc < -10]=2
-  | flag[flow_a < flow_threshold]=3
-  | flag[flow_b < flow_threshold]=3
-  | flag[wow_ind != 0]=3
+:FLAGGING:
+  Flag values are set using flow_a, flow_b, weight on wheels index
+  and the instruments own flag value  
+    | flag=flag!='1c100000'
+    | flag[conc < -10]=2
+    | flag[flow_a < flow_threshold]=3
+    | flag[flow_b < flow_threshold]=3
+    | flag[wow_ind != 0]=3
         
 """
     def __init__(self,dataset):
@@ -26,14 +38,20 @@ The fllagging uses also the flow in the two chambers
         self.version=1.00
         cal_base.__init__(self,dataset)
 
-    def process(self):
+    def process(self, flow_threshold=0.5):
+        """
+        processes and flags the Ozone data from the TECO_49 instrument
+        flagging is done using the flows
+
+        :param float flow_threshold: definition of the flow
+          threshold for good data; flows in either chamber below
+          this threshold are flagged as '3'
+        """
         match=self.dataset.matchtimes(self.input_names)
         conc=self.dataset['TEIOZO_conc'].data.ismatch(match)
         flow_a=self.dataset['TEIOZO_FlowA'].data.ismatch(match)
         flow_b=self.dataset['TEIOZO_FlowB'].data.ismatch(match)
         wow_ind=self.dataset['WOW_IND'].data.ismatch(match)
-
-        flow_threshold=0.50 # flows below that are suspicious
 
         flag=self.dataset['TEIOZO_flag'].data.ismatch(match)
         flag=self.dataset['TEIOZO_flag'].data

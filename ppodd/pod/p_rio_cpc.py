@@ -7,15 +7,16 @@ from ppodd.core import *
 
 class rio_cpc(cal_base):
     """
-Routine for processing the data from the CPC (Condensation Particle Counter) instrument TSI 3786. T
+Routine for processing the data from the CPC (Condensation Particle Counter) instrument TSI 3786.
 
-:Flagging:
-  | 0 – Data OK
-  | 1 = Saturator temperature more than 6 degrees C, Growth or Optics Temp more/less than 10% from prescribed value
-  | 2 = Aerosol (Sample) flow more/less than 10% from prescribed value
-  | 3 = Sheath flow more/less than 10% from prescribed value
+:FLAGGING:
+  
+  0. Data OK
+  1. Saturator temperature more than 6 degrees C, Growth or Optics Temp more/less than 10% from prescribed value
+  2. Aerosol (Sample) flow more/less than 10% from prescribed value
+  3. Sheath flow more/less than 10% from prescribed value
         
-:output:    
+:OUTPUT:    
   CPC_CNTS
     """
 

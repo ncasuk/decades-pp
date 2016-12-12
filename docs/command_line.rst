@@ -5,7 +5,7 @@ PPODD Command
 
 The command PPODD will start processing data, the arguments are a list of input files.  The types of these files can be set explicitly with a colon after the file name, or they will be assumed by the program, based one file suffix etc. (see file_read.patterns and file_read.filetest).  
 
-There are various options to select which modules to use, which parameters to calculate, and the output file.  If no output options are selected or if no input files the GUI will open.::
+There are various options to select which modules to use, which parameters to calculate, and the output file. If no output options are selected or if no input files the GUI will open.::
 
     Usage: PPODD [options] [input_file1[:type1] input_file2[:type2] .. input_filen[:typen]
     
@@ -46,6 +46,6 @@ The output can be at 1Hz or full frequency, or both with the -w,--write option. 
 PPODD GUI
 =========
 
-The graphical interface for PPODD can be run via the command line ( if no output options are selected ) or from a Desktop shortcut. If the Desktop shortcut is used it is possible to drag an input file onto the shortcut to open the program with that input.
+The graphical interface for PPODD can be run via the command line (if no output options are selected) or from a Desktop shortcut. If the Desktop shortcut is used it is possible to drag an input file onto the shortcut to open the program with that input.
 
-All the standard functions are available through the GUI, but it is a little less flexible in terms of output options. It will only try and write to $NCDATA with the normal BADC naming convention. You do however have the ability to change input files, archive data, and have a quick look / quality check the data.
+All the standard functions are available through the GUI, but it is a little less flexible in terms of output options. It will only try and write to $NCDATA with the normal BADC naming convention. You do however have the ability to change input files, archive data, and have a quick look/quality check the data.

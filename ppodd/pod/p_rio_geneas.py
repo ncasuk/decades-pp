@@ -30,35 +30,44 @@ DEC$ IDENT 'V1.02'
 
 :VERSION:
     1.00  240190   J HARMER
+    
     1.01  17-01-96 D Lauchlan
 
 :ARGUMENTS:
     :Constants:
-        | GEMAX      Maximum control condition signal limit RCONST(1)
-        | GEMIN      Minimum control condition signal limit RCONST(2)
-        | CALGE(1)   GE Dew point calib. constant x0        RCONST(3)
-        | CALGE(2)   GE Dew point calib. constant x1        RCONST(4)
-        | CALGE(3)   GE Dew point calib. constant x2        RCONST(5)
+      GEMAX      Maximum control condition signal limit RCONST(1)
+      
+      GEMIN      Minimum control condition signal limit RCONST(2)
+    
+      CALGE(1)   GE Dew point calib. constant x0        RCONST(3)
+      
+      CALGE(2)   GE Dew point calib. constant x1        RCONST(4)
+      
+      CALGE(3)   GE Dew point calib. constant x2        RCONST(5)
     
     
     :Inputs:
-        | GENERAL EASTERN 1011 DEW POINT    [drs units ] Para 58
-        | GENERAL EASTERN CONTROL SIGNAL    [drs units ] Para 59
+      GENERAL EASTERN 1011 DEW POINT    [drs units ] Para 58
+      
+      GENERAL EASTERN CONTROL SIGNAL    [drs units ] Para 59
     
     :Outputs:
-        | DEW POINT                            [K]      Para 529
+      DEW POINT                            [K]      Para 529
         
 :SUBPROGRAMS:
-    | ITSTFLG          Examines bits 16,17 for flags
-    | ISETFLG          Sets flag bits 16,17 = 0 --> 3
-    | S_QCPT           Performs range and rate of change check
+    ITSTFLG          Examines bits 16,17 for flags
+    
+    ISETFLG          Sets flag bits 16,17 = 0 --> 3
+    
+    S_QCPT           Performs range and rate of change check
     
 :REFERENCES:
     Code adapted from MRF1/MRF2
 
 :CHANGES:
-    | v1.01 17-01-96 D Lauchlan; Unused variables removed
-    | V1.02  27/09/02  W.D.N.JACKSON Changed to include handling of 16 bit data from the new DRS.
+    v1.01 17-01-96 D Lauchlan; Unused variables removed
+    
+    V1.02  27/09/02  W.D.N.JACKSON Changed to include handling of 16 bit data from the new DRS.
 """
     
     def __init__(self,dataset):

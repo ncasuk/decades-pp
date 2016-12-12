@@ -45,10 +45,10 @@ Examples::
 This attaches a timestamp to a data array so that similar time matching, frequency changes etc are possible. 
 
 Some useful additional methods are:
-* ravel() which will flatten out a 2d array assuming the second dimension is frequency. 
-* timesort() which will sort the data into time order.
-* asmasked() which will return a masked array 
-* get1Hz() gets the data average per second if 2d.
+  * ravel() which will flatten out a 2d array assuming the second dimension is frequency. 
+  * timesort() which will sort the data into time order.
+  * asmasked() which will return a masked array 
+  * get1Hz() gets the data average per second if 2d.
 
 
 Examples::

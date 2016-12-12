@@ -17,6 +17,7 @@ FORTRAN routine C_TPRESS
 
 :METHOD:
   For each DRS parameter to be calibrated
+
     1. If data is FFFF or FFFE then flag 3
     2. Apply the calibration constants
     3. Check the results for being within acceptable values.
@@ -31,6 +32,9 @@ FORTRAN routine C_TPRESS
   used, flagged with a three.  If a value is outside its 
   limits for range or rate of change, it is flagged with a two.
   If there are no problems with the data it is flagged with 0.
+
+  Missing/corrupt data output as 0 flagged 3.
+  Out of range data flagged 2.
 
 :VERSION:
   1.00  23/07/03  W.D.N.JACKSON
@@ -55,10 +59,6 @@ FORTRAN routine C_TPRESS
   | para 776 TBPC mb 32 Hz Attack check pressure
   | para 777 TBPD mb 32 Hz Sideslip check pressure
 
-:FLAGGINGs:
-  | Missing/corrupt data output as 0 flagged 3.
-  | Out of range data flagged 2.
-
 :SUBPROGRAMS:
   ISETFLG 
 
@@ -66,24 +66,26 @@ FORTRAN routine C_TPRESS
 
 :CHANGES:
   V1.00 23/07/03  WDNJ Original version
-                  Note that V1.00 has no limit checking and no use is made of
-                  the check pressures.
+  Note that V1.00 has no limit checking and no use is made of
+  the check pressures.
+  
   V1.01 25/03/04  WDNJ
-                  Now takes third order calibration constants for the main
-                  transducers, and first order for the check transducers.
+  Now takes third order calibration constants for the main
+  transducers, and first order for the check transducers.
+  
   V1.02 26/01/06 Phil Brown
-                  Realistic min/max values provided for centre-port, Pa, Pb
-                  for flagging purposes. Values alsoe provided for check
-                  pressures Ca, Cb based on current (and probably wrong)
-                  calibration coefficients.
+  Realistic min/max values provided for centre-port, Pa, Pb
+  for flagging purposes. Values alsoe provided for check
+  pressures Ca, Cb based on current (and probably wrong)
+  calibration coefficients.
+  
   V1.03 09/02/11 Axel Wellpott
-                  From an email from Phil Brown: "The P0-S10 differential pressure
-                  (para 773) is flagged 2 if it exceeds 130.0 hPa. This is easily 
-                  exceeded when we do acceleration to max speed (min Angle of Attack)
-                  so all the subsequent parameters calculated n C_TURB.for end up with a
-                  flag-3 saetting. I reckon a better value would be 180.0 hPa."
+  From an email from Phil Brown: "The P0-S10 differential pressure
+  (para 773) is flagged 2 if it exceeds 130.0 hPa. This is easily 
+  exceeded when we do acceleration to max speed (min Angle of Attack)
+  so all the subsequent parameters calculated n C_TURB.for end up with a
+  flag-3 saetting. I reckon a better value would be 180.0 hPa."
 
-*******************************************************************************
 
 """
     def __init__(self,dataset):

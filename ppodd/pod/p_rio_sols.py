@@ -14,7 +14,7 @@ class rio_sols(fort_cal):
   upward-facing and downward-facing sets of: clear dome & red dome
   pyranometers and pyrgeometer.
 
- NOTE             The actual configuration is specified by the array
+  .. note         The actual configuration is specified by the array
                   ICONF, which has six elements whose meaning interpreted as:
                     1,4 : Clear dome pyranometer  (upper/lower)
                     2,5 : red    "       "           "     "
@@ -38,6 +38,7 @@ class rio_sols(fort_cal):
 
 :METHOD:
   For each RAW parameter to be calibrated, for the six instruments:
+  
     1. Check all its required constants are present (Flag <3)
        (if not, the calibration of that parameter will not proceed)
        [Also check that the normal configuration of instruments is to
@@ -54,19 +55,23 @@ class rio_sols(fort_cal):
        Note that the output Voltage from the instrument  is the
        value after being amplified by the head amplifier.
     4. Range check and Rate-of-change check: (S/R QCPT)
-       | the calibrated signal (Wm-2)
-       | Zero offset           (DRS units)
-       | temperature           (deg K)  
+        
+         | the calibrated signal (Wm-2)
+         | Zero offset           (DRS units)
+         | temperature           (deg K)  
    
     5. Calibrate the thermistor input using two RCALB coefficients.
        Add 273.15 deg to thermistor results to express the 
        instrument thermopile temperature in degrees Kelvin.
     6. Check the result is within pre-defined limits
-    7. Set the calibrated values flag bits (16+17) as follows:
-         0: Good data  
-         1: Data of lower quality
-         2: Data probably faulty, exceeding limits
-         3: Data absent or known to be invalid.
+
+:FLAGGING:
+    Set the calibrated values flag bits (16+17) as follows
+      
+      | 0: Good data  
+      | 1: Data of lower quality
+      | 2: Data probably faulty, exceeding limits
+      | 3: Data absent or known to be invalid.
 
 :VERSION:
   1.04 250692   A D HENNINGS
@@ -98,9 +103,9 @@ class rio_sols(fort_cal):
   |     RCONST(24) - REAL*4 IN  Lower I/R   dome Thermistor: coeff x.
   |     (*  also contains an offset evaluated to ICONF() ).
 
-  | IFRQ(par)  _ INT*4  IN  Input frequency of each sample. 
-  | IRAW(n,par)- INT*4  IN  Raw instrument voltage conversion. (samples n=1; par=81-89, 91-99)
-  | RDER(op,opar)REAL*4 OUT Raw flux signal, zero-offset signal and instrument temperature. (samples op=1; opar=673-690)
+  IFRQ(par)  - INT*4  IN  Input frequency of each sample. 
+  IRAW(n,par)- INT*4  IN  Raw instrument voltage conversion. (samples n=1; par=81-89, 91-99)
+  RDER(op,opar)REAL*4 OUT Raw flux signal, zero-offset signal and instrument temperature. (samples op=1; opar=673-690)
 
 
 :SUBPROGRAMS:
@@ -112,19 +117,28 @@ class rio_sols(fort_cal):
 
 :CHANGES:
   020490 Revised  range limits introduced.                 ADH
+
   100191                                                   ADH
-    a) Range limits revised to allow for Pyranometer changes
-    b) New arrays to hold raw input, constants etc for more straightforward indexing.
-    c) Include ICONF to aid reconfiguring instrument types.
+  a) Range limits revised to allow for Pyranometer changes
+  b) New arrays to hold raw input, constants etc for more straightforward indexing.
+  c) Include ICONF to aid reconfiguring instrument types.
+
   010891 Range limits for ZERO now in terms of DRS units, revised limits in Wm-2 for signal.
+
   030292 Rates of change checks instituted on all BBR inputs.  ADH
+
   120698 Bug fixed in quality control processing when using non-
-    standard configurations. MDG/WDNJ
+  standard configurations. MDG/WDNJ
+
   270600 I/R signal maximum increased to stop flagging good data
-    value arbitary, as no explanation of numbers found. 1050. > 1500. DAT
+  value arbitary, as no explanation of numbers found. 1050. > 1500. DAT
+
   V1.06  02/10/02  Changed to use 16 bit DRS data.
+
   V1.07  27/11/02  Now takes X0 sensitivity constant as well as X1
+
   V1.08  22/07/04  Bug so doesn't crash if first data flagged 3
+
   V1.09  13/08/04  Quality Control zero limits increased for 16 bit data
 
 """

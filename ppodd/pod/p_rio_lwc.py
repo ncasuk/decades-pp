@@ -32,25 +32,29 @@ FORTRAN routine C_LWC
   1.02 17-01-96 D Lauchlan
 
 :ARGUMENTS:
-  | IRAW(64,512) I*4  IN   Raw data for the parameters
-  | FRQ(512)    I*4  IN   Frequencies of the data
-  | RCONST(64)   R*4  IN   Constants required by routine,(1-28)
-  | RDER(64,1024)R*4  OUT  Tardis parameters
+  IRAW(64,512) I*4  IN   Raw data for the parameters
+  
+  FRQ(512)    I*4  IN   Frequencies of the data
+  
+  RCONST(64)   R*4  IN   Constants required by routine,(1-28)
+  
+  RDER(64,1024)R*4  OUT  Tardis parameters
 
 :SUBPROGRAMS:
   ISETFLG (linked automatically)
 
 :REFERENCES:
   MRF2 Specification for Total Water Hygrometer 4 Dec 1989
-    Ouldridge Feb 1982 Johnson 1979
+  Ouldridge Feb 1982 Johnson 1979
 
 :CHANGES:           
   110190 Documentational changes only         M.Glover
+  
   v 1.02 17-01-96 D Lauchlan
-    Unused parameters removed
+  Unused parameters removed
+  
   V1.03  27/09/02  W.D.N.JACKSON
-    Changed to include handling of 16 bit data from the new
-                   DRS.
+  Changed to include handling of 16 bit data from the new DRS.
 
 """
 
