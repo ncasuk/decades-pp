@@ -92,10 +92,11 @@ def calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin, 
 
 class noturb_windvectors(cal_base):
     """
-    Calculation of windvectors that do not rely on the turbulence probe in the radom of the aircraft. The data are
-    espially useful in icing conditions, when the 
+Calculation of windvectors that do not rely on the turbulence probe in the
+radom of the aircraft. The data are especially useful in icing conditions,
+when the pressure sensors in the radom are blocked by ice and no tub
 
-:Input:
+:INPUTS:
   | VELE_GIN
   | VELN_GIN
   | HDG_GIN
@@ -103,20 +104,22 @@ class noturb_windvectors(cal_base):
   | TAS_RVSM
   | ROLL_GIN
 
-
-    tas_scale_factor = 0.9984
+  tas_scale_factor = 0.9984
     
-:Flagging:
-  The flag is inherited from the input data. The flag is the worst from all the Input
-  variables. In addtion to this all a roll angle threshold is used, which is set by default
-  to 1.5 degrees. All values with a absolute greater roll value than this is flagged "3".
-
-
-     
-    """
-    def __init__(self,dataset):
+:FLAGGING:
+  The flag is inherited from the input variables. The flag is determined by 
+  choosing the worst flag from the input variables. In addition to this a roll
+  angle threshold is used, which is set to 1.5 degrees. All values with an
+  absolute roll angle greater than this are flagged "3".     
+"""
+    def __init__(self, dataset):
         #print('   *** ADD NOTURB WINDVECTORS - INIT ***')
-        self.input_names=['VELE_GIN', 'VELN_GIN', 'HDG_GIN', 'TAT_DI_R', 'TAS_RVSM', 'ROLL_GIN']
+        self.input_names=['VELE_GIN',
+                          'VELN_GIN',
+                          'HDG_GIN',
+                          'TAT_DI_R',
+                          'TAS_RVSM',
+                          'ROLL_GIN']
         self.outputs=[parameter('U_NOTURB',
                                 units='m s-1',
                                 frequency=1,
@@ -134,7 +137,7 @@ class noturb_windvectors(cal_base):
         #TODO: move the two calibration coefficients to the flight-cst file
         hdg_offset = 0.35
         tas_scale_factor = 0.9984
-        d=self.dataset
+        d = self.dataset
         match = d.matchtimes(['TAS_RVSM', 'HDG_GIN', 'VELN_GIN', 'VELE_GIN', 'TAT_DI_R'])
         tas_rvsm = d['TAS_RVSM'].data.ismatch(match)
         hdg_gin = d['HDG_GIN'].data.ismatch(match)
@@ -152,7 +155,7 @@ class noturb_windvectors(cal_base):
         flag_data = calc_noturb_flag(tas_rvsm, hdg_gin, veln_gin, vele_gin, tat_di_r, roll_gin)
         u_noturb_data = np.mean(u_noturb_data, axis=1)
         v_noturb_data = np.mean(v_noturb_data, axis=1)
-        u_noturb=flagged_data(u_noturb_data, tas_rvsm.times, flag_data)
-        v_noturb=flagged_data(v_noturb_data, tas_rvsm.times, flag_data)
-        self.outputs[0].data=u_noturb
-        self.outputs[1].data=v_noturb
+        u_noturb = flagged_data(u_noturb_data, tas_rvsm.times, flag_data)
+        v_noturb = flagged_data(v_noturb_data, tas_rvsm.times, flag_data)
+        self.outputs[0].data = u_noturb
+        self.outputs[1].data = v_noturb

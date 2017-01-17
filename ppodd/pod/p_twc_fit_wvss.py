@@ -2,9 +2,10 @@
 import ppodd
 from ppodd.core import *
 from ppodd.humidity_formulae import *
+
 class twc_fit_wvss(cal_base):
     """
-    Fit TWC sensor to GE chilled mirror
+    Fit TWC sensor to WVSS
     
     Calculates Vapour pressures from GE where less than a threshold ( to screen out liquid and ice )
     Calculate a theoretical Oxygen absorption from pressure

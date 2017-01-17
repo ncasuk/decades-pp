@@ -15,7 +15,11 @@ A simple programming example::
     d.process()
     d.write_nc()
 
-d would then hold all the processed data. It could be plotted using matplotlib or calculations performed. Each parameter accessed d['parameter name'] there being various attributes, .data actually holding the numbers and can be viewed several ways.::
+d would then hold all the processed data. It could be plotted using matplotlib or calculations performed. Each parameter accessed via::
+
+    d['parameter name']
+    
+there being various attributes. The ".data" attribute actually holding the values and can be viewed in several ways.::
 
     d['JW_LWC_U'][:] is equivalent to d['JW_LWC_U'].data
 
@@ -27,7 +31,7 @@ The same could be run from a command line::
 
     PPODD decades_data/flight-cst_faam_20131001_r0_b111.txt decades_data/b111.zip -w full
 
-To wrap around this structure there is also a graphical user interface.  This should make the process of calibrating and checking core data relatively painless. 
+To wrap around this structure there is also a graphical user interface. This should make the process of calibrating and checking core data relatively painless. 
 
 To achieve the same result::
 

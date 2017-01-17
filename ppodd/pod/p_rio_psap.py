@@ -4,31 +4,31 @@ from ppodd.core import *
 
 class rio_psap(cal_base):
     """
-    PSAP processing module
-    
-    :Input:
-      | AERACK_psap_flow
-      | AERACK_psap_lin
-      | AERACK_psap_log
-      | AERACK_psap_transmission
+PSAP processing module
 
-    :Output:
-      | PSAP_LIN - Uncorrected absorption coefficient at 565nm, linear, from PSAP
-      | PSAP_LOG - Uncorrected absorption coefficient at 565nm, log, from PSAP
-      | PSAP_FLO - PSAP Flow
-      | PSAP_TRA - SAP Transmittance
+:INPUTS:
+  | AERACK_psap_flow
+  | AERACK_psap_lin
+  | AERACK_psap_log
+  | AERACK_psap_transmission
 
-    :Flagging:
-      | using flow and transmission thresholds
-      | flag[(psap_transmission<0.5) | (psap_transmission>1.05)]=1
-      | ix=np.where(psap_flow < 1.0)[0]
-      | #add two second buffer to the index
-      | ix=np.unique(np.array([list(ix+i) for i in range(-2,3)]))
-      | ix=ix[(ix >= 0) & (ix < n-1)]
-      | flag[ix]=2
-      | flag[((psap_transmission<0.5) | (psap_transmission>1.05)) & (psap_flow<1.0)]=3
-      
-    """
+:OUTPUTS:
+  | PSAP_LIN - Uncorrected absorption coefficient at 565nm, linear, from PSAP
+  | PSAP_LOG - Uncorrected absorption coefficient at 565nm, log, from PSAP
+  | PSAP_FLO - PSAP Flow
+  | PSAP_TRA - SAP Transmittance
+
+:FLAGGING:
+  | using flow and transmission thresholds
+  | flag[(psap_transmission<0.5) | (psap_transmission>1.05)]=1
+  | ix=np.where(psap_flow < 1.0)[0]
+  | #add two second buffer to the index
+  | ix=np.unique(np.array([list(ix+i) for i in range(-2,3)]))
+  | ix=ix[(ix >= 0) & (ix < n-1)]
+  | flag[ix]=2
+  | flag[((psap_transmission<0.5) | (psap_transmission>1.05)) & (psap_flow<1.0)]=3
+  
+"""
     
     def __init__(self,dataset):
         self.input_names=['AERACK_psap_flow',
@@ -36,10 +36,24 @@ class rio_psap(cal_base):
                           'AERACK_psap_log',
                           'AERACK_psap_transmission']
 
-        self.outputs=[parameter('PSAP_LIN', units='m-1', frequency=1, number=648, long_name='Uncorrected absorption coefficient at 565nm, linear, from PSAP'),
-                      parameter('PSAP_LOG', units='*',   frequency=1, number=649, long_name='Uncorrected absorption coefficient at 565nm, log, from PSAP'),
-                      parameter('PSAP_FLO', units='standard l min-1', frequency=1, long_name='PSAP Flow'),
-                      parameter('PSAP_TRA', units='percent', frequency=1, long_name='PSAP Transmittance')]
+        self.outputs=[parameter('PSAP_LIN',
+                                units='m-1',
+                                frequency=1,
+                                number=648,
+                                long_name='Uncorrected absorption coefficient at 565nm, linear, from PSAP'),
+                      parameter('PSAP_LOG',
+                                units='1',
+                                frequency=1,
+                                number=649,
+                                long_name='Uncorrected absorption coefficient at 565nm, log, from PSAP'),
+                      parameter('PSAP_FLO',
+                                units='standard l min-1',
+                                frequency=1,
+                                long_name='PSAP Flow'),
+                      parameter('PSAP_TRA',
+                                units='percent',
+                                frequency=1,
+                                long_name='PSAP Transmittance')]
 
         self.version=1.00
         cal_base.__init__(self,dataset)
@@ -60,9 +74,8 @@ class rio_psap(cal_base):
         flag=np.array([0]*n, dtype=np.int8)
         # Flagging using flow and transmission thresholds
         flag[(psap_transmission<0.5) | (psap_transmission>1.05)]=1
-        #flag[psap_flow<1.0]=2
         ix=np.where(psap_flow < 1.0)[0]
-        #add two second buffer to the index
+        # add two second buffer to the index
         ix=np.unique(np.array([list(ix+i) for i in range(-2,3)]))
         ix=ix[(ix >= 0) & (ix < n-1)]
         flag[ix]=2

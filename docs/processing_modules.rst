@@ -26,8 +26,6 @@ If a new module needs to be tested it can be added to the modules that the proce
 
 An example of a test module sub-classing from cal_base::
 
-.. code-block:: python
-
    from ppodd.core import *
     
    class potential_temp(cal_base):
@@ -78,9 +76,6 @@ A sub-classed fort_cal would require little more than a definition of input, and
 
 Fortran calling example::
 
-
-.. code-block:: python
-   
    from ppodd.core import *
     
    class ozone1(fort_cal):
@@ -102,9 +97,6 @@ file_read
 A sub-classed file_read needs to override the __init__, and implement the readfile method.  readfile should take a file name as input, and may be called a number of times with different files. It should also be noted that the first input name should name the file type that this reads in, and this will be the name of the parameter which lists these files. A combination of the patterns tuple, and filetest method will be used to guess the file type when not specified, and fixfilename, will alter a full file path to something the readfile method understands.  file_read will try to parse any file names for flight number and date, if they are not already in the data.
 
 File reading example::
-
-
-.. code-block:: python
 
    from ppodd.core import *
    import numpy as np

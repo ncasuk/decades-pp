@@ -31,19 +31,20 @@ class rio_rvsm(cal_base):
 :METHOD:
   For each DRS parameter to be calibrated:
   
-  1. If data is FFFF or FFFE or out of range then flag 3
+  1. If data is FFFF or FFFE or out of range then flag 3  
   2. Decode the altitude and use the tables in NASA TN D-822
-     to back compute the static pressure.
+     to back compute the static pressure.     
   3. Decode the airspeed and use fundamental equations to 
-     compute pitot-static pressure.
-  4. Check the results for being within acceptable values.
+     compute pitot-static pressure.     
+  4. Check the results for being within acceptable values.  
   5. Set data flag bits (16+17)
     | 0: Good data
     | 1: Data of lower quality
     | 2: Probably faulty, exceed lims
     | 3: Data absent or invalid.
 
-  Flagging - If a value can't be computed, due to missing data
+:FLAGGING:
+  If a value can't be computed, due to missing data
   missing constants, divide be zeroes, etc, a value of 0 is
   used, flagged with a three.  If a value is outside its                                                                                                          
   limits for range, it is flagged with a two.                                                                                                                     
@@ -77,7 +78,7 @@ class rio_rvsm(cal_base):
 :REFERENCES:
   NASA Technical Note D-822, Aug 1961, Tables of airspeed, altitude, and mach number.                                                                                                                                      
                                                                                                                                                                                  
-  Interface Control Document, Air Data Display Unit, ISS 1G-80130-22.                                                                                                                                                    
+  Interface Control Document, Air Data Display Unit, ISS 1G-80130-22.                                                                                                                                                                                                                                                                                                                                     
                                                                                                                                                                                  
 :CHANGES:
   V1.00 23/07/03  WDNJ
@@ -98,13 +99,25 @@ class rio_rvsm(cal_base):
 """
     def __init__(self,dataset):
         self.input_names=['PRTAFT_pressure_alt', 'PRTAFT_ind_air_speed']
-        self.outputs=[parameter('PS_RVSM',units='hPa',frequency=32,number=576,long_name='Static pressure from the aircraft RVSM (air data) system')
-                     ,parameter('Q_RVSM',units='hPa',frequency=32,number=577,long_name='Pitot static pressure inverted from RVSM (air data) system indicated airspeed')
-                     ,parameter('PALT_RVS',units='m',frequency=32,number=578,long_name='Pressure altitude from the aircraft RVSM (air data) system')]
+        self.outputs=[parameter('PS_RVSM',
+                                units='hPa',
+                                frequency=32,
+                                number=576,
+                                long_name='Static pressure from the aircraft RVSM (air data) system'),
+                     parameter('Q_RVSM',
+                               units='hPa',
+                               frequency=32,
+                               number=577,
+                               long_name='Pitot static pressure inverted from RVSM (air data) system indicated airspeed'),
+                     parameter('PALT_RVS',
+                               units='m',
+                               frequency=32,
+                               number=578,
+                               long_name='Pressure altitude from the aircraft RVSM (air data) system')]
         self.version=1.00
         cal_base.__init__(self,dataset)
 
-    def resample(self,P,flag,freq=32):
+    def resample(self, P, flag, freq=32):
         Pflat=P.ravel()
         Pflat.interp1d()
         tnew=P.times.at_frequency(freq)
@@ -119,7 +132,7 @@ class rio_rvsm(cal_base):
             palt_meters=palt_feet/3.28084
             high=palt_meters>11000
             low=palt_meters<=11000
-            """ Compute Pressure from altitude and barometric formula """
+            # Compute Pressure from altitude and barometric formula """
             T0=288.15
             L0=-0.0065
             h0=0.0
