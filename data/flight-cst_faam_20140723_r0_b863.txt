@@ -1,0 +1,166 @@
+!
+! FLIGHT b863
+! DATE 23 Jul 2014
+!
+!c_airspd  Airspeed correction factor
+TASCORR   1.00000E+0
+!
+!c_drs    Cabin temperature (deg C)
+CALCABT  -2.638669E+02	1.532049E-04
+!
+!            const        x
+!c_geneas  General Eastern hygrometer
+GELIMS    7000  5000  !max, min
+CALGE    -7.862850E+01 4.219262E-03  0.00000E+0 ! 28388 CHGD15_09_09
+!
+!c_heiman  RADTHERM calibration constants
+PRTCCAL  -2.230400E+01  1.920578E-03  0.00000E+0 ! Celsius  H686BA 10_11_07
+HEIMCAL  -1.545532E+01  3.033176E-03   0.00000E+0 ! Celsius #876 11_07_07
+!
+!c_ins1    INU level offsets - roll, pitch, yaw - deg
+INSLEVL   0.00000E+0  0.00000E+0  0.00000E+0
+!
+!c_lwc     Johnson Williams liquid water - g m-3
+CALLWC   0.000000E+0  1.538E-4  !#338 11_07_12
+!
+!c_nevz    Nevzorov
+CLWCIREF    -6.815197E-02   3.292018E-04  5.0e-01
+CLWCVREF    -6.823619E-02   3.292050E-04  2.0
+CLWCICOL    -6.812802E-02   3.292026E-04  5.0e-01
+CLWCVCOL    -6.812821E-02   3.292026E-04  2.0
+CTWCIREF    -6.835050E-02   3.292064E-04  5.0e-01
+CTWCVREF    -6.822893E-02   3.292051E-04  2.0
+CTWCICOL    -6.825762E-02   3.292069E-04  5.0e-01
+CTWCVCOL    -6.826676E-02   3.292077E-04  2.0
+CALNVLWC    0.7 0.3e-4
+CALNVTWC    1.65 0.5e-4
+CALNVL      2589.0
+CALRSL    1.284E-4     110.0          ! LW RS const, Temp. deg C #PIKMIX 27/01/2012
+CALRST    1.170E-4     110.0          ! TW RS const, Temp. deg C #PIKMIX 27/01/2012
+!
+!            const        x
+!c_ozone1  Teco Ozone
+CALO3    -1.227630E+0  1.896381E-4 0.00000E+0  5.20000E+2 !calibration coefficient changed 14_01_2011
+CALO3P   -1.198721E+0  1.896757E-4 5.2589E+0   135.5400
+CALO3T   -1.191110E+0  1.893918E-4 -18.970 24.209 -4.4547 0.4497 -0.0175
+CALO3F   -1.207855E+0  1.895840E-4   !Flow drs to volts DRS 12_12_07
+CALO3MX   -5.0 300.0 500.0 50.0  !Min Max flag 2 Max and min airspeed
+!
+!c_nox
+CALNO    -1.214602E+0  1.895988E-4 10.0 10.0 !Drs to volts, v to ppb, ppb offset
+CALNO2   -1.244896E+0  1.896640E-4 10.0 10.0 !Drs to volts, v to ppb, ppb offset
+CALNOX   -1.205315E+0  1.899120E-4 20.0 20.0 !Drs to volts, v to ppb, ppb offset
+CALNOMX   -10.0 200.0 50.0  !Min Max values and min airspee
+!
+!c_so2
+CALSO2    -1.22772E+0  1.896443E-4 50.5 -48.04 !Drs to volts, v to ppb, ppb offset
+!
+!c_comr
+CALCOMR   -1.193742E+0  1.896764E-4 1000.0 0.0 !Drs to volts, v to ppb, ppb offset
+CALCOMX   -10.0 100000.0 50.0  !Min Max values and min airspeed
+!
+!c_press1 - Cabin and S9 pressure transducers, X0, X1, X2
+CALCABP  2.757904E+00 3.293439E-02 -2.462971E-10 ! #1584 12_12_07
+CALS9SP  1.225566E+00 3.292344E-02 8.271395E-10 ! #1789 12_12_07
+!
+!c_psap    PSAP
+CALPLIN  -1.180833E+0  1.893540E-4 ! DRS coeffs only 12_12_07
+CALPLOG  -1.189457E+0  1.894231E-4 ! DRS coeffs only
+!
+! BROAD BAND RADIOMETERS
+!
+!
+!c_sols    BBR's - Sensitivity X0, X1, T0, T1              
+CALUP1S   2.159399E+0  4.970782E-2  1.283906E+2 -6.022360E-3 ! H394 30_10_12 .
+CALUP2S   3.891574E-1  2.926867E-2  1.284665E+2 -6.022145E-3 ! H632 30_10_12
+CALUIRS   -1.833822E+3  5.636355E-2  1.563402E+2 -3.602360E-3 ! H498 2006 cal typo in 4th-6th dp of X1 corrected 21_04_09
+CALLP1S   1.493447E+0  4.304429E-2  1.286886E+2 -6.017196E-3 ! H631 30_10_12
+CALLP2S   7.718006E-1  2.667641E-2  1.283740E+2 -6.019204E-3 ! H392 30_10_12
+CALLIRS   -6.677094E+2  2.036665E-2  1.556183E+2 -3.607455E-3 ! H497 06_09_07
+!
+! Instrument serial numbers C=clear pyran. R=red pyran. I=pyrgeometer
+!
+!ISN 81  C394
+!ISN 82  R392
+!ISN 83  I498
+!ISN 91  C490
+!ISN 92  R495
+!ISN 93  I497
+!
+! pitch and roll offsets changed post FENNEC pilot campaign after a recommendation
+! from Claire Ryder, who analysed the pirouette and the box pattern from flight B597 27/05/2011
+!c_rflux   Corrected BBR fluxes - TA,TB,TC,Pit,Rol,Obs (1=none 2=small 3=large) 
+CALCUCF   0.00000E-3  0.00000E+0  0.00000E+0 -2.80000E+0  0.30000E+0  1.00000E+0
+CALCURF   0.00000E-3  0.00000E+0  0.00000E+0 -3.20000E+0 -0.10000E+0  1.00000E+0
+CALCUIF  -2.00000E-3  0.00000E+0  0.00000E+0 -3.00000E+0  0.00000E+0  1.00000E+0
+CALCLCF   0.00000E+0  0.00000E+0  0.00000E+0  0.00000E+0  0.00000E+0  1.00000E+0
+CALCLRF   0.00000E+0  0.00000E+0  0.00000E+0  0.00000E+0  0.00000E+0  1.00000E+0
+CALCLIF  -2.00000E-3  0.00000E+0  0.00000E+0  0.00000E+0  0.00000E+0  1.00000E+0
+!
+!            const        x
+!c_temps2  Recovery factors and coeffs for deiced and non-deiced - deg C
+TRFCTR   9.990E-1  9.280E-1  ! New Values 04_06_05 0.9928 0.999
+CALDIT   -2.387755E+2 1.005972E-3 2.078846E-10 ! 17005E 30_10_12
+CALNDT   -2.431701E+02 9.987664E-04 2.056598E-10 ! 17005E 30_10_12 
+!
+!c_tpress - Turbulence probe transducers, X0, X1, X2, X3
+CALTP1  3.826313E-01 5.651983E-03 -4.890775E-09 7.915777E-14  ! 1995 
+CALTP2  -8.816420E-02 2.103073E-05 1.390484E-17 6.128512E-24  ! 2601 cal 23/2/12
+CALTP3  2.699852E-02 2.103401E-05 2.286556E-17 9.800737E-25  ! 2935 
+CALTP4  5.753850E-01 1.079247E-02
+CALTP5  -6.113108E-01 1.070003E-02
+!
+!c_turb     Turbulence probe flow angle and TAS calculations, X0, X1, X1
+AOA_A0    3.35361E-01  2.78277E-01 -5.73689E-01
+AOA_A1   -6.1619E-02 -5.2595E-02  1.0300E-01
+AOSS_B0  -2.1887E-02  0.0000E-00  0.0000E0 ! Recalculated 23_1_07
+AOSS_B1   5.7967E-02 -1.7229E-02  0.0000E0 ! Recalculated 23_1_07
+TOLER     2.0000E-03
+TASCOR1   0.9984E0 ! AMW May 2012
+ALPH0     -0.4126E+0
+ALPH1     1.0776E+0
+BET0      -0.70E+0 ! Phil Brown 2/3/09
+BET1      0.9505E+0
+!
+!c_twc     Lyman alpha total water - temps in K, currents in A, TWC decades refit 22/10/2013
+CALTNOS   1.2614E-16 -1.8668E-12  1.2704E-08  9.4262E-03  3.1654E+02
+CALTSAM   11.02757718 3956.07906064 1932.77875494 7162.35330738
+CALTAMB   2.9951E-13  9.3288E-10 -4.0779E-06  1.6016E-02  2.7390E+02
+CALTSRC   2.8700E-18 -1.2794E-14  2.8480E-11  2.2585E-10  9.5178E-03  3.7298E+02
+CALHTR1   9.7752E-04  0.0000E+00
+CALHTR2   9.7752E-04  0.0000E+00
+CALISRC   9.7636E-08 -2.5957E-06
+!
+!c_winds   Position of vanes wrt INS/INU - forward, port, up - m
+INSPOSN  16.00200E+0 -0.81280E+0 -0.43900E+0
+!
+!buck mirror temperature calibration coefficients 15/10/09 
+BUCK      -7.161237E+01  1.821160E+00  -3.133962E-03  3.975322E-06 ! Cal: 15/10/09 
+!
+! Data Processing modules to be run
+! ---------------------------------
+NOCNC 
+!CLOUDP    !updated
+!CPC
+!GENEAS
+!GPS       !XR5M V5.02
+!HEIMAN
+!INS1        !Leave in (although INU removed Mar09)
+!LWC      !Johnson Williams
+!NEPHL1  !removed on 07/03/2012#b676
+NONEVZ
+NOSO2
+!OZONE1   !updated
+!COMR     !updated
+NONOX     !no more NOX to be fitted
+!PRESS1
+!PSAP    !PSAP data recorded via DLU & HORACE - also backed up on PSAP laptop
+!RVSM
+!RADAL1
+!SOLS     !ie BBRs
+!TEMPS2
+!TPRESS
+!TURB
+!TWC     !Lyman Alpha, Updated Both TWC Probes use the same constants
+!WINDS
+! Revision 0 - 23 Jul 2014
