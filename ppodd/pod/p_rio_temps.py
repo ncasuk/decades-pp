@@ -156,8 +156,8 @@ FORTRAN routine C_TEMPS2
                      parameter('NDTI',
                                units='DEG K',
                                frequency=32,
-                               number=524,l
-                               ong_name='NONDEICED IND TEMP'),
+                               number=524,
+                               long_name='NONDEICED IND TEMP'),
                      parameter('TAT_ND_R',
                                units='degK',
                                frequency=32,
