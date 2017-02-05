@@ -1,7 +1,7 @@
 from ppodd.core import *
 
 import numpy as np
-
+from scipy.optimize import fsolve
 
 def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control):
 
@@ -13,7 +13,9 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control):
     buck_unc_b=np.zeros(n)
     buck_unc_k=np.zeros(n)
 
+
     buck_unc_temp=np.zeros(n)*np.nan
+
     #buck_mirr_t = data.mirr_t
     #buck_pressure = data.pressure
     #buck_mirror_control = data.mirr_ctl
@@ -28,24 +30,35 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control):
         buck_unc_r[i]=Ur
 
         if buck_mirr_temp[i] > 248.0:
-            lag=8
-        else:
-            # lag = ceil(((2 * (-0.36296)) * Buck_Mirr_T[i]) + 105.21)
+            lag=8            
+        else:                # lag = ceil(((2 * (-0.36296)) * Buck_Mirr_T[i]) + 105.21)
             lag=np.ceil(2e+29*buck_mirr_temp[i]**(-11.902))
+        
+        if not np.isfinite(lag):
+            lag=8
+        #Bug 2 found
+        #if ((i > lag) & (i < (n-lag))):
+        #    fwdUt=np.std(buck_mirr_temp[i:i+lag])
+        #    backUt=np.std(buck_mirr_temp[i-lag:i])
+        #else:
+        #    fwdUt=0
+        #    backUt=0
 
-        if ((i > lag) & (i < (n-lag))):
-            fwdUt=np.std(buck_mirr_temp[i:i+lag])
-            backUt=np.std(buck_mirr_temp[i-lag:i])
+        if lag != np.nan:
+            #Change to cope with nans            
+            fwdUt=np.nanstd(buck_mirr_temp[i:i+lag])
+            backUt=np.nanstd(buck_mirr_temp[i-lag:i])
         else:
-            fwdUt=0
-            backUt=0
+            fwdUt, backUt = 0,0
 
         if (buck_pressure[i] > 0.0):
             Ut=np.max([fwdUt, backUt])
+            #3 Bug found
+            buck_unc_t[i]=Ut
             buck_unc_temp[i]=Ut
         else:
             Ut = 0.0
-
+        """do you need to change this to buck_mirr_t? """
         # Interpolation uncertainty from NPL cal points to applied distribution
         if(buck_mirr_temp[i] > 233.15):
             Ui=0.025
@@ -79,9 +92,7 @@ def calc_uncertainty(buck_mirr_temp, buck_pressure, buck_mirr_control):
     buck_unc_k[ix]=np.nan
 
     #Buck_Unc_K[c]=2*sqrt(Buck_Unc_c[c]^2+Buck_Unc_r[c]^2+Buck_Unc_t[c]^2+Buck_Unc_i[c]^2+Buck_Unc_b[c]^2)+10*Buck_Mirror_Control[c] //root sum square. Coverage factor of 2
-    #return (buck_unc_c, buck_unc_r, buck_unc_t, buck_unc_i, buck_unc_b, buck_unc_k)
     return buck_unc_k
-
 
 
 def get_buck_mirror_ctl(buck_mirr_temp):
@@ -207,7 +218,9 @@ def get_enhance_coeff(buck_mirror_ctl):
     wat_min50to0_coeff=[-5.5898100E-2, 6.7140389E-4, -2.7492721E-6, 3.8268958E-9, -8.1985393E+1, 5.8230823E-1, -1.6340527E-3, 1.6725084E-6]
 
     result[buck_mirror_ctl < 1,:]=ice_coeff
-    result[(buck_mirror_ctl > 1) & (buck_mirror_ctl != 3),:]=wat_0to100_coeff
+    # !!! First bug found
+    #result[(buck_mirror_ctl > 1) & (buck_mirror_ctl != 3),:]=wat_0to100_coeff
+    result[(buck_mirror_ctl >= 1) & (buck_mirror_ctl != 3),:]=wat_0to100_coeff
     result[buck_mirror_ctl == 3,:]=np.nan
     return result
 
@@ -218,14 +231,17 @@ def get_vp_coeff(buck_mirror_ctl):
 
     """
     rows=buck_mirror_ctl.size
-    result=np.zeros((rows, 8), dtype=np.float32)
-    # ice coefficients
-    ice_coeff=[ 0.000000000, -5.8666426E3, 2.232870244E1, 1.39387003E-2, -3.4262402E-5, 2.7040955E-8, 0.0000000000, 6.7063522E-1]
-    # water coefficients
-    wat_coeff=[ -2.836574400E3, -6.028076559E3, 1.954263612E1, -2.737830188E-2, 1.6261698E-5, 7.0229056E-10, -1.8680009E-13, 2.7150305]
-
+    result=np.zeros((rows, 11), dtype=np.float32)
+    # ice coefficients - from Murphy and Koop, valid below 273K
+    #ice_coeff=[ 0.000000000, -5.8666426E3, 2.232870244E1, 1.39387003E-2, -3.4262402E-5, 2.7040955E-8, 0.0000000000, 6.7063522E-1]
+    ice_coeff=[9.550426,-5723.265,3.53068,-0.00728332,-9999.9,-9999.9,-9999.9,-9999.9,-9999.9,-9999.9,0.0]
+    # water coefficients - these are from Murphy and Koop, valid for liquid water from 123< T <332 K
+    #wat_coeff=[ -2.836574400E3, -6.028076559E3, 1.954263612E1, -2.737830188E-2, 1.6261698E-5, 7.0229056E-10, -1.8680009E-13, 2.7150305]
+    wat_coeff=[54.842763,-6763.22,-4.210,0.000367,0.0415,-218.8,53.878,-1331.22,-9.44523,0.014025,1.0]
     result[buck_mirror_ctl < 1,:]=wat_coeff
-    result[buck_mirror_ctl > 1,:]=ice_coeff
+    #Bug 4 found    
+    #result[buck_mirror_ctl > 1,:]=ice_coeff
+    result[buck_mirror_ctl >= 1,:]=ice_coeff
     result[buck_mirror_ctl > 2,:]=np.nan
     return result
 
@@ -241,15 +257,8 @@ def calc_vp(buck_mirr_temp, buck_mirror_ctl, buck_unc_k=None):
         buck_unc_k=np.zeros(n, dtype=np.float32)
 
     c=get_vp_coeff(buck_mirror_ctl)
-
-    result=np.exp(c[:,0]/(buck_mirr_temp+buck_unc_k)**2+\
-                  c[:,1]/(buck_mirr_temp+buck_unc_k)+\
-                  c[:,2]+\
-                  c[:,3]*(buck_mirr_temp+buck_unc_k)+\
-                  c[:,4]*(buck_mirr_temp+buck_unc_k)**2+\
-                  c[:,5]*(buck_mirr_temp+buck_unc_k)**3+\
-                  c[:,6]*(buck_mirr_temp+buck_unc_k)**4+\
-                  c[:,7]*(np.log(buck_mirr_temp+buck_unc_k)))
+    result=np.exp(c[:,0]+c[:,1]/(buck_mirr_temp+buck_unc_k)+c[:,2]*np.log(buck_mirr_temp+buck_unc_k)+c[:,3]*(buck_mirr_temp+buck_unc_k)+\
+           c[:,10]*(np.tanh(c[:,4]*((buck_mirr_temp+buck_unc_k)+c[:,5])))*(c[:,6]+c[:,7]/(buck_mirr_temp+buck_unc_k)+c[:,8]*np.log(buck_mirr_temp+buck_unc_k)+c[:,9]*(buck_mirr_temp+buck_unc_k))) 
     return result
 
 
@@ -283,27 +292,53 @@ def get_flag(buck_mirr_flag, buck_dewpoint_flag):
     flag[buck_mirr_flag == 1]=2
     flag[buck_dewpoint_flag == 2]=3
     return flag
+    
+def calc_tdew_corrected(buck_mirr_control,vmr_buck,ps_rvsm,enhance):
+    #this calculates the dewpoint corrected for the difference in pressure between outside air and inside the instrument
+    #haven't recalculated the error, this is unlikely to change much so probably isn't worth doing?
+    n=vmr_buck.size
+    tfrost_corrected=np.zeros(n)
+   # rows1=buck_mirr_control.size
+    result=np.zeros(n)
+    vp_corrected=np.zeros(n)
+    vp_corrected=100*ps_rvsm*vmr_buck/(enhance*10e5+enhance*vmr_buck)
+   
+   #using the function given in Murphy and Koop 2005
+    tdew_function = lambda tdew : (54.842763- 6763.22/tdew - 4.210*np.log(tdew ) + 0.000367*tdew+ np.tanh(0.0415*(tdew - 218.8))*(53.878- 1331.22/tdew- 9.44523*np.log(tdew) + 0.014025*tdew))-np.log(vp_here)
+    tdew_corrected=np.zeros(n)
+    vp_here=np.zeros(n)
+    # Use the numerical solver to find the roots
+    tdew_initial_guess = 300.0
+
+    for i in range(0,n):
+        vp_here=vp_corrected[i]
+        tdew_corrected[i] = fsolve(tdew_function, tdew_initial_guess)
+
+    #using the function given in Murphy and Koop 2005
+    tfrost_corrected=(1.814625*np.log(vp_corrected)+6190.134)/(29.120-np.log(vp_corrected))
+
+    #TODO: "THINK THIS COULD BE BETTER?"
+    for j in range(0,n):
+        if buck_mirr_control[j] < 1:
+            result[j]=tdew_corrected[j]
+        if buck_mirr_control[j] >= 1:
+            result[j]=tfrost_corrected[j]
+        if buck_mirr_control[j] > 2:
+            result[j]=np.nan
+    
+    return result
+
+
+
+
+
 
 
 class rio_buck_cr2(cal_base):
+#class rio_buck_cr2(object):
+    """Routine to process data from the BUCK CR2 Hygrometer.
+
     """
-:DESCRIPTION:
-  Processing of the BUCK CR2 instrument data
-
-:FLAGGING:
-  Yes
-  
-:OUTPUT:
-  VMR_CR2 - Water vapour volume mixing ratio measured by the Buck CR2 
-  
-  VMR_C_U - Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2
-  
-  TDEW_CR2 - Mirror Temperature measured by the Buck CR2 Hygrometer
-
-  TDEW_C_U - Uncertainty estimate for Buck CR2 Mirror Temperature
-
-"""
-
 
     def __init__(self,dataset):
         """AERACK_buck_ppm: raw ppm reading for the buck hygrometer
@@ -318,27 +353,38 @@ class rio_buck_cr2(cal_base):
                           'AERACK_buck_mirr_temp',
                           'AERACK_buck_pressure',
                           'AERACK_buck_dewpoint_flag',
-                          'AERACK_buck_mirr_cln_flag']
+                          'AERACK_buck_mirr_cln_flag',
+                          'PS_RVSM']
 
         self.outputs=[parameter('VMR_CR2', units='ppmv', frequency=1, number=783, long_name='Water vapour volume mixing ratio measured by the Buck CR2', standard_name='volume_mixing_ratio_of_water_in_air'),
                       parameter('VMR_C_U', units='ppmv', frequency=1, number=784, long_name='Uncertainty estimate for water vapour volume mixing ratio measured by the Buck CR2'),
                       parameter('TDEW_CR2', units='degK', frequency=1, number=785, long_name='Mirror Temperature measured by the Buck CR2 Hygrometer', standard_name='dew_point_temperature'),
-                      parameter('TDEW_C_U', units='degK', frequency=1, number=786, long_name='Uncertainty estimate for Buck CR2 Mirror Temperature')]
+                      parameter('TDEW_C_U', units='degK', frequency=1, number=786, long_name='Uncertainty estimate for Buck CR2 Mirror Temperature'),
+                      parameter('TDEW_CR2_C', units='degK', frequency=1, long_name='Corrected dew point temperature measured by the Buck CR2 Hygrometer', standard_name='dew_point_temperature')]
+        
         self.version=1.00
         cal_base.__init__(self,dataset)
 
     def process(self):
         match=self.dataset.matchtimes(self.input_names[1:])
 
+        ps_rvsm=self.dataset['PS_RVSM'].ismatch(match).get1Hz()
+        
         buck_mirr_temp=self.dataset['AERACK_buck_mirr_temp'].ismatch(match)               
         buck_mirr_temp+=273.15 #convert to Kelvin
-        buck_mirr_temp[buck_mirr_temp == 273.15]=-9999.0
+        buck_mirr_temp[buck_mirr_temp == 273.15]=np.nan
+        buck_mirr_temp[buck_mirr_temp < 0]=np.nan
         #apply calibration using coefficients from the flight constants file
         p=np.poly1d(self.dataset['BUCK'][::-1])
         buck_mirr_temp=p(buck_mirr_temp)
         buck_pressure=self.dataset['AERACK_buck_pressure'].ismatch(match)
         buck_dewpoint_flag=self.dataset['AERACK_buck_dewpoint_flag'].ismatch(match)        
-        buck_mirr_cln_flag=self.dataset['AERACK_buck_mirr_cln_flag'].ismatch(match)        
+        buck_mirr_cln_flag=self.dataset['AERACK_buck_mirr_cln_flag'].ismatch(match)      
+        """!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!THIS IS TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+        n=buck_mirr_temp.size
+        ps_rvsm=np.zeros(n)
+        ps_rvsm=buck_pressure+100.0
+        """!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
 
         buck_mirr_control=get_buck_mirror_ctl(buck_mirr_temp)
         vp_buck=calc_vp(buck_mirr_temp, buck_mirr_control)
@@ -348,14 +394,25 @@ class rio_buck_cr2(cal_base):
         vmr_buck=calc_vmr(vp_buck, enhance, buck_pressure)
         vmr_max=calc_vmr(vp_max, enhance, buck_pressure)
         vmr_unc=vmr_max-vmr_buck
+        tdew_corrected=calc_tdew_corrected(buck_mirr_control,vmr_buck,ps_rvsm,enhance)   
 
         flag=get_flag(buck_mirr_cln_flag, buck_dewpoint_flag)
+        flag[~np.isfinite(buck_mirr_temp)]=3
+        
         vmr_buck=flagged_data(vmr_buck, match, flag)
         vmr_unc=flagged_data(vmr_unc, match, flag)
         tdew_cr2=flagged_data(buck_mirr_temp, match, flag)
         tdew_c_u=flagged_data(buck_unc_k, match, flag)
+                
+     
+        
 
+        for var in [vmr_buck, vmr_unc, tdew_cr2, tdew_c_u]:
+            var[~np.isfinite(var)]=-9999.0
+
+        """!!!!!!!!!!!NEED TO ADD IN TDEW_CORRECTED AS A NEW PARAMETER"""
         self.outputs[0].data=vmr_buck
         self.outputs[1].data=vmr_unc
         self.outputs[2].data=tdew_cr2
         self.outputs[3].data=tdew_c_u
+        self.outputs[4].data=tdew_corrected
