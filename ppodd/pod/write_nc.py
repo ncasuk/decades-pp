@@ -22,7 +22,8 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'TRCK_GIN', 'GSPD_GIN',
         'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 'ACLF_GIN', 'ACLS_GIN', 'ACLD_GIN', 'SW_UP_C',
         'NEPH_PR', 'NEPH_T', 'TSC_BLUU', 'TSC_GRNU', 'TSC_REDU', 'BSC_BLUU', 'BSC_GRNU', 'BSC_REDU',
-        'EXX_JCI', 'WOW_IND', 'WVSS2F_VMR', 'WVSS2R_VMR', 'CPC_CNTS', 'TDEW_CR2', 'TDEW_C_U']
+        'EXX_JCI', 'WOW_IND', 'WVSS2F_VMR', 'WVSS2R_VMR', 'CPC_CNTS', 'TDEW_CR2', 'TDEW_C_U',
+        'VMR_CR2',  'VMR_C_U', 'TDEWCR2C']
 
 
         self.outputs=[]
