@@ -22,6 +22,8 @@ Routine for reading in CONST data
         self.outputs.append(constants_parameter('Flight_Constants', ''.join(self.dataset.flight_constants)))
         for l in self.dataset.flight_constants:
             l=l.strip()
+            if not l:  # if line is empty move on
+                continue
             if(l.startswith('!')):
                 if(l.startswith('! FLIGHT ')):
                     flight=l.replace('! FLIGHT ','',1).strip()
