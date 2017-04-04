@@ -40,6 +40,7 @@ calibration chamber (AL52CO_calpress) exceeds as defined threshold (3.4).
 from ppodd.core import *
 
 import datetime
+import numpy as np
 import sys
 
 
@@ -177,34 +178,36 @@ class rio_co_mixingratio(cal_base):
     """
 
     def __init__(self,dataset):
-        self.input_names=['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress', 'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time', 'AL52CO_counts', 'WOW_IND', 'HGT_RADR', 'CALCOMX']
-        self.outputs=[parameter('CO_AERO',
-                                units='ppb',
-                                frequency=1,
-                                long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument',
-                                standard_name='mole_fraction_of_carbon_monoxide_in_air')]
+        self.input_names = ['AL52CO_conc', 'AL52CO_sens', 'AL52CO_zero', 'AL52CO_cellpress',
+                            'AL52CO_calpress', 'AL52CO_cal_status', 'AL52CO_utc_time',
+                            'AL52CO_counts', 'WOW_IND', 'HGT_RADR', 'CALCOMX']
+        self.outputs = [parameter('CO_AERO',
+                                  units='ppb',
+                                  frequency=1,
+                                  long_name='Mole fraction of Carbon Monoxide in air from the AERO AL5002 instrument',
+                                  standard_name='mole_fraction_of_carbon_monoxide_in_air')]
         self.version=1.00
         cal_base.__init__(self,dataset)
 
     def process(self):
-        match=self.dataset.matchtimes(self.input_names)
-        co_mr=self.dataset['AL52CO_conc'].data.ismatch(match)
-        counts=self.dataset['AL52CO_counts'].data.ismatch(match)
-        co_mr[counts == 0]=np.nan
-        calpress=self.dataset['AL52CO_calpress'].data.ismatch(match)
-        cal_status=self.dataset['AL52CO_cal_status'].data.ismatch(match)
+        match = self.dataset.matchtimes(self.input_names)
+        co_mr = self.dataset['AL52CO_conc'].data.ismatch(match)
+        counts = self.dataset['AL52CO_counts'].data.ismatch(match)
+        co_mr[counts == 0] = np.nan
+        calpress = self.dataset['AL52CO_calpress'].data.ismatch(match)
+        cal_status = self.dataset['AL52CO_cal_status'].data.ismatch(match)
         # cal_status is a character and needs to be converted to integer to do anything useful with it
-        cal_status=np.int8(cal_status)
-        sens=self.dataset['AL52CO_sens'].data.ismatch(match)
-        sens[sens == 0.0]=np.nan
-        #remove outliers: threshold is 25% difference from the overall median
-        sens[np.abs(sens-np.nanmedian(sens)) > 0.25*np.nanmedian(sens)]=np.nan
-        zero=self.dataset['AL52CO_zero'].data.ismatch(match)
-        zero[zero == 0.0]=np.nan
-        #remove outliers: threshold is 25% difference from the overall median
-        zero[np.abs(zero-np.nanmedian(zero)) > 0.25*np.nanmedian(zero)]=np.nan
-        utc_time=self.dataset['AL52CO_utc_time'].data.ismatch(match)
-        wow_ind=self.dataset['WOW_IND'].data.ismatch(match)
+        cal_status = np.int8(cal_status)
+        sens = self.dataset['AL52CO_sens'].data.ismatch(match)
+        sens[sens == 0.0] = np.nan
+        # remove outliers: threshold is 25% difference from the overall median
+        sens[(np.abs(sens-np.nanmedian(sens))) > (0.25*np.nanmedian(sens))] = np.nan
+        zero = self.dataset['AL52CO_zero'].data.ismatch(match)
+        zero[zero == 0.0] = np.nan
+        # remove outliers: threshold is 25% difference from the overall median
+        zero[(np.abs(zero-np.nanmedian(zero))) > (0.25*np.nanmedian(zero))] = np.nan
+        utc_time = self.dataset['AL52CO_utc_time'].data.ismatch(match)
+        wow_ind = self.dataset['WOW_IND'].data.ismatch(match)
         #
         # We calculate the raw counts from the CO concentration and the calibration coefficients.
         # The *AL52CO_counts variable can not be used* because it does not necessarily match the
@@ -227,51 +230,48 @@ class rio_co_mixingratio(cal_base):
         # The scaling factor is needed to take care of revised CO calibration gas concentrations, which
         # FAAM learns only about post flight/campaign, when the calibration gas is reanalysed by an authority.
         if len(self.dataset['CALCOMX'].data) <= 3:
-            scaling_factor=1.0
+            scaling_factor = 1.0
             sys.stdout.write('    Scaling factor not defined in flight-cst file.\n')
         else:
             scaling_factor=self.dataset['CALCOMX'][3]
             sys.stdout.write('    Scaling factor defined in flight-cst file.\n')
         sys.stdout.write('    Scaling factor set to %f.\n' % (scaling_factor))
-        co_mr*=scaling_factor
+        co_mr *= scaling_factor
 
-        counts=co_mr/(1.0/sens)+zero
-        
-        #try flagging erroneous data points        
-        counts[counts == 0]=np.nan
-        ix=np.where((counts-np.roll(counts, 1) < -2000) &
-                    (counts-np.roll(counts, -1) < -2000) &
-                    (counts < np.nanmedian(counts)*0.8))[0]
-        counts[ix]=np.nan
+        counts = co_mr/(1.0/sens)+zero
+
+        #try flagging erroneous data points
+        counts[counts == 0] = np.nan
+        ix = np.where(((counts-np.roll(counts, 1)) < -2000) &
+                      ((counts-np.roll(counts, -1)) < -2000) &
+                      (counts < (np.nanmedian(counts)*0.8)))[0]
+#        counts[ix] = np.nan
         # calc new interpolated calibration coefficients
         sens_new, zero_new=interpolate_cal_coefficients(utc_time, sens, zero)
 
         # recalculate the CO concentration using the interpolated calibration coefficients
         # zero_new and sens_new
-        conc_new=(counts-zero_new)/sens_new
-
+        conc_new = (counts-zero_new)/sens_new
         # use both cal_status flag and pressure in calibration chamber for indexing calibration time periods
-        cal_status_ix=np.where((cal_status == 1) | (calpress > 1.7))[0]
+        cal_status_ix = np.where((cal_status == 1) | (calpress > 3.4))[0]
         # add time buffer to cal_status
-        cal_status_buffer=8
+        cal_status_buffer = 8
         for i in range(cal_status_buffer*-1, cal_status_buffer+1):
-            cal_status_ix=list(set(list(np.concatenate((np.array(cal_status_ix), np.array(cal_status_ix)+i)))))
-        cal_status_ix=np.array(cal_status_ix)
-        cal_status_ix=cal_status_ix[cal_status_ix < len(cal_status)]
-        cal_status_ix=list(cal_status_ix)
-        cal_status[cal_status_ix]=1
-        flag=np.zeros(co_mr.size, dtype=np.int8)     # initialize flag array, with all values set to 0
-        flag[co_mr<-10]=3                            # flag very negative co_mr as 3
-        flag[cal_status==1]=3                        # flag data while calibration is running
-        flag[calpress>3.4]=3                         # flag when calibration gas pressure is increased
-        flag[counts==0]=3
-        co_aero=flagged_data(conc_new, match, flag)
-
-        # creating a plot which shows the "raw" time series and the one that uses
-        # interpolated calibration coefficients
+            cal_status_ix = list(set(list(np.concatenate((np.array(cal_status_ix), np.array(cal_status_ix)+i)))))
+        cal_status_ix = np.array(cal_status_ix)
+        cal_status_ix = cal_status_ix[cal_status_ix < len(cal_status)]
+        cal_status_ix = list(cal_status_ix)
+        cal_status[cal_status_ix] = 1
+        flag = np.zeros(co_mr.size, dtype=np.int8)       # initialize flag array, with all values set to 0
+        flag[co_mr < -10] = 3                            # flag very negative co_mr as 3
+        flag[cal_status == 1] = 3                        # flag data while calibration is running
+        flag[calpress > 3.4] = 3                         # flag when calibration gas pressure is increased
+        flag[counts == 0] = 3
+        co_aero = flagged_data(conc_new, match, flag)
+        # creating a plot which shows the "raw" time series and the one
+        # that uses interpolated calibration coefficients
         try:
-            create_plot(match, co_mr, conc_new, cal_status, self.dataset)
+           create_plot(match, co_mr, conc_new, cal_status, self.dataset)
         except:
             pass
-        self.outputs[0].data=co_aero
-
+        self.outputs[0].data = co_aero
