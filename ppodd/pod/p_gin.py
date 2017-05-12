@@ -15,33 +15,32 @@ class gin(cal_base):
 @author: Dave Tiddeman
     """
     def __init__(self,dataset):
-        self.input_names=['DATE','GINDAT_time1','GINDAT_lat','GINDAT_lon','GINDAT_alt',
-                          'GINDAT_veln','GINDAT_vele','GINDAT_veld',
-                          'GINDAT_roll','GINDAT_ptch','GINDAT_hdg',
-                          'GINDAT_wand','GINDAT_trck','GINDAT_gspd',
-                          'GINDAT_rolr','GINDAT_pitr','GINDAT_hdgr',
-                          'GINDAT_aclf','GINDAT_acls','GINDAT_acld',
-                          'GINDAT_status']
-        self.outputs=[
-parameter('LAT_GIN',units='degree_north',frequency=32,number=610,long_name='Latitude from POS AV 510 GPS-aided Inertial Navigation unit',standard_name='latitude'),
-parameter('LON_GIN',units='degree_east',frequency=32,number=611,long_name='Longitude from POS AV 510 GPS-aided Inertial Navigation unit',standard_name='longitude'),
-parameter('ALT_GIN',units='m',frequency=32,number=612,long_name='Altitude from POS AV 510 GPS-aided Inertial Navigation unit',standard_name = 'altitude'),
-parameter('VELN_GIN',units='m s-1',frequency=32,number=613,long_name='Aircraft velocity north from POS AV 510 GPS-aided Inertial Navigation unit'),
-parameter('VELE_GIN',units='m s-1',frequency=32,number=614,long_name='Aircraft velocity east from POS AV 510 GPS-aided Inertial Navigation unit'),
-parameter('VELD_GIN',units='m s-1',frequency=32,number=615,long_name='Aircraft velocity down from POS AV 510 GPS-aided Inertial Navigation unit'),
-parameter('ROLL_GIN',units='degree',frequency=32,number=616,long_name='Roll angle from POSAV GPS-aided Inertial Nav. unit (positive for left wing up)',standard_name='platform_roll_angle'),
-parameter('PTCH_GIN',units='degree',frequency=32,number=617,long_name='Pitch angle from POSAV GPS-aided Inertial Nav. unit (positive for nose up)',standard_name='platform_pitch_angle'),
-parameter('HDG_GIN',units='degree',frequency=32,number=618,long_name='Heading from POSAV GPS-aided Inertial Navigation unit',standard_name='platform_yaw_angle'),
-parameter('WAND_GIN',units='deg s-1',frequency=32,number=619,long_name='GIN wander angle'),
-parameter('TRCK_GIN',units='degree',frequency=32,number=620,long_name='Aircraft track angle POSAV GPS-aided Inertial Navigation unit'),
-parameter('GSPD_GIN',units='m s-1',frequency=32,number=621,long_name='Groundspeed from POS AV 510 GPS-aided Inertial Navigation unit',standard_name='platform_speed_wrt_ground'),
-parameter('ROLR_GIN',units='degree s-1',frequency=32,number=622,long_name='rate-of-change of GIN roll angle',standard_name='platform_roll_rate'),
-parameter('PITR_GIN',units='degree s-1',frequency=32,number=623,long_name='rate-of-change of GIN pitch angle',standard_name='platform_pitch_rate'),
-parameter('HDGR_GIN',units='degree s-1',frequency=32,number=624,long_name='rate-of-change of GIN heading',standard_name='platform_yaw_rate'),
-parameter('ACLF_GIN',units='m s-2',frequency=32,number=625,long_name='Acceleration along the aircraft longitudinal axis (GIN) (positive forward)'),
-parameter('ACLS_GIN',units='m s-2',frequency=32,number=626,long_name='Acceleration along the aircraft transverse axis (GIN) (positive starboard)'),
-parameter('ACLD_GIN',units='m s-2',frequency=32,number=627,long_name='Acceleration along the aircraft vertical axis (GIN) (positive down)'),
-parameter('SECS_GIN',units='s',frequency=1,number=515,long_name='Gin time secs past midnight')]
+        self.input_names = ['DATE','GINDAT_time1','GINDAT_lat','GINDAT_lon','GINDAT_alt',
+                            'GINDAT_veln','GINDAT_vele','GINDAT_veld',
+                            'GINDAT_roll','GINDAT_ptch','GINDAT_hdg',
+                            'GINDAT_wand','GINDAT_trck','GINDAT_gspd',
+                            'GINDAT_rolr','GINDAT_pitr','GINDAT_hdgr',
+                            'GINDAT_aclf','GINDAT_acls','GINDAT_acld',
+                            'GINDAT_status']
+        self.outputs = [parameter('LAT_GIN', units='degree_north', frequency=32, number=610,long_name='Latitude from POS AV 510 GPS-aided Inertial Navigation unit',standard_name='latitude'),
+                        parameter('LON_GIN', units='degree_east', frequency=32, number=611,long_name='Longitude from POS AV 510 GPS-aided Inertial Navigation unit',standard_name='longitude'),
+                        parameter('ALT_GIN', units='m', frequency=32, number=612,long_name='Altitude from POS AV 510 GPS-aided Inertial Navigation unit',standard_name = 'altitude'),
+                        parameter('VELN_GIN', units='m s-1', frequency=32, number=613,long_name='Aircraft velocity north from POS AV 510 GPS-aided Inertial Navigation unit'),
+                        parameter('VELE_GIN', units='m s-1', frequency=32, number=614,long_name='Aircraft velocity east from POS AV 510 GPS-aided Inertial Navigation unit'),
+                        parameter('VELD_GIN', units='m s-1', frequency=32, number=615,long_name='Aircraft velocity down from POS AV 510 GPS-aided Inertial Navigation unit'),
+                        parameter('ROLL_GIN', units='degree', frequency=32, number=616, long_name='Roll angle from POS AV 510 GPS-aided Inertial Nav. unit (positive for left wing up)',standard_name='platform_roll_angle'),
+                        parameter('PTCH_GIN', units='degree', frequency=32, number=617, long_name='Pitch angle from POS AV 510 GPS-aided Inertial Nav. unit (positive for nose up)',standard_name='platform_pitch_angle'),
+                        parameter('HDG_GIN', units='degree', frequency=32, number=618, long_name='Heading from POSAV GPS-aided Inertial Navigation unit',standard_name='platform_yaw_angle'),
+                        parameter('WAND_GIN', units='deg s-1', frequency=32, number=619, long_name='GIN wander angle'),
+                        parameter('TRCK_GIN', units='degree', frequency=32, number=620, long_name='Aircraft track angle from POS AV 510 GPS-aided Inertial Navigation unit', standard_name='platform_course'),
+                        parameter('GSPD_GIN', units='m s-1', frequency=32, number=621, long_name='Groundspeed from POS AV 510 GPS-aided Inertial Navigation unit', standard_name='platform_speed_wrt_ground'),
+                        parameter('ROLR_GIN', units='degree s-1', frequency=32, number=622, long_name='Rate-of-change of GIN roll angle', standard_name='platform_roll_rate'),
+                        parameter('PITR_GIN', units='degree s-1', frequency=32, number=623, long_name='Rate-of-change of GIN pitch angle', standard_name='platform_pitch_rate'),
+                        parameter('HDGR_GIN', units='degree s-1', frequency=32, number=624, long_name='Rate-of-change of GIN heading', standard_name='platform_yaw_rate'),
+                        parameter('ACLF_GIN', units='m s-2', frequency=32, number=625, long_name='Acceleration along the aircraft longitudinal axis (GIN) (positive forward)'),
+                        parameter('ACLS_GIN', units='m s-2', frequency=32, number=626, long_name='Acceleration along the aircraft transverse axis (GIN) (positive starboard)'),
+                        parameter('ACLD_GIN', units='m s-2', frequency=32, number=627, long_name='Acceleration along the aircraft vertical axis (GIN) (positive down)'),
+                        parameter('SECS_GIN', units='s', frequency=1, number=515, long_name='Gin time secs past midnight')]
         cal_base.__init__(self,dataset)
 
     def process(self):
