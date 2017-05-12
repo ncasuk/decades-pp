@@ -77,12 +77,12 @@ class gin(cal_base):
                     else:
                         d=self.dataset[name].data
                     d.interp1d()
-                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)                    
+                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)
+                    # the interpolation introduces 0 in the data, therefore we
+                    # pop the first and last rows of the data
+                    o.data = o.data[1:-1,:]
                     if name in ['GINDAT_hdg', 'GINDAT_trck']:
                         o.data%=360.
                     x=~np.isfinite(o.data)
                     o.data.flag[x]=3
                     o.data[x]=0
-
-
-
