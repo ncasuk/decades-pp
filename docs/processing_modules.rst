@@ -26,39 +26,39 @@ If a new module needs to be tested it can be added to the modules that the proce
 
 An example of a test module sub-classing from cal_base::
 
-   from ppodd.core import *
+    from ppodd.core import *
+     
+    class potential_temp(cal_base):
+        “”” Test module for calculating potential temperature “””
+        def __init__(self,dataset):
+            self.input_names=['PS_RVSM','TAT_DI_R']
+            self.outputs=[parameter('POT_TEMP',units='K',
+              frequency=32,long_name='Potential Temperature')]
+            self.version=1.00
+            cal_base.__init__(self,dataset) 
     
-   class potential_temp(cal_base):
-       “”” Test module for calculating potential temperature “””
-       def __init__(self,dataset):
-           self.input_names=['PS_RVSM','TAT_DI_R']
-           self.outputs=[parameter('POT_TEMP',units='K',
-             frequency=32,long_name='Potential Temperature')]
-           self.version=1.00
-           cal_base.__init__(self,dataset) 
-   
-       def process(self):
-           d=self.dataset
-           match=d.matchtimes(['PS_RVSM','TAT_DI_R'])
-           p1=d['PS_RVSM'].data.ismatch(match)
-           t1=d['TAT_DI_R'].data.ismatch(match)
-           pote=flagged_data(t1*(1000.0/p1)**(2.0/7.0),p1.times,p1.flag) #!Potential temp (K)
-           pote.flag[t1.flag>p1.flag]=t1.flag[t1.flag>p1.flag]
-           self.outputs[0].data=pote
-   
-   """
-   An example of how to add a module for testing before being
-   added to the main processing suite in ppodd.pod 
-   """
-
-   import ppodd.pod
-   
-   ppodd.pod.addmodule(potential_temp)
-   d=decades_dataset()
-   d.add_file('decades_data/b111.zip')
-   d.add_file('decades_data/flight-cst_faam_20131001_r0_b111.txt')
-   d.process()
-   
+        def process(self):
+            d=self.dataset
+            match=d.matchtimes(['PS_RVSM','TAT_DI_R'])
+            p1=d['PS_RVSM'].data.ismatch(match)
+            t1=d['TAT_DI_R'].data.ismatch(match)
+            pote=flagged_data(t1*(1000.0/p1)**(2.0/7.0),p1.times,p1.flag) #!Potential temp (K)
+            pote.flag[t1.flag>p1.flag]=t1.flag[t1.flag>p1.flag]
+            self.outputs[0].data=pote
+    
+    """
+    An example of how to add a module for testing before being
+    added to the main processing suite in ppodd.pod 
+    """
+ 
+    import ppodd.pod
+    
+    ppodd.pod.addmodule(potential_temp)
+    d=decades_dataset()
+    d.add_file('decades_data/b111.zip')
+    d.add_file('decades_data/flight-cst_faam_20131001_r0_b111.txt')
+    d.process()
+    
 
 We define a module a sub-class of cal_base which calculates potential temperature from pressure (PS_RVSM) and temperature (TAT_DI_R).  The input names are defined, and the output parameter defined.  In the process method the times of the 2 inputs are matched, the calculation performed and the flags set.
 
