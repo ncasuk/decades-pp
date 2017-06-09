@@ -4,7 +4,7 @@ import struct
 
 class read_gindat(read_crio):
     """
-Routine for reading in AERACK data
+Routine for reading in GIN data
 """
     input_names=['GINDAT','DATE']
     def __init__(self,dataset):

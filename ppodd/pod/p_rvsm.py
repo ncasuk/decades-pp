@@ -83,9 +83,9 @@ FORTRAN routine C_RVSM
 """
     def __init__(self,dataset):
         self.input_names=['Horace_RVAL', 'Horace_RVAS']
-        self.outputs=[parameter('PS_RVSM',units='hPa',frequency=32,number=576,long_name='Static pressure from the aircraft RVSM (air data) system',standard_name='air_pressure')
-                     ,parameter('Q_RVSM',units='hPa',frequency=32,number=577,long_name='Pitot static pressure inverted from RVSM (air data) system indicated airspeed')
-                     ,parameter('PALT_RVS',units='m',frequency=32,number=578,long_name='Pressure altitude from the aircraft RVSM (air data) system',standard_name='altitude')]
+        self.outputs = [parameter('PS_RVSM',units='hPa',frequency=32,number=576,long_name='Static pressure from the aircraft RVSM (air data) system',standard_name='air_pressure'),
+                        parameter('Q_RVSM',units='hPa',frequency=32,number=577,long_name='Pitot static pressure inverted from RVSM (air data) system indicated airspeed'),
+                        parameter('PALT_RVS',units='m',frequency=32,number=578,long_name='Pressure altitude from the aircraft RVSM (air data) system',standard_name='barometric_altitude')]
         #self.name='RVSM'
         self.version=1.00
         fort_cal.__init__(self,dataset)

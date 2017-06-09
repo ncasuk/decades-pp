@@ -14,19 +14,19 @@ class rio_so2_mixingratio(cal_base):
     """
 
     def __init__(self,dataset):
-        self.input_names=['CALSO2',
-                          'CHTSOO_conc',
-                          'CHTSOO_flow',
-                          'CHTSOO_flags',
-                          'CHTSOO_utc_time']
+        self.input_names = ['CALSO2',
+                            'CHTSOO_conc',
+                            'CHTSOO_flow',
+                            'CHTSOO_flags',
+                            'CHTSOO_utc_time']
                           
-        self.outputs=[parameter('SO2_TECO',
-                                units='ppb',
-                                frequency=1,
-                                number=740,
-                                long_name='Mole fraction of Sulphur Dioxide in air from TECO 43 instrument',
-                                standard_name='mole_fraction_of_sulphur_dioxide_in_air')]
-        self.version=1.00
+        self.outputs = [parameter('SO2_TECO',
+                                  units='ppb',
+                                  frequency=1,
+                                  number=740,
+                                  long_name='Mole fraction of Sulphur Dioxide in air from TECO 43 instrument',
+                                  standard_name='mole_fraction_of_sulphur_dioxide_in_air')]
+        self.version = 1.00
         cal_base.__init__(self,dataset)
 
     def process(self):

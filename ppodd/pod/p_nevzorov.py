@@ -66,30 +66,49 @@ class nevzorov(cal_base):
     """
     """
     def __init__(self,dataset):
-        self.input_names=[  'CORCON_nv_lwc_vcol',
-                            'CORCON_nv_lwc_icol',
-                            'CORCON_nv_lwc_vref',
-                            'CORCON_nv_lwc_iref',
-                            'CORCON_nv_twc_vcol',
-                            'CORCON_nv_twc_icol',
-                            'CORCON_nv_twc_vref',
-                            'CORCON_nv_twc_iref',
-                            'TAS',
-                            'IAS_RVSM',
-                            'PS_RVSM',
-                            'WOW_IND',
-                            'CLWCIREF','CLWCVREF','CLWCICOL','CLWCVCOL',
-                            'CTWCIREF','CTWCVREF','CTWCICOL','CTWCVCOL',
-                            'CALNVLWC',
-                            'CALNVTWC',
-                            'CALNVL']
-        self.outputs=[parameter('NV_TWC_U',units='gram m-3',frequency=64,number=605,long_name='Uncorrected total condensed water content from the Nevzorov probe.'),
-		      parameter('NV_LWC_U',units='gram m-3',frequency=64,number=602,long_name='Uncorrected liquid water content from the Nevzorov probe'),
-		      parameter('NV_TWC_C',units='gram m-3',frequency=64,number=609,long_name='Corrected total condensed water content from the Nevzorov probe.'),
-		      parameter('NV_LWC_C',units='gram m-3',frequency=64,number=608,long_name='Corrected liquid water content from the Nevzorov probe')]
+        self.input_names =['CORCON_nv_lwc_vcol',
+                           'CORCON_nv_lwc_icol',
+                           'CORCON_nv_lwc_vref',
+                           'CORCON_nv_lwc_iref',
+                           'CORCON_nv_twc_vcol',
+                           'CORCON_nv_twc_icol',
+                           'CORCON_nv_twc_vref',
+                           'CORCON_nv_twc_iref',
+                           'TAS',
+                           'IAS_RVSM',
+                           'PS_RVSM',
+                           'WOW_IND',
+                           'CLWCIREF','CLWCVREF','CLWCICOL','CLWCVCOL',
+                           'CTWCIREF','CTWCVREF','CTWCICOL','CTWCVCOL',
+                           'CALNVLWC',
+                           'CALNVTWC',
+                           'CALNVL']
 
-        self.version=1.00
+        self.outputs = [parameter('NV_TWC_U',
+                                  units='gram m-3',
+                                  frequency=64,
+                                  number=605,
+                                  long_name='Uncorrected total condensed water content from the Nevzorov probe'),
+                        parameter('NV_LWC_U',
+                                  units='gram m-3',
+                                  frequency=64,
+                                  number=602,long_name='Uncorrected liquid water content from the Nevzorov probe',
+                                  standard_name='mass_concentration_of_liquid_water_in_air'),
+                        parameter('NV_TWC_C',
+                                  units='gram m-3',
+                                  frequency=64,
+                                  number=609,
+                                  long_name='Corrected total condensed water content from the Nevzorov probe'),
+                        parameter('NV_LWC_C',
+                                  units='gram m-3',
+                                  frequency=64,
+                                  number=608,
+                                  long_name='Corrected liquid water content from the Nevzorov probe',
+                                  standard_name='mass_concentration_of_liquid_water_in_air')]
+
+        self.version = 1.00
         cal_base.__init__(self,dataset)
+
 
     def process(self):
         #suppress divide by zero messages

@@ -9,10 +9,20 @@ class twc_calc(cal_base):
     
     """
     def __init__(self,dataset):
-        self.fit='TWC_FIT_GE'
-        self.input_names=[self.fit,'PS_RVSM','TWC_DET','TWC_TSAM']
-        self.outputs=[parameter('TWC_TDEW',units='K',frequency=64,number=725,long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air)')
-                     ,parameter('TWC_EVAP',units='gram kg-1',frequency=64,number=572,long_name='Total water specific humidity from the TWC avaporator instrument')]
+        self.fit = 'TWC_FIT_GE'
+        self.input_names = [self.fit,'PS_RVSM','TWC_DET','TWC_TSAM']
+        self.outputs = [parameter('TWC_TDEW',
+                                  units='K',
+                                  frequency=64,
+                                  number=725,
+                                  long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air)',
+                                  standard_name='dew_point_temperature'),
+                        parameter('TWC_EVAP',
+                                  units='gram kg-1',
+                                  frequency=64,
+                                  number=572,
+                                  long_name='Total water specific humidity from the TWC avaporator instrument',
+                                  standard_name='mass_concentration_of_water_vapor_in_air')]
         self.version=1.00
         cal_base.__init__(self,dataset)
         
