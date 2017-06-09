@@ -106,12 +106,16 @@ class decades_dataset(OrderedDict):
         from ppodd.pod.write_nc import write_nc
         self.write_nc=write_nc(self)
         OrderedDict.__init__(self)
-        self.add_para('Attribute','conventions','CF-1.0')
-        self.add_para('Attribute','source','FAAM BAe-146 Aircraft Data')
+        self.add_para('Attribute','Conventions','CF-1.4')
+        #:Conventions = "NCAR-RAF/nimbus"
+        #:ConventionsURL = "http://www.eol.ucar.edu/raf/Software/netCDF.html" ;
+        #:ConventionsVersion = "1.3" ;
+        # TODO: This is not the correct Coordinates setting for old flight ids
+        self.add_para('Attribute','Coordinates','LON_GIN LAT_GIN ALT_GIN Time')
         self.add_para('Attribute','references','http://www.faam.ac.uk')
         self.add_para('Attribute','institution','FAAM')
         self.add_para('Attribute','format_version','1.0')
-        self.add_para('Attribute','revision',0)
+        self.add_para('Attribute','revision', 0)
         self.add_para('Data','SECS',long_name='Seconds past midnight',number=515,
                                               units='s') # This is a place holder for a seconds past midnight value
                                                          # which is actually the time of each timed parameter.
@@ -242,8 +246,10 @@ class decades_dataset(OrderedDict):
         """ Get the attributes as if a NetCDF """
         ans={}
         for n in self:
-            if self[n].type=='Attribute' or self[n].type=='Constants':
+            #if self[n].type=='Attribute' or self[n].type=='Constants':
+            if self[n].type=='Attribute':
                 ans[n]=self[n].data
+        ans['Flight_Constants']=self['Flight_Constants'].data
         ans['history']=self.history
         ans['processing_version']=ppodd.version
         ans['files']=''
