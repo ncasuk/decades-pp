@@ -5,6 +5,8 @@ import time
 import os.path
 from netCDF4 import Dataset
 import ppodd
+
+
 class write_nc(cal_base):
     """ Write data out to a NetCDF
 It will try and write whatever is in input_names
@@ -15,7 +17,7 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         'IAS_RVSM', 'TAS_RVSM', 'PA_TURB', 'PB_TURB', 'TAT_DI_R', 'PSAP_LOG',
         'P9_STAT', 'PSAP_FLO', 'PSAP_TRA', 'TAS', 'TAT_ND_R', 'CO_AERO', 'SW_DN_C', 'TDEW_GE', 'NO2_TECO',
         'CAB_TEMP', 'NOX_TECO', 'LWC_JW_U', 'TWC_DET', 'BTHEIM_U', 'TWC_TSAM',
-        'P0_S10', 'AOA', 'AOSS', 'RED_DN_C', 'PSAP_LIN', 'RED_UP_C', 'CPC_CONC',
+        'P0_S10', 'AOA', 'AOSS', 'RED_DN_C', 'PSAP_LIN', 'RED_UP_C',
         'TWC_EVAP', 'O3_TECO', 'HGT_RADR', 'PS_RVSM', 'Q_RVSM', 'PALT_RVS', 'CAB_PRES',
         'V_C', 'U_C', 'W_C', 'V_NOTURB', 'U_NOTURB', 'PSP_TURB', 'NO_TECO', 'SO2_TECO', 'BTHEIM_C', 'TWC_TDEW',
         'NV_LWC_U', 'NV_TWC_U', 'LAT_GIN', 'LON_GIN', 'ALT_GIN', 'VELN_GIN',
@@ -24,7 +26,6 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         'NEPH_PR', 'NEPH_T', 'TSC_BLUU', 'TSC_GRNU', 'TSC_REDU', 'BSC_BLUU', 'BSC_GRNU', 'BSC_REDU',
         'EXX_JCI', 'WOW_IND', 'WVSS2F_VMR', 'WVSS2R_VMR', 'CPC_CNTS', 'TDEW_CR2', 'TDEW_C_U',
         'VMR_CR2',  'VMR_C_U', 'TDEWCR2C']
-
 
         self.outputs=[]
         self.name='WRITE_NC'
@@ -68,6 +69,7 @@ The NetCDF file header also contains:
         k.      Details of other data added to, or taken from, the original
                 calibrated dataset.
 """
+
     def process(self,output=None,nctype='',paras=None,onehz=False,fill_value=-9999,dtyp='f4',flag_fill=-1):
         possible_types=['NETCDF3_CLASSIC','NETCDF4', 'NETCDF4_CLASSIC', 'NETCDF3_64BIT']
         if(nctype in possible_types):
@@ -140,12 +142,14 @@ Saving as output.nc""")
                        p,dtyp,dims,fill_value=fill_value)
                     paralist.append(p)
                     for att in par.attributes:
-                        setattr(para,att,par.attributes[att])
+                        if att and att != 'type':
+                            setattr(para,att,par.attributes[att])
                     if hasattr(par.data,'flagmasked'):
                         paraf=self.coredata.createVariable(
                                p+'_FLAG','i1',dims,fill_value=flag_fill)
+                        paraf.units='1'
                         for att in par.attributes:
-                            if att not in ['units','number','standard_name']:
+                            if att not in ['units','number','standard_name', 'type']:
                                 setattr(paraf,att,par.attributes[att])
                         paraf.long_name='Flag for '+par.long_name
                     try:
@@ -197,6 +201,8 @@ Saving as output.nc""")
                     data=par.data.get1Hz()
                 else:
                     data=par.data
+                # Replace all nans in data array
+                data[~np.isfinite(data)]=-9999.0
                 try:
                     para[:]=np.float_(data).asmasked(start=start,end=end,fill_value=fill_value)
                     if hasattr(data,'flagmasked'):
