@@ -16,7 +16,13 @@ import ftplib
 import netrc
 import hashlib
 import threading
-import StringIO
+
+# py2-py3 different location of StringIO module
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
+    
 import ppodd
 
 
@@ -174,5 +180,5 @@ class ftpjob(threading.Thread):
                     md5.update(chunk)
                 else:
                     break
-        return StringIO.StringIO(md5.hexdigest()+'  '+os.path.basename(self.filename)+'\n')
+        return StringIO(md5.hexdigest()+'  '+os.path.basename(self.filename)+'\n')
 

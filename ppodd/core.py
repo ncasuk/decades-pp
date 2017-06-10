@@ -407,7 +407,7 @@ def date2time(fromdate):
     elif(l==9):
         fm=time.mktime(fromdate)
     else:                      
-        raise TypeError,'Incompatible date for conversion'
+        raise TypeError('Incompatible date for conversion')
     return fm
 
 class timestamp(np.ndarray):
@@ -428,7 +428,7 @@ class timestamp(np.ndarray):
                 try:
                     tim=times-fromdate       
                 except (TypeError,ValueError):
-                    raise Exception,'Incompatible date for conversion'
+                    raise Exception('Incompatible date for conversion')
         obj=tim.view(cls)
         return obj
 
@@ -469,7 +469,7 @@ class timestamp(np.ndarray):
                     try:
                         fromdate=time.mktime(time.strptime(fromdate,dateformat))
                     except (TypeError,ValueError):
-                        raise Exception,'Incompatible date for conversion'
+                        raise Exception('Incompatible date for conversion')
                 ans=self[:]-fromdate
         else:
             ans=self[:]-86400.0*int(self[0]/86400)
@@ -513,7 +513,7 @@ class timed_data(np.ndarray):
                 obj.times=times               
         #if(obj.times==None):
         if not hasattr(obj.times, '__iter__'):
-            raise Exception,'No times'
+            raise Exception('No times')
         else:                    
             return obj
     def __array_finalize__(self, obj):

@@ -161,7 +161,7 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
         if np.isnan(zero[ix1]):
             zero_string='   nan'
         else:
-	    zero_string='%6i' % (zero[ix1],)
+            zero_string='%6i' % (zero[ix1],)
         sys.stdout.write('    | %s | %s | %s |\n' % (timestamp, sens_string, zero_string))
 
     sys.stdout.write('    '+41*'-'+'\n')
