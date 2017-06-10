@@ -22,7 +22,7 @@ class twc_fit_wvss(cal_base):
         return 'TWC fit to WVSS'
         
     def process(self):
-        print "******************************TEST WVSS2 TWC FIT*************************"
+        print("******************************TEST WVSS2 TWC FIT*************************")
         d=self.dataset
         match=d.matchtimes(self.input_names)
         p1=d['PS_RVSM'].data.ismatch(match).get1Hz()
@@ -44,7 +44,7 @@ class twc_fit_wvss(cal_base):
         KO=0.304+0.351*p1*F/p0
         if(len(iuse)>10):
             fit=np.polyfit(v[iuse],(vp1[iuse]/t2[iuse])+(KO[iuse]*uO*p1[iuse]/(Kv*t2[iuse])),1)
-            print 'WVSS FIT=',fit
+            print('WVSS FIT=%f' % fit)
             self.outputs[0].data=list(fit)
             import matplotlib.pyplot as plt
             plt.ion()

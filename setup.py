@@ -7,7 +7,7 @@ class fortbuild(distbuild):
         distbuild.run(self)
         import os,subprocess
         d=os.getcwd()
-        print self.build_lib
+        print(self.build_lib)
         os.chdir(os.path.join(self.build_lib,'ppodd/pod/fortran_modules'))
         #environment variables are copied, otherwise the ifort command
         #does not exist.
