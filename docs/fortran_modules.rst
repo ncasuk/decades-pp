@@ -43,6 +43,7 @@ c_grflux.for
 
 .. literalinclude:: ../ppodd/pod/fortran_modules/c_grflux.for
    :language: fortran
+   :start-after: C----------------
    :end-before: C----------------
 
 ----------
