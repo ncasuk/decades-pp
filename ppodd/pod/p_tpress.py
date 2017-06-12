@@ -18,10 +18,11 @@ FORTRAN routine C_TPRESS
                   1. If data is FFFF or FFFE then flag 3
                   2. Apply the calibration constants
                   3. Check the results for being within acceptable values.
-                  4. Set data flag bits (16+17) 0: Good data
-                                                1: Data of lower quality
-                                                2: Probably faulty, exceed lims
-                                                3: Data absent or invalid.
+                  4. Set data flag bits (16+17)
+                    | 0: Good data
+                    | 1: Data of lower quality
+                    | 2: Probably faulty, exceed lims
+                    | 3: Data absent or invalid.
 
                   Flagging - If a value can't be computed, due to missing data
                   missing constants, divide be zeroes, etc, a value of 0 is

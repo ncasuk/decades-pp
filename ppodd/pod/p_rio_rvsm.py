@@ -32,11 +32,15 @@ class rio_rvsm(cal_base):
   For each DRS parameter to be calibrated:
   
   1. If data is FFFF or FFFE or out of range then flag 3  
+  
   2. Decode the altitude and use the tables in NASA TN D-822
      to back compute the static pressure.     
+     
   3. Decode the airspeed and use fundamental equations to 
      compute pitot-static pressure.     
+     
   4. Check the results for being within acceptable values.  
+  
   5. Set data flag bits (16+17)
     | 0: Good data
     | 1: Data of lower quality
