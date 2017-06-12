@@ -4,9 +4,9 @@ PPODD: Post Processing Of Decades Data
 
 
 Intro
-==========
+=====
 
-The core data from the FAAM BAe146, and previously the C-130 have always been calibrated post flight with the TARDIS (**T**ranscription of **A**ircraft **R**aw **D**ata **I**nto **S**cientific units) routines. These are a suite of FORTRAN routines written in a modular way so as each instrument or small group of similar instruments are calibrated with a particular module. Raw data were all recorded in one standard raw data file, and the data were processed one second at a time, and written to an output file of an in house binary format (MRF2 or MRF5). The modules had to be run in a particular order so within the main CALIBRATE.FOR routine an array was set up defining inputs and outputs of each module from whence an order could be calculated.
+The core data from the FAAM BAe146, and previously the C-130 have always been calibrated post flight with the TARDIS (**T**\ranscription of **A**\ircraft **R**\aw **D**\ata **I**\nto **S**\cientific units) routines. These are a suite of FORTRAN routines written in a modular way so as each instrument or small group of similar instruments are calibrated with a particular module. Raw data were all recorded in one standard raw data file, and the data were processed one second at a time, and written to an output file of an in house binary format (MRF2 or MRF5). The modules had to be run in a particular order so within the main CALIBRATE.FOR routine an array was set up defining inputs and outputs of each module from where an order could be calculated.
 
 For FAAM it was decided to output in the more standard NetCDF so routines were written to convert the format, but leaving the basic output as MRF5. There has also been a need to include data not recorded by the standard DRS (data recording system), and hence in a different raw format. PSAP photometer, Buck hygrometer and notably the GIN (combined GPS and inertial navigation system) had to be squeezed in after the main processing. The GIN in particular had to be merged into the output dataset, and then parts of the processing re-run to calculate winds.
 
@@ -43,9 +43,9 @@ Now that the processing is in a usable state it is worth explaining the basic st
 
 The basic unit is the ppodd.core.decades_dataset, which is a collection of parameters and a dictionary of processing modules. The processing modules are initialized from python files in ppodd.pod, which holds a dictionary of classes (ppodd.pod.modules) which are only instantiated when a dataset is created.
 
-There are several types of parameters. The most important are the data parameters which are time stamped arrays with meta data. There are also constant parameters for storing flight calibration data, file parameters for information on input files and attribute parameters for global attribute data.
+There are several types of parameters. The most important are the data parameters which are time stamped arrays with meta data. There are also constant parameters for storing flight calibration data, file parameters for information on input files and attribute parameters, that will become global attributes in the NetCDF.
 
-NB.There was some effort put in to creating a class of timed_data arrays. It is possible that this will be replaced in the future with a variation of pandas TimeSeries or DataFrame objects, but there is no pressing need for this now.
+There was some effort put in to creating a class of timed_data arrays. It is possible that this will be replaced in the future with a variation of pandas TimeSeries or DataFrame objects, but there is no pressing need for this now.
 
 Every module will define a list of input_names. If all the input_names are in the data-set the module can be run. The run method extracts all the named inputs from the data-set, and then runs the process method of the module. There are two alternative ways of running the processing:
 

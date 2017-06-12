@@ -16,13 +16,14 @@ Data types
 There are three main data types defined. They may in the future, be rewritten using some parts of the standard pandas library, as some of the functionality is similar. 
 
 The basis of the timed data classes. It is an ndarray with some extra functionality. 
-* Can hold a frequency value, and has methods to calculate times at different frequencies
-* Can match itself to other times
-* Can convert between different time bases
+
+  * Can hold a frequency value, and has methods to calculate times at different frequencies
+  * Can match itself to other times
+  * Can convert between different time bases
 
 Optionally initialized from a start and end time
 
-Examples::
+.. code-block:: python
 
     >>> t=timestamp([10,12,13,14,16])
     >>> t
@@ -45,13 +46,13 @@ Examples::
 This attaches a timestamp to a data array so that similar time matching, frequency changes etc are possible. 
 
 Some useful additional methods are:
+  
   * ravel() which will flatten out a 2d array assuming the second dimension is frequency. 
   * timesort() which will sort the data into time order.
   * asmasked() which will return a masked array 
   * get1Hz() gets the data average per second if 2d.
 
-
-Examples::
+.. code-block:: python
 
     >>> d=timed_data([[10,11],[11,12],[12,13],[13,14]],timestamp((36000,36003)))
     >>> d

@@ -132,15 +132,3 @@ p_twc_fit_wvss
 p_noturb_windvectors.py
 -----------------------
 .. autoclass:: ppodd.pod.p_noturb_windvectors.noturb_windvectors
-
-
-
-
-
-
-
-   
-
-
-
-

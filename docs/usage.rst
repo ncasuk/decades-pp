@@ -3,6 +3,15 @@
 Usage
 =====
 
+
+Data Preparation
+================
+
+
+
+Post Processing
+===============
+
 The routines can be run a number of different ways depending on need. Simple python scripts can run the processing if access to data within a program is needed. A command line, can run the processing and produce an output, or a gui can be run which enables a certain amount of interactive exploration of the data.  
 
 A simple programming example::
