@@ -13,7 +13,6 @@ class twc_calc(cal_base):
         self.input_names = [self.fit,'PS_RVSM','TWC_DET','TWC_TSAM']
         self.outputs = [parameter('TWC_TDEW',
                                   units='K',
-                                  frequency=64,
                                   number=725,
                                   long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air)',
                                   standard_name='dew_point_temperature'),
@@ -32,10 +31,11 @@ class twc_calc(cal_base):
     def process(self):
         d=self.dataset
         match=d.matchtimes(self.input_names[1:])
-        t64=d['TWC_DET'].data.copy()
-        t64x=t64.times2d.ravel()
-        sh=t64.shape
-        vf=t64.flag
+        self.outputs[0].frequency=d['TWC_DET'].frequency
+        tfull=d['TWC_DET'].data.copy()
+        tfullx=tfull.times2d.ravel()
+        sh=tfull.shape
+        vf=tfull.flag
         F=0.93       
         Kv=427.0
         p0=1013.2
@@ -44,13 +44,13 @@ class twc_calc(cal_base):
         if(len(d[self.fit].data)==2):
             fit=np.array(d[self.fit].data)
             print('Applying FIT=%f' % fit)
-            ans=np.polyval(fit,t64)
+            ans=np.polyval(fit,tfull)
             px=d['PS_RVSM'].data.ravel()
             px.interp1d()
-            p1=px.interpolated(t64x).reshape(sh)
+            p1=px.interpolated(tfullx).reshape(sh)
             tx=d['TWC_TSAM'].data
             tx.interp1d()
-            t2=tx.interpolated(t64x).reshape(sh)
+            t2=tx.interpolated(tfullx).reshape(sh)
             KO=0.304+0.351*p1*F/p0
             vpo=(ans-(KO*uO*p1/(Kv*t2)))*t2
             vmro=vp2vmr(vpo,p1)
@@ -58,7 +58,7 @@ class twc_calc(cal_base):
             dp=vp2dp(vpo.ravel()).reshape(sh)
         else:
             dp=np.zeros(sh)
-            mmr=t64
+            mmr=tfull
             vf[:]=3
-        self.outputs[0].data=flagged_data(dp,t64.times,flags=vf)
-        self.outputs[1].data=flagged_data(mmr,t64.times,flags=vf)
+        self.outputs[0].data=flagged_data(dp,tfull.times,flags=vf)
+        self.outputs[1].data=flagged_data(mmr,tfull.times,flags=vf)

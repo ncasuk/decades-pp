@@ -10,8 +10,8 @@ class twc_rio(cal_base):
                           'TWCDAT_twc_detector', 'TWCDAT_twc_nose_temp', 'TWCDAT_twc_samp_temp', 'TWCDAT_twc_amb_temp', 
                           'TWCDAT_twc_srce_temp', 'TWCDAT_twc_evap1','TWCDAT_twc_evap2',                                                  
                           'TWCDAT_twc_srce_i','TWCDAT_twc_evap2_on','TWCDAT_status']
-        
-        self.outputs = [parameter('TWC_DET',units='bits',frequency=64,number=664,long_name='Raw data from the TWC probe Lyman alpha detector'),
+        # Don't set TWC frequency yet.. 
+        self.outputs = [parameter('TWC_DET',units='bits',number=664,long_name='Raw data from the TWC probe Lyman alpha detector'),
                         parameter('TNOS_CAL',units='DEG K',frequency=1,number=665,long_name='TWC NOSE TEMP'),
                         parameter('TWC_TSAM',units='K',frequency=1,number=666,long_name='Sample temperature in Kelvin from the TWC evaporator probe'),
                         parameter('TAMB_CAL',units='DEG K',frequency=1,number=667,long_name='TWC AMBIENT TEMP'),
@@ -63,6 +63,8 @@ class twc_rio(cal_base):
         CALHTR2   9.7752E-04  0.0000E+00
         CALISRC   9.7636E-08 -2.5957E-06
         """
+        det_freq=self.dataset['TWCDAT_twc_detector'].frequency
+        self.outputs[0].frequency=det_freq    # Match output frequency to input
         caltnos=self.dataset['CALTNOS'].data
         caltsam=self.dataset['CALTSAM'].data
         caltamb=self.dataset['CALTAMB'].data
@@ -82,8 +84,8 @@ class twc_rio(cal_base):
                 'ISRC_CAL':(-1.1e-3,-0.4e-3,0.05e-3),'STAT_CAL':(0,255,255)}
         times=self.inputs['TWCDAT_twc_detector'].times
         flags=np.zeros(times.shape,dtype='u1')
-        flags64=np.zeros(times.at_frequency(64).shape,dtype='u1')
-        self.outputs[0].data=flagged_data(self.inputs['TWCDAT_twc_detector'].data,times,flags64)
+        flagsfull=np.zeros(times.at_frequency(det_freq).shape,dtype='u1')
+        self.outputs[0].data=flagged_data(self.inputs['TWCDAT_twc_detector'].data,times,flagsfull)
         self.outputs[1].data=flagged_data(np.polyval(caltnos,self.inputs['TWCDAT_twc_nose_temp'].data),times,flags.copy())
         if len(caltsam)==4:
             # Fit to sample temp using thermistor equation - should be 4 constants
