@@ -43,7 +43,7 @@ class twc_calc(cal_base):
         uO=0.2095
         if(len(d[self.fit].data)==2):
             fit=np.array(d[self.fit].data)
-            print('Applying FIT=%f' % fit)
+            print('Applying FIT={}'.format(fit))
             ans=np.polyval(fit,tfull)
             px=d['PS_RVSM'].data.ravel()
             px.interp1d()
