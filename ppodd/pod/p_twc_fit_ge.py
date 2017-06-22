@@ -43,7 +43,7 @@ class twc_fit_ge(cal_base):
         KO=0.304+0.351*p1*F/p0
         if(len(iuse)>10):
             fit=np.polyfit(v[iuse],(vp1[iuse]/t2[iuse])+(KO[iuse]*uO*p1[iuse]/(Kv*t2[iuse])),1)
-            print('FIT=%f' % fit)
+            print('FIT={}'.format(fit))
             self.outputs[0].data=list(fit)
             import matplotlib.pyplot as plt
             plt.ion()
