@@ -18,7 +18,6 @@ class twc_calc(cal_base):
                                   standard_name='dew_point_temperature'),
                         parameter('TWC_EVAP',
                                   units='gram kg-1',
-                                  frequency=64,
                                   number=572,
                                   long_name='Total water specific humidity from the TWC avaporator instrument',
                                   standard_name='mass_concentration_of_water_vapor_in_air')]
@@ -32,6 +31,7 @@ class twc_calc(cal_base):
         d=self.dataset
         match=d.matchtimes(self.input_names[1:])
         self.outputs[0].frequency=d['TWC_DET'].frequency
+        self.outputs[1].frequency=d['TWC_DET'].frequency
         tfull=d['TWC_DET'].data.copy()
         tfullx=tfull.times2d.ravel()
         sh=tfull.shape
