@@ -10,7 +10,7 @@ AC = ar rc
 OUT = ../.
 # flags for debugging or for maximum performance, comment as necessary
 FCFLAGS = -extend_source -fPIC
-F2PYFLAGS = -lifcore --f77exec=$(FC)
+F2PYFLAGS = -lifcore --f77exec=$(FC) --f90exec=$(FC)
 F2PYARGS = -c -m c_runmod c_runmod.for $(CALLIB)
 # List of modules to be built within the package
 MODULES = c_airspd
