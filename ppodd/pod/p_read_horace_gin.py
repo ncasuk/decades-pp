@@ -41,19 +41,18 @@ Routine for reading in HORACE_GIN data
    
     def readfile(self,filename):
         dtype=[('grpid','<u2'),('bytes','<u2'),('time1','<f8'),('time2','<f8'),
-('dist','<f8'),('timetype','<u1'),('disttype','<u1'),('lat','<f8'),('lon','<f8'),
-('alt','<f8'),('veln','<f4'),('vele','<f4'),('veld','<f4'),('roll','<f8'),
-('ptch','<f8'),('hdg','<f8'),('wand','<f8'),('trck','<f4'),
-('gspd','<f4'),('rolr','<f4'),
-('pitr','<f4'),('hdgr','<f4'),('aclf','<f4'),
-('acls','<f4'),('acld','<f4'),('status','<u2'),('htime','<i4')]
+               ('dist','<f8'),('timetype','<u1'),('disttype','<u1'),('lat','<f8'),
+               ('lon','<f8'),('alt','<f8'),('veln','<f4'),('vele','<f4'),('veld','<f4'),
+               ('roll','<f8'),('ptch','<f8'),('hdg','<f8'),('wand','<f8'),('trck','<f4'),
+               ('gspd','<f4'),('rolr','<f4'),('pitr','<f4'),('hdgr','<f4'),('aclf','<f4'),
+               ('acls','<f4'),('acld','<f4'),('status','<u2'),('htime','<i4')]
 
         l=getsize(filename)
         dlength=136
         if(l % dlength)==0:
-            self.data=np.memmap(filename,dtype=dtype,mode='r')
+            self.data=np.memmap(filename, dtype=dtype, mode='c')
         else:
-            self.data=np.memmap(filename,dtype=dtype,shape=(l/dlength),mode='r')
+            self.data=np.memmap(filename, dtype=dtype, shape=(l/dlength), mode='c')
         if(self.data!=None):
             self.data=self.data[self.data['grpid']==1]
             times=gintime(self.data['time1'],self.data['time2'],self.dataset['DATE'].data)
