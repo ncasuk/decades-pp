@@ -9,6 +9,8 @@ ppodd.core includes all the base classes for dealing with timed aircraft data
 
 @author: Dave Tiddeman
 '''
+
+import calendar
 import time
 import numpy as np
 from scipy.interpolate import interp1d
@@ -398,14 +400,19 @@ class decades_dataset(OrderedDict):
 
 
 def date2time(fromdate):
-    """ Convert a date to a time """
+    """Convert a date to a time.
+    :param fromdate: tuple or list, that can be either 3 or 9 times long
+    """
+    # We are using the calendar module instead of the time module for the
+    # calculations because it uses the UTC time zone. The time module uses the
+    # local time zone of the computer, which can cause issues
     l=len(fromdate)
     if(l==3):
         fm=[0]*6+fromdate
         fm.reverse()
-        fm=time.mktime(fm)
+        fm = calendar.timegm(fm)
     elif(l==9):
-        fm=time.mktime(fromdate)
+        fm = calendar.timegm(fm)
     else:                      
         raise TypeError('Incompatible date for conversion')
     return fm
