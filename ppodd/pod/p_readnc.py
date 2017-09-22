@@ -3,6 +3,7 @@ from ppodd.core import *
 import numpy as np
 from netCDF4 import Dataset
 from os.path import getsize
+from datetime import datetime
 class readnc(file_read):
     """
 Routine for reading in NETCDF data
@@ -18,8 +19,11 @@ Routine for reading in NETCDF data
         self.outputs=[]
         self.file=Dataset(filename)
         self.var=self.file.variables
+        start=0
         for a in self.file.ncattrs():
             self.outputs.append(constants_parameter(a,getattr(self.file,a),'Attribute'))
+            if(a=='Title'):
+                start=np.datetime64(datetime.strptime(self.file.getncattr(a)[-11:],"%d-%b-%Y"))
         natt=len(self.outputs)
         for v in self.var:
             newpar=True
@@ -27,7 +31,7 @@ Routine for reading in NETCDF data
                 if(v[:-5] in self.var):
                     newpar=False
             elif v=='Time':
-                self.time=timestamp(self.var[v][:])
+                self.time=timestamp(start+self.var[v][:].astype('timedelta64[s]'))
                 newpar=False
             if newpar:
                 p=parameter(v)

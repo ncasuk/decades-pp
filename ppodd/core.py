@@ -18,7 +18,7 @@ import fnmatch
 import os
 import zipfile
 import ppodd
-
+import pandas as pd
 
 
 try:
@@ -87,7 +87,9 @@ class parameter(constants_parameter):
         except KeyError:
             pass
         return ans
-    attributes=property(__getatts__) 
+    attributes=property(__getatts__)
+    def Series(self):
+        return self.data.Series(name=self.name)
     def __getattr__(self,name):
         """ Gets attributes from the data if not in the parameter object """
         return getattr(self.data,name)
@@ -224,13 +226,20 @@ class decades_dataset(OrderedDict):
 
 
     def getmods(self,classes=None):
+        print("GETMODS - classes")
+        print(classes)
+        print("GETMODS - modules")
+        print(self.modules)
         if(not classes):
             import ppodd.pod
+            print("GETMODS - ppodd.pod.modules")
+            print(ppodd.pod.modules)
             classes=ppodd.pod.modules
         for m in classes:
             try:
                 self.modules[m]=classes[m](self)
-            except:
+            except Exception as e:
+                print(e)
                 ppodd.logger.info('%s probably a base class so cannot instatiate' % m)
 
     def clearmods(self):
@@ -407,33 +416,35 @@ def date2time(fromdate):
     # calculations because it uses the UTC time zone. The time module uses the
     # local time zone of the computer, which can cause issues
     l=len(fromdate)
-    if(l==3):
-        fm=[0]*6+fromdate
-        fm.reverse()
-        fm = calendar.timegm(fm)
-    elif(l==9):
-        fm = calendar.timegm(fm)
-    else:                      
+    try:
+        if(l==3):
+            return np.datetime64('{2:04d}-{1:02d}-{0:02d}'.format(*fromdate))
+        elif(l==9):
+            return np.datetime64(calendar.timegm(fromdate),'s')
+        else:
+            return np.datetime64(fromdate)
+    except:
         raise TypeError('Incompatible date for conversion')
-    return fm
+
+
 
 class timestamp(np.ndarray):
     """ A class for time stamping data     --
     
     Could at some time be replaced by something from pandas which handles timestamps
     """
-    def __new__(cls,times=None,fromdate=None,dtype='f8'):
+    def __new__(cls,times=None,adddate=None,dtype='datetime64[s]'):
         """Create new timestamp"""
         if(isinstance(times,tuple)):
             if(len(times)==2):
                 times=np.arange(times[0],times[1]+1,1,dtype=dtype)
         tim=np.asarray(times,dtype=dtype)
-        if fromdate is not None:
+        if adddate is not None:
             try:
-                tim=times-date2time(fromdate)
+                tim=tim+date2time(adddate)
             except (TypeError):
                 try:
-                    tim=times-fromdate       
+                    tim=tim+adddate       
                 except (TypeError,ValueError):
                     raise Exception('Incompatible date for conversion')
         obj=tim.view(cls)
@@ -443,10 +454,10 @@ class timestamp(np.ndarray):
     def at_frequency(self,frequency=None):
         """ Resample at a different frequency """
         if frequency is not None:
-            dt=np.linspace(0,1,frequency+1)[0:frequency]
-            tim=np.empty((len(self),frequency),self.dtype)
+            dt=np.linspace(0,1000000000,frequency+1)[0:frequency].astype('timedelta64[ns]')
+            tim=np.empty((len(self),frequency),'timedelta64[ns]')
             tim[:]=np.resize(dt,(len(self),frequency))
-            tim+=np.reshape(self[:],(-1,1))
+            tim=np.reshape(self[:],(-1,1))+tim
             return tim.view(type(self))
         else:
             return self
@@ -464,23 +475,23 @@ class timestamp(np.ndarray):
             start=np.min(self)
         result=np.asarray(self[:]-start,dtype=int)
         return result
-    def tosecs(self,fromdate=None,dateformat='%Y %m %d'):
+    def tosecs(self,fromdate=None,dtype='int'):
         """ Convert unix or other time to seconds past midnight """
         if(fromdate):
             try:
                 ans=self[:]-fromdate
-            except TypeError:
+            except (TypeError,ValueError):
                 try:
-                    fromdate=time.mktime(fromdate)
-                except TypeError:
-                    try:
-                        fromdate=time.mktime(time.strptime(fromdate,dateformat))
-                    except (TypeError,ValueError):
-                        raise Exception('Incompatible date for conversion')
-                ans=self[:]-fromdate
+                    ans=self[:]-date2time(fromdate)
+                except (TypeError,ValueError):
+                    raise TypeError('Incompatible date for conversion')
         else:
-            ans=self[:]-86400.0*int(self[0]/86400)
-        return ans        
+            ans=self[:]-self[0].astype('datetime64[D]')
+        if(dtype)=='float':
+            ans=ans.astype(int)*np.array(1,dtype=ans.dtype)/np.timedelta64(1,'s')
+        else:
+            ans=ans.astype('timedelta64[s]').astype(int)
+        return ans      
 
         
 
@@ -561,7 +572,9 @@ class timed_data(np.ndarray):
             np.ndarray.__setitem__(self.times,index,value.times)
         except (ValueError,AttributeError):
             pass
-            
+    def Series(self,name=None):
+        r=self.ravel()
+        return pd.Series(r.raw_data.astype(r.dtype.name),index=pd.Index(r.times,name='Time'),name=name)        
     def timesort(self):
         i1=np.arange(self.shape[0])
         i2=np.argsort(self.times)
@@ -577,6 +590,18 @@ class timed_data(np.ndarray):
         result.times=self.times2d.ravel()
         result.frequency=None
         return result
+    
+    def interp(self,times=None,frequency=None):        
+        if(frequency):
+            times=self.times.at_frequency(frequency)
+        s=times.shape
+        times=times.ravel()
+        data=np.interp(times.astype('u8'),self.ravel().times.astype('u8'),self.ravel())
+        if(frequency):
+            return timed_data(data.reshape(s),self.times)
+        else:
+            return timed_data(data,times)
+
     def interp1d(self,kind='linear',fill_value=np.nan):
         self.interp=interp1d(self.times[:],self[:],
                              bounds_error=False,kind=kind,fill_value=fill_value)
@@ -669,6 +694,17 @@ class flagged_data(timed_data):
             except AttributeError:
                 result.flag=self.flag
         return result
+
+    def interp(self,times=None,frequency=None):
+        result=timed_data.interp(self,times,frequency)     
+        if(frequency):
+            times=self.times.at_frequency(frequency)
+        s=times.shape
+        times=times.ravel()
+        result.flag=np.interp(times.astype('u8'),self.ravel().times.astype('u8'),self.flag.ravel()).reshape(result.shape)
+        return result.view(flagged_data)
+
+
     def ravel(self):
         result=timed_data.ravel(self)
         result.flag=self.flag.ravel()

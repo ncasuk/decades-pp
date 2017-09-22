@@ -1,7 +1,7 @@
 import numpy as np
 def createtimes(times1):
     """Create 1Hz times with gaps for gaps in input times of more than 0.5 sec""" 
-    i=times1[1:]-times1[:-1]
+    """i=times1[1:]-times1[:-1]
     jumps=np.where(i>0.5)[0]
     jumps=np.append(jumps,len(times1)-1)
     j0=0
@@ -15,6 +15,13 @@ def createtimes(times1):
         except IndexError:
             t2=np.arange(np.floor(times1[j0]),np.ceil(times1[j]))
         j0=j+1
-    return t2
-
+    return t2"""
+    
+    """
+    
+    return np.unique(times1.astype(int)).astype(float)
+    
+    """
+    return np.unique(times1.astype('datetime64[s]')).astype(times1.dtype)
+    
 
