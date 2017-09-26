@@ -53,18 +53,16 @@ Routine for reading in WVSS2 data
         read_crio.readfile(self, filename)
         for o in self.outputs:
             if o.name.endswith('_utc_time_msec'):
-                msec_offset = o.data[:]/1000.0
-                tx=np.unique(np.expand_dims(o.times.astype(np.int),1)+[-1,0,1]) # spread data times to interpolate to over every second
+                msec_offset = o.data[:].astype('timedelta64[ms]')
+                tx=np.unique(np.expand_dims(o.times,1)+[-1,0,1]) # spread data times to interpolate to over every second
                 tx.sort()
-                tx = timestamp(tx)                
-                otimes = o.times.astype(np.float32)  # data format needs to match msec_offset
-                otimes += msec_offset
-                times = otimes
+                tx = timestamp(tx,dtype='datetime64[ms]') 
+                times = o.times + msec_offset   # data format needs to match msec_offset            
             if o.name.endswith('_serial_data'):
                 data = np.array([y for y in self.strconv(np.char.split(o.data))])
         for i,o in enumerate(self.outputs[:3]):
             d = timed_data(data[:,i],times)
-            o.data = flagged_data(d.interp(tx),tx,np.ones(len(tx),dtype='i1'))
+            o.data = flagged_data(d.interp(tx),np.ones(len(tx),dtype='i1'))
         for i,o in enumerate(self.outputs[3:14]):
             o.data = timed_data(data[:,i],times)
         
