@@ -602,13 +602,14 @@ class timed_data(np.ndarray):
         else:
             return timed_data(data,times)
 
-    def interp1d(self,kind='linear',fill_value=np.nan):
+    """def interp1d(self,kind='linear',fill_value=np.nan):
         self.interp=interp1d(self.times[:],self[:],
                              bounds_error=False,kind=kind,fill_value=fill_value)
         return self.interp
     def interpolated(self,times):
         if self.interp:
-            return self.interp(times)
+            return self.interp(times)"""
+
     def matchtimes(self,otherdata):
         try:
             return self.times.match(otherdata.times)
@@ -677,9 +678,15 @@ class timed_data(np.ndarray):
 
 class flagged_data(timed_data):
     """ Timed data with associated flag information """
-    def __new__(cls,data,timestamp,flags,maxflag=3):
-        obj = timed_data.__new__(cls,data,timestamp)
-        obj.flag=np.asarray(flags) # timed_data(flags,timestamp)  
+    def __new__(cls,data,arg1,arg2=None,maxflag=3):
+        if(arg2 == None):
+            obj = data.view(flagged_data)
+            obj.flag = np.asarray( arg1 )
+        else:
+            obj = timed_data.__new__(cls,data,arg1)
+            obj.flag=np.asarray(arg2) # timed_data(flags,timestamp)
+        if(obj.flag.shape!=obj.shape):
+            obj.flag=obj.flag.reshape(obj.shape)
         obj.maxflag=maxflag
         return obj
     def __array_finalize__(self, obj):
@@ -926,7 +933,7 @@ class fort_cal(cal_base):
                     s=slice(ofs,ofs+frqin[i])    
                 try:
                     if(p.name=='SECS'):
-                        din[:,s]=match
+                        din[:,s]=match.tosecs()
                     else:   
                         din[:,s]=p.data.ismatch(match).raw_data
                 except ValueError:

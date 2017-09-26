@@ -57,13 +57,11 @@ class gin(cal_base):
             flg=self.dataset['GINDAT_status'][:]/3
             zero=(self.dataset['GINDAT_lat']==0) & (self.dataset['GINDAT_lon']==0) & (flg<2)
             flg[zero]=2
-            flagg=timed_data(flg,tgin)
-            flagg.interp1d()
-            flags=np.int8(flagg.interpolated(tout.ravel()).reshape(sh))
+            flags=flg.interp(tout.ravel()).reshape(tout.shape)
             for o in self.outputs:
                 ppodd.logger.info('Interpolating %s' % str(o))
                 if(o.name=='SECS_GIN'):
-                   o.data=timed_data(tstep,tstep)
+                   o.data=timed_data(tstep.tosecs(),tstep)
                 else:
                     name='GINDAT_'+(o.name[:-4].lower())
                     #heading and track need special treatment for the interpolation because
@@ -76,11 +74,11 @@ class gin(cal_base):
                         d[:]=np.rad2deg(np.unwrap(np.deg2rad(d[:])))
                     else:
                         d=self.dataset[name].data
-                    d.interp1d()
-                    o.data=flagged_data(d.interpolated(tout.ravel()).reshape(sh),tstep,flags)
+                    #d.interp1d()
+                    o.data=flagged_data(d.interp(tout.ravel()).reshape(sh),tstep,flags)
                     # the interpolation introduces 0 in the data, therefore we
                     # pop the first and last rows of the data
-                    o.data = o.data[1:-1,:]
+                    #o.data = o.data[1:-1,:]
                     if name in ['GINDAT_hdg', 'GINDAT_trck']:
                         o.data%=360.
                     x=~np.isfinite(o.data)
