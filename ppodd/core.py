@@ -10,8 +10,6 @@ ppodd.core includes all the base classes for dealing with timed aircraft data
 @author: Dave Tiddeman
 '''
 
-import calendar
-import time
 import numpy as np
 from scipy.interpolate import interp1d
 import fnmatch
@@ -19,7 +17,8 @@ import os
 import zipfile
 import ppodd
 import pandas as pd
-
+import datetime
+import matplotlib.pyplot as plt
 
 try:
     from collections import OrderedDict
@@ -93,6 +92,12 @@ class parameter(constants_parameter):
     def __getattr__(self,name):
         """ Gets attributes from the data if not in the parameter object """
         return getattr(self.data,name)
+    def plot(self,**kwargs):
+        try:
+            name=kwargs['name']
+        except KeyError:
+            name=self.name
+        self.data.plot(label=name,**kwargs)
     
 class decades_dataset(OrderedDict):
     """An ordered dictionary of data, constants, attribute or file parameters
@@ -125,6 +130,9 @@ class decades_dataset(OrderedDict):
                                                          # which is actually the time of each timed parameter.
         for ar in args:
             self.add_file(ar)
+        if 'process' in kwargs:
+            if(kwargs['process']):
+                self.process()
         
     def __repr__(self):
         return 'Decades dataset '+repr(self.keys())
@@ -267,8 +275,8 @@ class decades_dataset(OrderedDict):
         for f,t in self.getfiles():
             ans['files']+=os.path.basename(f)+':'+t+'\n'
         try:
-            dt=time.gmtime(date2time(self['DATE'][:]))
-            ans['Title']='Data from %s on %s' % (self['FLIGHT'][:],time.strftime('%d-%b-%Y',dt))
+            dt=date2time(self['DATE'][:]).astype(datetime.datetime)
+            ans['Title']='Data from %s on %s' % (self['FLIGHT'][:],dt.strftime('%d-%b-%Y'))
         except KeyError:
             pass
         return ans
@@ -415,14 +423,15 @@ def date2time(fromdate):
     # We are using the calendar module instead of the time module for the
     # calculations because it uses the UTC time zone. The time module uses the
     # local time zone of the computer, which can cause issues
+    #
+    # Removed the calendar references and the time module use only np.datetime64 
     l=len(fromdate)
     try:
         if(l==3):
-            return np.datetime64('{2:04d}-{1:02d}-{0:02d}'.format(*fromdate))
-        elif(l==9):
-            return np.datetime64(calendar.timegm(fromdate),'s')
+            ans=np.datetime64('{2:04d}-{1:02d}-{0:02d}'.format(*fromdate))
         else:
-            return np.datetime64(fromdate)
+            ans=np.datetime64(fromdate)
+        return ans
     except:
         raise TypeError('Incompatible date for conversion')
 
@@ -473,7 +482,7 @@ class timestamp(np.ndarray):
         """Only for 1d 1Hz"""
         if(start==None):
             start=np.min(self)
-        result=np.asarray(self[:]-start,dtype=int)
+        result=np.asarray((self[:]-start)/np.timedelta64(1,'s'),dtype=int)
         return result
     def tosecs(self,fromdate=None,dtype='int'):
         """ Convert unix or other time to seconds past midnight """
@@ -633,9 +642,63 @@ class timed_data(np.ndarray):
                 return np.squeeze(np.resize(np.array(arr),(frequency,len(arr))).T)
         except:
             return arr
+
+    def monospaced(self,start=None,end=None,fill_value=np.nan,data=None):
+        if data is None:
+            data=self.raw_data
+        if start is None:
+            start=np.min(self.times)
+        if end is None:
+            end=np.max(self.times)
+        t1=timestamp((start,end))
+        t=timestamp(self.twod_array(t1))
+        msk=~t.ismatch(self.times)
+        d=np.ma.empty(t.shape,dtype=data.dtype,fill_value=fill_value)
+        d[:]=d.fill_value
+        ind=self.times.asindexes(start=start)
+        xind=(ind>=0) & (ind<len(d))
+        d[ind[xind]]=data[xind]
+        d[~np.isfinite(d)]=d.fill_value
+        if mask is not None:
+            ind=self.twod_array(ind,indexes1d=True)
+            xind=self.twod_array(xind)
+            msk[ind[xind]]|=mask[xind]
+        d.mask=msk
+        if(returntimes):
+            times=t1.at_frequency(self.frequency)
+            d=(d,times)
+        return d
         
         
     def asmasked(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
+        """Only for 2d 1Hz times"""
+        if data is None:
+            data=self.raw_data
+        if start is None:
+            start=np.min(self.times)
+        if end is None:
+            end=np.max(self.times)
+        t1=timestamp((start,end))
+        t=timestamp(self.twod_array(t1))
+        msk=~t.ismatch(self.times)
+        d=np.ma.empty(t.shape,dtype=data.dtype,fill_value=fill_value)
+        d[:]=d.fill_value
+        ind=self.times.asindexes(start=start)
+        xind=(ind>=0) & (ind<len(d))
+        d[ind[xind]]=data[xind]
+        d[~np.isfinite(d)]=d.fill_value
+        if mask is not None:
+            ind=self.twod_array(ind,indexes1d=True)
+            xind=self.twod_array(xind)
+            msk[ind[xind]]|=mask[xind]
+        d.mask=msk
+        if(returntimes):
+            times=t1.at_frequency(self.frequency)
+            d=(d,times)
+        return d
+        
+        
+    def asmasked1(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
         """Only for 2d 1Hz times"""
         if data is None:
             data=self.raw_data
@@ -675,6 +738,8 @@ class timed_data(np.ndarray):
         else:
             return self
         
+    def plot(self,**kwargs):
+        plt.plot(self.ravel().times,self.ravel(),**kwargs)
 
 class flagged_data(timed_data):
     """ Timed data with associated flag information """
