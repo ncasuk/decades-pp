@@ -463,7 +463,7 @@ class timestamp(np.ndarray):
     def at_frequency(self,frequency=None):
         """ Resample at a different frequency """
         if frequency is not None:
-            dt=np.linspace(0,1000000000,frequency+1)[0:frequency].astype('timedelta64[ns]')
+            dt=np.linspace(0,1000000000,frequency,endpoint=False).astype('timedelta64[ns]')
             tim=np.empty((len(self),frequency),'timedelta64[ns]')
             tim[:]=np.resize(dt,(len(self),frequency))
             tim=np.reshape(self[:],(-1,1))+tim
@@ -479,10 +479,11 @@ class timestamp(np.ndarray):
         """ Find intersection of this and other time """
         return np.in1d(self,othertimes)
     def asindexes(self,start=None):
-        """Only for 1d 1Hz"""
+        """Or rather seconds since start."""
         if(start==None):
             start=np.min(self)
-        result=np.asarray((self[:]-start)/np.timedelta64(1,'s'),dtype=int)
+        #result=np.asarray((self[:]-start)/np.timedelta64(1,'s'),dtype=int)
+        result=np.asarray((self[:]-start).astype('timedelta64[s]'),dtype=int)
         return result
     def tosecs(self,fromdate=None,dtype='int'):
         """ Convert unix or other time to seconds past midnight """
@@ -502,6 +503,8 @@ class timestamp(np.ndarray):
             ans=ans.astype('timedelta64[s]').astype(int)
         return ans      
 
+    def secondsarray(self):
+        return np.unique(self.astype('datetime64[s]')) # .astype(self.dtype)
         
 
 class timed_data(np.ndarray):
@@ -642,32 +645,6 @@ class timed_data(np.ndarray):
                 return np.squeeze(np.resize(np.array(arr),(frequency,len(arr))).T)
         except:
             return arr
-
-    def monospaced(self,start=None,end=None,fill_value=np.nan,data=None):
-        if data is None:
-            data=self.raw_data
-        if start is None:
-            start=np.min(self.times)
-        if end is None:
-            end=np.max(self.times)
-        t1=timestamp((start,end))
-        t=timestamp(self.twod_array(t1))
-        msk=~t.ismatch(self.times)
-        d=np.ma.empty(t.shape,dtype=data.dtype,fill_value=fill_value)
-        d[:]=d.fill_value
-        ind=self.times.asindexes(start=start)
-        xind=(ind>=0) & (ind<len(d))
-        d[ind[xind]]=data[xind]
-        d[~np.isfinite(d)]=d.fill_value
-        if mask is not None:
-            ind=self.twod_array(ind,indexes1d=True)
-            xind=self.twod_array(xind)
-            msk[ind[xind]]|=mask[xind]
-        d.mask=msk
-        if(returntimes):
-            times=t1.at_frequency(self.frequency)
-            d=(d,times)
-        return d
         
         
     def asmasked(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
@@ -697,34 +674,7 @@ class timed_data(np.ndarray):
             d=(d,times)
         return d
         
-        
-    def asmasked1(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
-        """Only for 2d 1Hz times"""
-        if data is None:
-            data=self.raw_data
-        if start is None:
-            start=np.min(self.times)
-        if end is None:
-            end=np.max(self.times)
-        t1=timestamp((start,end))
-        t=timestamp(self.twod_array(t1))
-        msk=~t.ismatch(self.times)
-        d=np.ma.empty(t.shape,dtype=data.dtype,fill_value=fill_value)
-        d[:]=d.fill_value
-        ind=self.times.asindexes(start=start)
-        xind=(ind>=0) & (ind<len(d))
-        d[ind[xind]]=data[xind]
-        d[~np.isfinite(d)]=d.fill_value
-        if mask is not None:
-            ind=self.twod_array(ind,indexes1d=True)
-            xind=self.twod_array(xind)
-            msk[ind[xind]]|=mask[xind]
-        d.mask=msk
-        if(returntimes):
-            times=t1.at_frequency(self.frequency)
-            d=(d,times)
-        return d
-        
+                
     def get1Hz(self,angle=False):
         if(self.frequency>1):
             times=self.times
@@ -753,6 +703,7 @@ class flagged_data(timed_data):
         if(obj.flag.shape!=obj.shape):
             obj.flag=obj.flag.reshape(obj.shape)
         obj.maxflag=maxflag
+        obj.fill_value=-9999.0
         return obj
     def __array_finalize__(self, obj):
         timed_data.__array_finalize__(self, obj)
@@ -799,6 +750,8 @@ class flagged_data(timed_data):
             pass
 
     def asmasked(self,maxflag=None,start=None,end=None,fill_value=None,returntimes=False):
+        if(fill_value==None):
+            fill_value=self.fill_value
         if maxflag is None:
             maxflag=self.maxflag
         ans=timed_data.asmasked(self,start=start,end=end,mask=self.flag>maxflag,
@@ -811,12 +764,14 @@ class flagged_data(timed_data):
                                 fill_value=fill_value,returntimes=returntimes)
         return ans
 
-    def get1Hz(self,angle=False):
+    def get1Hz(self,angle=False,fill_value=None):
+        if(fill_value==None):
+            fill_value=self.fill_value
         if(self.frequency>1):
             flags=np.amin(self.flag,axis=1)
             times=self.times
             dat=self.raw_data[:]
-            dat[np.isnan(dat)]=-9999.0
+            dat[np.isnan(dat)]=fill_value
             weight=np.atleast_2d(flags).transpose()==self.flag
             if(angle):
                 x=np.sum(np.cos(np.radians(dat))*weight,axis=1)

@@ -108,7 +108,8 @@ Routine for reading in CRIO data
                 ppodd.logger.warning('Data truncated %s' % filen)
             n=size/self.total
             if(n>0):
-                z=np.memmap(filen,dtype=self.dtype,mode='r',shape=(n,)) # Try a simple read 
+                #z=np.memmap(filen,dtype=self.dtype,mode='r',shape=(n,)) # Try a simple read 
+                z=np.fromfile(filen,dtype=self.dtype) # Try a simple read 
                 if(np.any(z['label']!=self.full_descriptor)):
                     n,z=self.read_slowly(n,filen)
             if(n>0):

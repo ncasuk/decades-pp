@@ -2,7 +2,7 @@ import ppodd
 from ppodd.core import *
 from os.path import getsize
 import numpy as np
-from ppodd.resample import createtimes
+
 
 class gin(cal_base):
     """ GIN processing
@@ -49,9 +49,9 @@ class gin(cal_base):
             ginhdgoffset=self.dataset['GINHDGOFFSET'][0]
         #if(self.dataset['GINDAT_time1'].data!=None):
         if hasattr(self.dataset['GINDAT_time1'].data, '__iter__'):
-            tgin=self.dataset['GINDAT_time1'].times
+            tstep=self.dataset['GINDAT_time1'].times.secondsarray()
             #tstep=timestamp((np.round(tgin[0]),np.round(tgin[-1])))
-            tstep=timestamp(createtimes(tgin))
+            #tstep=timestamp(createtimes(tgin))
             tout=tstep.at_frequency(32)
             sh=tout.shape
             flg=self.dataset['GINDAT_status'][:]/3

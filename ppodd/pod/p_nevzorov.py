@@ -131,7 +131,9 @@ class nevzorov(cal_base):
         ps=self.dataset['PS_RVSM'].ismatch(t).interp(frequency=nev_freq)
         #ps=ps.interp(times)
 
-        wow_ind=self.dataset['WOW_IND'].ismatch(t).interp(frequency=nev_freq)
+        wow_ind=self.dataset['WOW_IND'].ismatch(t)
+        wow_ind.frequency=self.dataset['WOW_IND'].frequency
+        wow_ind=1*(wow_ind.interp(frequency=nev_freq)!=0)     
         #wow_ind=wow_ind.interp(times)
 
         for n,i in enumerate(insts):
