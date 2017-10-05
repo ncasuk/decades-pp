@@ -2,6 +2,7 @@
 from ppodd.core import *
 import struct
 import os
+import datetime
 
 mfdpardesc="""MFD parameter descriptors list                         04-AUG-03  MFDPARDESC.DAT
 ______________________________
@@ -448,9 +449,11 @@ Routine for reading in M3 data
 
     def get_time(self):
         T=[]
+        basetime=np.datetime64(datetime.datetime.strptime(self.date,"%d-%b-%y"))
         for i in range(self.isectn):
             T+=range(self.issrtt[i],self.isendt[i]+1,1)
-        return timestamp(T,dtype='f8')
+        T=basetime+np.array(T,dtype='timedelta64[s]')
+        return timestamp(T)
 
     def get_BCDtime(self):
         s=10*((self.data['Horace_GMTM']%256)/16)+self.data['Horace_GMTM']%16
@@ -468,7 +471,8 @@ Routine for reading in M3 data
         return (s0+s1*16+m0*256,m1+h0*16+h1*256)
 
     def get_timex(self):
-        return np.arange(self.issrtt[0],self.isendt[self.isectn-1]+1,1)
+        basetime=np.datetime64(datetime.datetime.strptime(self.date,"%d-%b-%y"))
+        return basetime+np.arange(self.issrtt[0],self.isendt[self.isectn-1]+1).astype('timedelta64[s]')
 
     def paradesc(self): 
         lines=mfdpardesc.split('\n')

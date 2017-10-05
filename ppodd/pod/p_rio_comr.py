@@ -57,7 +57,7 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
 
     dt=datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y')
 
-    ts=match/86400.+date2num(dt)
+    ts=match # /86400.+date2num(dt)
     dt=datetime.datetime.strptime('%0.2i-%0.2i-%0.4i' % tuple(ds['DATE']), '%d-%m-%Y')
     title='QA-CO Aerolaser\n'+'%s - %s' % (ds['FLIGHT'].data.lower(), dt.strftime('%d-%b-%Y'))
 
@@ -108,7 +108,7 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
 
 
     # overplot T/O and Landing on the figure
-    wow_times=ds['WOW_IND'].data.times/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
+    wow_times=ds['WOW_IND'].data.times # /86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
     for i in [wow_min, wow_max]:
         if i:
             ax0.axvline(wow_times[i], lw=4, color='0.7', alpha=0.7)
