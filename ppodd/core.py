@@ -607,8 +607,9 @@ class timed_data(np.ndarray):
         if(frequency):
             times=self.times.at_frequency(frequency)
         s=times.shape
-        times=times.ravel()
-        data=np.interp(times.astype('u8'),self.ravel().times.astype('u8'),self.ravel())
+        times=times.ravel().astype('datetime64[ns]')
+        times2=self.ravel().times.astype('datetime64[ns]')
+        data=np.interp(times.astype('u8'),times2.astype('u8'),self.ravel())
         if(frequency):
             return timed_data(data.reshape(s),self.times)
         else:
@@ -693,7 +694,7 @@ class timed_data(np.ndarray):
 
 class flagged_data(timed_data):
     """ Timed data with associated flag information """
-    def __new__(cls,data,arg1,arg2=None,maxflag=3):
+    def __new__(cls,data,arg1,arg2=None,maxflag=3,fill_value=-9999.0):
         if(arg2 == None):
             obj = data.view(flagged_data)
             obj.flag = np.asarray( arg1 )
@@ -703,11 +704,12 @@ class flagged_data(timed_data):
         if(obj.flag.shape!=obj.shape):
             obj.flag=obj.flag.reshape(obj.shape)
         obj.maxflag=maxflag
-        obj.fill_value=-9999.0
+        obj.fill_value=fill_value
         return obj
     def __array_finalize__(self, obj):
         timed_data.__array_finalize__(self, obj)
         self.flag = getattr(obj, 'flag', None)
+        self.fill_value = getattr(obj, 'fill_value', -9999.0)
         self.maxflag = getattr(obj, 'maxflag', 3)
     def __getslice__(self,a,b):
         result=timed_data.__getslice__(self,a,b)
