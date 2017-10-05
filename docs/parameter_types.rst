@@ -25,22 +25,26 @@ Optionally initialized from a start and end time
 
 .. code-block:: python
 
-    >>> t=timestamp([10,12,13,14,16])
+    >>> t=timestamp([1507216300,1507216301,1507216302,1507216303,1507216304])
     >>> t
-    timestamp([ 10., 12., 13., 14., 16.])
-    >>> t2=timestamp((12,18))
+    timestamp(['2017-10-05T15:11:40', '2017-10-05T15:11:41', '2017-10-05T15:11:42',
+       '2017-10-05T15:11:43', '2017-10-05T15:11:44'], dtype='datetime64[s]')
+    >>> t2=timestamp((np.datetime64('2017-10-05T15:11:37'),np.datetime64('2017-10-05T15:11:42')))
     >>> t2
-    timestamp([ 12., 13., 14., 15., 16., 17., 18.])
+    timestamp(['2017-10-05T15:11:37', '2017-10-05T15:11:38', '2017-10-05T15:11:39',
+       '2017-10-05T15:11:40', '2017-10-05T15:11:41', '2017-10-05T15:11:42'], dtype='datetime64[s]')
     >>> t.match(t2)
-    timestamp([ 12., 13., 14., 16.])
+    timestamp(['2017-10-05T15:11:40', '2017-10-05T15:11:41', '2017-10-05T15:11:42'], dtype='datetime64[s]')
     >>> t.ismatch(t.match(t2))
-    array([False, True, True, True, True], dtype=bool)
+    array([True,  True,  True, False, False], dtype=bool)
     >>> t.at_frequency(2)
-    timestamp([[ 10. , 10.5],
-        [ 12. , 12.5],
-        [ 13. , 13.5],
-        [ 14. , 14.5],
-        [ 16. , 16.5]])
+    timestamp([['2017-10-05T15:11:40.000000000', '2017-10-05T15:11:40.500000000'],
+       ['2017-10-05T15:11:41.000000000', '2017-10-05T15:11:41.500000000'],
+       ['2017-10-05T15:11:42.000000000', '2017-10-05T15:11:42.500000000'],
+       ['2017-10-05T15:11:43.000000000', '2017-10-05T15:11:43.500000000'],
+       ['2017-10-05T15:11:44.000000000', '2017-10-05T15:11:44.500000000']], dtype='datetime64[ns]')
+
+
     timed_data
   
 This attaches a timestamp to a data array so that similar time matching, frequency changes etc are possible. 
@@ -54,7 +58,7 @@ Some useful additional methods are:
 
 .. code-block:: python
 
-    >>> d=timed_data([[10,11],[11,12],[12,13],[13,14]],timestamp((36000,36003)))
+    >>> d=timed_data([[10,11],[11,12],[12,13],[13,14]],timestamp((1507216300,1507216303)))
     >>> d
     timed_data([[10, 11],
         [11, 12],
@@ -63,21 +67,28 @@ Some useful additional methods are:
     >>> d.frequency
     2
     >>> d.times
-    timestamp([ 36000., 36001., 36002., 36003.])
+    timestamp(['2017-10-05T15:11:40', '2017-10-05T15:11:41', '2017-10-05T15:11:42',
+       '2017-10-05T15:11:43'], dtype='datetime64[s]')
     >>> d.ravel()
     timed_data([10, 11, 11, 12, 12, 13, 13, 14])
     >>> d.ravel().times
-    timestamp([ 36000. , 36000.5, 36001. , 36001.5, 36002. , 36002.5,   36003. , 36003.5])
-    >>> d=timed_data([1,4,5,6],timestamp([36000,36005,36001,36002]))
+    timestamp(['2017-10-05T15:11:40.000000000', '2017-10-05T15:11:40.500000000',
+       '2017-10-05T15:11:41.000000000', '2017-10-05T15:11:41.500000000',
+       '2017-10-05T15:11:42.000000000', '2017-10-05T15:11:42.500000000',
+       '2017-10-05T15:11:43.000000000', '2017-10-05T15:11:43.500000000'], dtype='datetime64[ns]')
+    >>> d=timed_data([1,4,5,6],timestamp([1507216300,1507216305,1507216301,1507216302]))
     >>> d
     timed_data([1, 4, 5, 6])
     >>> d.times
-    timestamp([ 36000., 36005., 36001., 36002.])
+    timestamp(['2017-10-05T15:11:40', '2017-10-05T15:11:45', '2017-10-05T15:11:41',
+       '2017-10-05T15:11:42'], dtype='datetime64[s]')
     >>> d.timesort()
     >>> d 
     timed_data([1, 5, 6, 4])
     >>> d.times 
-    timestamp([ 36000., 36001., 36002., 36005.])
+    timestamp(['2017-10-05T15:11:40', '2017-10-05T15:11:41', '2017-10-05T15:11:42',
+       '2017-10-05T15:11:45'], dtype='datetime64[s]')
+
     flagged_data
   
 Much like timed_data, but also ties in a flag array. The flag array must be of the same size as the data array. 

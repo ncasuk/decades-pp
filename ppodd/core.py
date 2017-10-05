@@ -446,7 +446,7 @@ class timestamp(np.ndarray):
         """Create new timestamp"""
         if(isinstance(times,tuple)):
             if(len(times)==2):
-                times=np.arange(times[0],times[1]+1,1,dtype=dtype)
+                times=np.arange(times[0],times[1]+1).astype(dtype)
         tim=np.asarray(times,dtype=dtype)
         if adddate is not None:
             try:

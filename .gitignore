@@ -1,4 +1,8 @@
+*.py~
 *.pyc
+build/
+ppodd/pod/c_runmod.so
+ppodd/pod/fortran_modules/callib.a
 _build
 _static
 _templates
