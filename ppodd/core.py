@@ -234,20 +234,14 @@ class decades_dataset(OrderedDict):
 
 
     def getmods(self,classes=None):
-        print("GETMODS - classes")
-        print(classes)
-        print("GETMODS - modules")
-        print(self.modules)
         if(not classes):
             import ppodd.pod
-            print("GETMODS - ppodd.pod.modules")
-            print(ppodd.pod.modules)
             classes=ppodd.pod.modules
         for m in classes:
             try:
                 self.modules[m]=classes[m](self)
             except Exception as e:
-                print(e)
+                ppodd.logger.info(str(e))
                 ppodd.logger.info('%s probably a base class so cannot instatiate' % m)
 
     def clearmods(self):
