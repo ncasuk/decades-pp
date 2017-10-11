@@ -1,7 +1,7 @@
 from ppodd.core import *
 import ppodd
 from os.path import getsize
-from p_read_gindat import ginday,gintime
+from p_read_gindat import gintime
 
 class read_horace_gin(file_read):
     """
