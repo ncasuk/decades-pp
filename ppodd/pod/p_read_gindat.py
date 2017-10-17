@@ -37,6 +37,8 @@ Routine for reading in GIN data
         else:
             ppodd.logger.warning('No recognised timing')
             return
+        if 'GIN_TIME_OFFSET' in self.dataset.keys():
+            times+=self.dataset['GIN_TIME_OFFSET'][0]
         return ind[good],times         
             
 
@@ -48,4 +50,3 @@ def gintime(time1,date):
     gtime[back]+=np.timedelta64(7,'D')
     return timestamp(gtime,dtype='datetime64[ns]')
    
-
