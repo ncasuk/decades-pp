@@ -1,6 +1,9 @@
-from ppodd.core import *
-from p_read_crios import read_crio
 import struct
+import numpy as np
+import ppodd
+
+from ppodd.core import timestamp
+from p_read_crios import read_crio
 
 class read_gindat(read_crio):
     """
@@ -38,7 +41,7 @@ Routine for reading in GIN data
             ppodd.logger.warning('No recognised timing')
             return
         if 'GIN_TIME_OFFSET' in self.dataset.keys():
-            times+=self.dataset['GIN_TIME_OFFSET'][0]
+            times+=np.timedelta64(int(self.dataset['GIN_TIME_OFFSET'][0]), 's')
         return ind[good],times         
             
 

@@ -47,8 +47,13 @@ Routine for reading in CONST data
                     mod=l.replace('NO','',1)
                     self.dataset.nocals=self.dataset.nocals+[mod]                 
                 else:
-                    values=l.split()
-                    name=values[0]
-                    values=[float(x) for x in values[1:]]
-                    self.outputs.append(constants_parameter(name,values))
- 
+                    _values=l.split()
+                    name=_values[0]
+                    values=[]
+                    for val in _values[1:]:
+                        try:
+                            values.append(float(val))
+                        except:
+                            values.append(str(val).strip())
+                    self.outputs.append(constants_parameter(name,values)) 
+    
