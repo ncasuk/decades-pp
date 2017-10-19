@@ -2,7 +2,7 @@ import struct
 import numpy as np
 import ppodd
 
-from ppodd.core import timestamp
+from ppodd.core import timestamp, date2time
 from p_read_crios import read_crio
 
 class read_gindat(read_crio):
