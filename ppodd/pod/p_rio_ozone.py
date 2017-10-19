@@ -1,5 +1,6 @@
 from ppodd.core import *
 
+import numpy as np
 class rio_ozone(cal_base):
     """
 :DESCRIPTION:
@@ -55,7 +56,12 @@ class rio_ozone(cal_base):
         wow_ind = self.dataset['WOW_IND'].data.ismatch(match)
 
         flag = self.dataset['TEIOZO_flag'].data.ismatch(match)
-        flag = flag!='1c100000'
+        # convert the array to lower case
+        flag = np.array([i.lower() for i in list(flag)])
+        if '1c100000' in flag:
+            flag = flag!='1c100000'
+        if '0c100000' in flag:
+            flag = flag!='0c100000'
         flag = flag.astype('int8')
 
         flag[conc < -10] = 2
