@@ -134,11 +134,11 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
     return np.ma.masked_outside(Tdiff,-abs(Twarn),abs(Twarn))
 
 
-def latent_heat(ps):
+def energy_liq(ps):
     """
-    Calculate latent heat of evaporation
+    Calculate the evaporative temperature and latent heat of evaporation
 
-    Based on WCM-2000 empirical equations on page 64. No references given.
+    Based on WCM-2000 empirical equations on page 64. No references found.
     Valid for pressures 100-1050mb
 
     Args:
@@ -147,6 +147,9 @@ def latent_heat(ps):
     Returns:
         Float of latent heat of evaporation (cal/gm)
     """
+
+    # Ensure array so equations work correctly for all inputs
+    ps = np.asarray(ps)
 
     # Calculate evaporative temperature of liquid water with pressure
     Tevap = 32.16 + \
@@ -160,7 +163,7 @@ def latent_heat(ps):
             0.484 * Tevap - \
             7.0e-4 * Tevap**2.
 
-    return Levap
+    return Tevap, Levap
 
 
 def glaciated():
