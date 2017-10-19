@@ -596,6 +596,16 @@ class timed_data(np.ndarray):
         result.times=self.times2d.ravel()
         result.frequency=None
         return result
+
+    def interpolate_over_nans(self,new=True):
+        if(new):
+            ans=self.copy()
+        else:
+            ans=self
+        good=np.isfinite(ans.ravel())
+        bad=~good
+        ans[bad]=np.interp(ans.times[bad].astype('u8'),ans.times[good].astype('u8'),ans.ravel()[good])
+        return ans
     
     def interp(self,times=None,frequency=None):        
         if(frequency):
