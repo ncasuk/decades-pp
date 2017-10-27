@@ -1,8 +1,12 @@
-from ppodd.core import *
-import datetime as dt
+import os
+import ppodd
+from ppodd.core import file_read, timed_data, parameter
+from datetime import datetime, timedelta
+import numpy as np
+
 import pytz
 
-import pdb
+#import pdb
 
 class read_sea(file_read):
     """
@@ -22,7 +26,7 @@ class read_sea(file_read):
     d0 row: raw data sentence. Structure described on pg44 of manual
         d0,ele,ele_voltage,ele_current,ele_temperature, repeated...
 
-        where ele is the element id string 'TWC','083','021','CMP', and 'DCE'
+        where else is the element id string 'TWC','083','021','CMP', and 'DCE'
         'TWC' is the total water scoop
         '083' is the King probe LWC element
         '021' is the JW LWC element
@@ -88,8 +92,8 @@ class read_sea(file_read):
             # For some reason using names in converters does not work,
             # use col indicies instead
             # As SEA controller is sync'd to timeserver is in UTC
-            'converters': {1: lambda x: dt.datetime.strptime(x,'%Y/%m/%d').date(),
-                           2: lambda x: dt.datetime.strptime(x,'%H:%M:%S.%f').time().replace(tzinfo=pytz.utc)}}
+            'converters': {1: lambda x: datetime.strptime(x,'%Y/%m/%d').date(),
+                           2: lambda x: datetime.strptime(x,'%H:%M:%S.%f').time().replace(tzinfo=pytz.utc)}}
     parser_f['c0'] = {'descr': 'Sense element information',
             'dtypes': ['S2','i2'] + ['S3','f','f','f','f','f']*3 + \
                       ['S3','f','f','f'],
@@ -205,11 +209,11 @@ class read_sea(file_read):
                 d3 (dict)
             """
 
-            dt = np.array([datetime.datetime.combine(d,t) for (d,t) \
+            dt = np.array([datetime.combine(d,t) for (d,t) \
                         in zip(d3['data']['date'],d3['data']['time'])])
 
             # Convert to seconds to do fit
-            delta_dt = [dt.timedelta.total_seconds(dt_-dt[0]) for dt_ in dt]
+            delta_dt = [timedelta.total_seconds(dt_-dt[0]) for dt_ in dt]
 
             row_nums = d3['row']
 
@@ -220,11 +224,11 @@ class read_sea(file_read):
                 # Did not converge, probably not enough data points
                 return None
             else:
-                return lambda r_: dt[0] + datetime.timedelta(seconds=(a*r_ + b))
+                return lambda r_: dt[0] + timedelta(seconds=(a*r_ + b))
 
 
         ppodd.logger.info('Open SEA file {!s}'.format(filename))
-        dirname=os.path.dirname(filename)
+#        dirname=os.path.dirname(filename)
 
         # Read the wcm file into raw_data as a 1D numpy array of strings
         with open(filename) as f:
@@ -243,16 +247,16 @@ class read_sea(file_read):
         # Dictionary of raw and parsed data sentences
         # 'row' key is array of row numbers in file
         wcm = {'raw': {k: raw_data[(mtype==k)] for k in sentence_id},
-               'parsed': {k: {'description': parser_f[k]['description'],
+               'parsed': {k: {'description': self.parser_f[k]['descr'],
                               'row': np.where(mtype==k)[0]} for k in sentence_id}}
 
         # Parse raw data sentences
         for k in sentence_id:
             wcm['parsed'][k]['data'] = np.genfromtxt(wcm['raw'][k],
                                        delimiter=',',
-                                       dtype=zip(parser_f[k]['names'],
-                                                 parser_f[k]['dtypes']),
-                                       converters=parser_f[k]['converters'])
+                                       dtype=zip(self.parser_f[k]['names'],
+                                                 self.parser_f[k]['dtypes']),
+                                       converters=self.parser_f[k]['converters'])
 
         # Determine interpolated time stamp function
         dt_func = timestamp_func(wcm['parsed']['d3'])
@@ -263,23 +267,22 @@ class read_sea(file_read):
 
         for k in wcm['parsed'].keys():
             wcm['parsed'][k]['dt'] = np.array([dt_func(t_) for \
-                                             t_ in wcm['parsed'][k]['row']])
+                                               t_ in wcm['parsed'][k]['row']])
 
             # Determine sampling frequency
-            wcm['parsed'][k]['f'] = np.median(wcm['parsed'][k]['dt']).round(1)
-
+            # TODO: Check the formula. Currently the output values are looking
+            #       a bit odd.
+            f = float((wcm['parsed'][k]['dt'][-1]-wcm['parsed'][k]['dt'][0]).seconds) / float((wcm['parsed'][k]['dt']).size)
+            wcm['parsed'][k]['f'] = round(f)
+            print(k, f)
+            # TODO: Right now the output data arrays are 1-dimensional.
+            #       The arrays need to be reshaped using the frequency
             # Define outputs
-            for i,name in enumerate(parser_f[k]['names']):
-
-                self.outputs.append(parameter(name,
-                               long_name=parser_f[k]['long names'][i],
-                               units=parser_f[k]['units'][i],
+            for i,name in enumerate(self.parser_f[k]['names']):
+                timestamp = [np.datetime64(ts) for ts in wcm['parsed'][k]['dt']]
+                self.outputs.append(parameter('SEAPROBE_'+  name,
+                               long_name=self.parser_f[k]['long names'][i],
+                               units=self.parser_f[k]['units'][i],
                                frequency=wcm['parsed'][k]['f'],
                                data=timed_data(wcm['parsed'][k]['data'][name],
-                                               np.datetime64(wcm['parsed'][k]['dt']))))
-
-
-
-
-
-
+                                               timestamp)))
