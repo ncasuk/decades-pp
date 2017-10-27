@@ -1,6 +1,6 @@
 
 #import ppodd
-#from ppodd.core import *
+from ppodd.core import cal_base, flagged_data, timed_data, parameter
 
 import numpy as np
 
@@ -67,15 +67,15 @@ def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
     defined in a slightly different way and this same method may be applied
     to the SEA probe in future. eg p_nevzerov.get_fitted_k()
 
-    Args:
-        Psense (float): Array of powers of sense element
-        Pcomp (float): Array of powers of compensation element for same
+    :param Psense: Array of powers of sense element
+    :type Psense: float
+    :param Pcomp: Array of powers of compensation element for same
             times. len(Pcomp)==len(Psense)
-        cloud_mask (array): Array of True/False or 1/0 for in/out of cloud
+    :type Pcomp: float
+    :param cloud_mask: Array of True/False or 1/0 for in/out of cloud
             Default is None for no cloud.
-
-    Returns:
-        Function for calculating dry air power of sense element from Pcomp
+    :type cloud mask: np.array
+    :return: Function for calculating dry air power of sense element from Pcomp
     """
     from scipy.optimize import curve_fit
 
@@ -141,11 +141,10 @@ def energy_liq(ps):
     Based on WCM-2000 empirical equations on page 64. No references found.
     Valid for pressures 100-1050mb
 
-    Args:
-        ps (float): ambient static air pressure (mbar)
-
-    Returns:
-        Float of latent heat of evaporation (cal/gm)
+    :param ps: ambient static air pressure (mbar)
+    :type ps: float:
+    :return: latent heat of evaporation (cal/gm)
+    :type return: float
     """
 
     # Ensure array so equations work correctly for all inputs
@@ -211,7 +210,7 @@ def calc_combi(e_liq,e_ice):
     c, beta: collection efficiency of LWC element (083 or 021) to ice
     d, epsilon_liqL: collection efficiency of LWC element (083 or 021) to liquid
 
-    ref: Korolev et al., "Microphysical charasterization of mixed-phase
+    ref: Korolev et al., "Microphysical characterization of mixed-phase
     clouds", Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
 
 
@@ -235,10 +234,59 @@ class calc_sea(cal_base):
     """
     Class to calculate water content from the raw data supplied by p_read_sea.
 
+    """
 
-
-    def __init__(self,dataset):
+    def __init__(self, dataset):
         """
-
-
+        :param dataset: ppodd.core.decades_dataset
         """
+        self.input_names = ['WOW_IND',
+                            'SEAPROBE_021',
+                            'SEAPROBE_021_A',
+                            'SEAPROBE_021_T',
+                            'SEAPROBE_021_V',
+                            'SEAPROBE_083',
+                            'SEAPROBE_083_A',
+                            'SEAPROBE_083_T',
+                            'SEAPROBE_083_V',
+                            'SEAPROBE_CMP',
+                            'SEAPROBE_CMP_A',
+                            'SEAPROBE_CMP_T',
+                            'SEAPROBE_CMP_V',
+                            'SEAPROBE_DCE',
+                            'SEAPROBE_DCE_A',
+                            'SEAPROBE_DCE_T',
+                            'SEAPROBE_DCE_V',
+                            'SEAPROBE_TWC',
+                            'SEAPROBE_TWC_A',
+                            'SEAPROBE_TWC_T',
+                            'SEAPROBE_TWC_V',
+                            'SEAPROBE_date',
+                            'SEAPROBE_id',
+                            'SEAPROBE_powerboxtemp',
+                            'SEAPROBE_pstatic',
+                            'SEAPROBE_tas',
+                            'SEAPROBE_time',
+                            'SEAPROBE_tstatic',
+                            'SEAPROBE_zerostate']
+
+        self.outputs = [parameter('SEA_TWC',
+                                  units='WATER PER VOLUME',
+                                  frequency=1,
+                                  long_name='',
+                                  standard_name='')]
+        self.version = 1.00
+        cal_base.__init__(self, dataset)
+
+    def process(self):
+        match = self.dataset.matchtimes(self.input_names)
+        wow_ind = self.dataset['WOW_IND'].data.ismatch(match)
+        # TODO: Not working yet, because of wrong shape of data array
+        sea_twc_data = self.dataset['SEAPROBE_TWC_A'].data.ismatch(match)
+        flag = np.zeros(sea_twc_data.shape, dtype=np.uint8)
+        ix = np.where(wow_ind != 0)[0]
+        flag[ix,:] = 3
+
+        sea_twc = flagged_data(sea_twc_data, match, flag)
+        self.outputs[0] = seaprobe_twc
+
