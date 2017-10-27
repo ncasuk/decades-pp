@@ -1,7 +1,7 @@
 from ppodd.core import *
 import ppodd
 from os.path import getsize
-from p_read_gindat import ginday,gintime
+from p_read_gindat import gintime
 
 class read_horace_gin(file_read):
     """
@@ -50,12 +50,12 @@ Routine for reading in HORACE_GIN data
         l=getsize(filename)
         dlength=136
         if(l % dlength)==0:
-            self.data=np.memmap(filename, dtype=dtype, mode='c')
+            self.data=np.fromfile(filename, dtype=dtype)
         else:
-            self.data=np.memmap(filename, dtype=dtype, shape=(l/dlength), mode='c')
+            self.data=np.fromfile(filename, dtype=dtype, count=l/dlength)
         if(self.data!=None):
             self.data=self.data[self.data['grpid']==1]
-            times=gintime(self.data['time1'],self.data['time2'],self.dataset['DATE'].data)
+            times=gintime(self.data['time1'],self.dataset['DATE'].data)
             for o in self.outputs:
                 o.data=timed_data(self.data[o.name[7:]],times)
         

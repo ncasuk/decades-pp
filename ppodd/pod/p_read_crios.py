@@ -108,7 +108,8 @@ Routine for reading in CRIO data
                 ppodd.logger.warning('Data truncated %s' % filen)
             n=size/self.total
             if(n>0):
-                z=np.memmap(filen,dtype=self.dtype,mode='r',shape=(n,)) # Try a simple read 
+                #z=np.memmap(filen,dtype=self.dtype,mode='r',shape=(n,)) # Try a simple read 
+                z=np.fromfile(filen,dtype=self.dtype) # Try a simple read 
                 if(np.any(z['label']!=self.full_descriptor)):
                     n,z=self.read_slowly(n,filen)
             if(n>0):
@@ -119,9 +120,10 @@ Routine for reading in CRIO data
         dtype_names=[d[0] for d in self.dtype]
         if(self.label+'_utc_time' in dtype_names):
             self.rawtimes=data[self.label+'_utc_time']
-            times=timestamp(data[self.label+'_utc_time'],fromdate=self.dataset['DATE'].data)
+            times=timestamp(data[self.label+'_utc_time'])
             times,ind=np.unique(times,return_index=True)
-            twodays=(times>=0) & (times<2*24*3600)
+            starttime=date2time(self.dataset['DATE'].data)
+            twodays=(times-starttime>=np.timedelta64(0,'s')) & (times-starttime<np.timedelta64(2*24*3600,'s'))
             if((~twodays).any()):
                 ppodd.logger.warning("Some %s times out of range - Ignoring" % self.label)
             if(self.label+'_ptp_sync' in dtype_names):
@@ -169,11 +171,12 @@ Routine for reading in CRIO data
         data=self.read_tcp_data(dirname,bins)
         if len(data)>0:
             try:
-                good,times=self.check_times(data) 
+                good,times=self.check_times(data)
                 for o in outputs:
                     o.data=timed_data(data[o.name][good],times)
                 self.outputs=getattr(self,'outputs',[])+outputs
-            except TypeError:
+            except TypeError as TE:
+                ppodd.logger.warning(TE)
                 ppodd.logger.warning('No %s data' % file_type)
 
 class read_criox(read_crio):

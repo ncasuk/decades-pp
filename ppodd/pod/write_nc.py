@@ -96,7 +96,7 @@ Saving as output.nc""")
         ppodd.logger.info('Creating NetCDF %s' % self.filename)
         self.coredata=Dataset(self.filename,'w',format=self.netcdf_type)
         self.coredata.comment=self.comment
-        self.coredata.Data_Date=time.strftime('%Y%m%d',time.gmtime(time.time()))
+        self.coredata.Data_Date=datetime.datetime.utcnow().strftime('%Y%m%d')
         for att in self.dataset.attributes:
             ppodd.logger.info('Setting attribute %s' % str(att))
             try:
@@ -115,7 +115,7 @@ Saving as output.nc""")
         times.standard_name='time'
         times.calendar='gregorian'
         try:
-            times.units='seconds since %4.4i-%2.2i-%2.2i 00:00:00 +0000' % tuple(self.dataset['DATE'][-1::-1])
+            times.units='seconds since %4.4i-%2.2i-%2.2i 00:00:00 +0000' % tuple(self.dataset['DATE'][::-1])
         except KeyError:
             ppodd.logger.warning('Unknown DATE')
             times.units='seconds since midnight'
@@ -128,7 +128,7 @@ Saving as output.nc""")
             try:
                 par=self.dataset[p]
                 try:
-                    t=par.times
+                    t=par.times.astype('datetime64[s]')
                     if(onehz):
                         dims=('Time',)
                     else:
@@ -174,7 +174,8 @@ Saving as output.nc""")
 
         t0=time.time()
         try:
-            self.coredata.TimeInterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
+            #self.coredata.TimeInterval=time.strftime('%H:%M:%S',time.gmtime(start))+'-'+time.strftime('%H:%M:%S',time.gmtime(end))
+            self.coredata.TimeInterval=str(start)[-8:]+'-'+str(end)[-8:]
         except NameError:
             ppodd.logger.warning("No start time, probably NO DATA ! Can't write file")
             self.coredata.close()
@@ -189,7 +190,7 @@ Saving as output.nc""")
         else:
             length=len(ti)
             ppodd.logger.info('Writing to NetCDF:%s' % self.filename)
-            times[:]=ti
+            times[:]=ti.tosecs(fromdate=self.dataset['DATE'].data)
             self.coredata.close()
             self.coredata=Dataset(self.filename,'a',format=self.netcdf_type)
             for p in paralist:
@@ -202,9 +203,10 @@ Saving as output.nc""")
                 else:
                     data=par.data
                 # Replace all nans in data array
-                data[~np.isfinite(data)]=-9999.0
+                data[~np.isfinite(data)]=fill_value
                 try:
-                    para[:]=np.float_(data).asmasked(start=start,end=end,fill_value=fill_value)
+                    z=np.float_(data).asmasked(start=start,end=end,fill_value=fill_value)
+                    para[:]=z[:]
                     if hasattr(data,'flagmasked'):
                         paraf=self.coredata.variables[p+'_FLAG']
                         paraf[:]=data.flagmasked(start=start,end=end,fill_value=-1)

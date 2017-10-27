@@ -29,7 +29,9 @@ Running from command line
 
 Example for processing a flight::
 
-    PPODD -o data/core_faam_YYYYMMDD_v001_r0_bNNN.nc data/flight-cst_faam_r0_YYYYMMDD_bNNN.txt data/bNNN_raw:M3 -o data/core_faam_YYYYMMDD_v001_r0_bNNN  # calibrate data
+    PPODD -o data/core_faam_YYYYMMDD_v001_r0_bNNN.nc \
+      data/flight-cst_faam_r0_YYYYMMDD_bNNN.txt data/bNNN_raw:M3 \
+      -o data/core_faam_YYYYMMDD_v001_r0_bNNN
 
 or::
 

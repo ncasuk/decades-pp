@@ -124,12 +124,7 @@ class rio_rvsm(cal_base):
         cal_base.__init__(self,dataset)
 
     def resample(self, P, flag, freq=32):
-        Pflat=P.ravel()
-        Pflat.interp1d()
-        tnew=P.times.at_frequency(freq)
-        ifl=interp1d(Pflat.times,flag.ravel(),bounds_error=False)
-        flagnew=(ifl(tnew.ravel()).reshape(tnew.shape)!=0)*3
-        return flagged_data(Pflat.interpolated(tnew.ravel()).reshape(tnew.shape),P.times,flagnew)
+        return flagged_data(P.interp(frequency=freq),flag.interp(frequency=freq))
         
     def process(self):
         if(self.dataset[self.input_names[0]].data is not None):

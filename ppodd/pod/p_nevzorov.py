@@ -119,23 +119,22 @@ class nevzorov(cal_base):
         cal={}
         times=self.dataset['CORCON_nv_lwc_vcol'].ismatch(t).times2d
         sh=times.shape
+        nev_freq=self.dataset['CORCON_nv_lwc_vcol'].frequency
         nvl=self.dataset['CALNVL'][0]
 
-        tas=self.dataset['TAS'].ismatch(t).ravel()
-        tas.interp1d()
-        tas=tas.interpolated(times).reshape(sh)
+        tas=self.dataset['TAS'].ismatch(t).interp(frequency=nev_freq)
+        #tas=tas.interp(times).reshape(sh)
 
-        ias=self.dataset['IAS_RVSM'].ismatch(t).ravel()
-        ias.interp1d()
-        ias=ias.interpolated(times).reshape(sh)
+        ias=self.dataset['IAS_RVSM'].ismatch(t).interp(frequency=nev_freq)
+        #ias=ias.interp(times) 
 
-        ps=self.dataset['PS_RVSM'].ismatch(t).ravel()
-        ps.interp1d()
-        ps=ps.interpolated(times).reshape(sh)
+        ps=self.dataset['PS_RVSM'].ismatch(t).interp(frequency=nev_freq)
+        #ps=ps.interp(times)
 
-        wow_ind=self.dataset['WOW_IND'].ismatch(t).ravel()
-        wow_ind.interp1d()
-        wow_ind=wow_ind.interpolated(times).reshape(sh)
+        wow_ind=self.dataset['WOW_IND'].ismatch(t)
+        wow_ind.frequency=self.dataset['WOW_IND'].frequency
+        wow_ind=1*(wow_ind.interp(frequency=nev_freq)!=0)     
+        #wow_ind=wow_ind.interp(times)
 
         for n,i in enumerate(insts):
             #For each instrument (i)

@@ -1,7 +1,8 @@
 """
-Decades processing routine for processing the data stream from the AERO AL5002 instrument.
+Decades processing routine for processing the data stream from the AERO AL5002
+instrument.
 
-Variables available are:
+List of available variables from the TCP package:
 
  AL52CO_cal_status
  AL52CO_calpress
@@ -24,16 +25,17 @@ Variables available are:
  AL52CO_zero
 
 
-Carbon Monoxide concentrations are calculated by linearly interpolation of the zero and sens
-values inbetween calibrations.
+Carbon Monoxide concentrations are calculated by linearly interpolation of the
+zero and sens values inbetween calibrations.
 
-The concentration of the calibration gas might be revised after a campaign and therefore the
-CO concentration needs to be scaled. This is taken care off by a scaling factor which is the
-fourth number in the CALCOMX flight constant. If the scaling factor is not available it is
-assumed to be 1.0.
+The concentration of the calibration gas might be revised after a campaign and
+therefore the CO concentration needs to be scaled. This is taken care off by a
+scaling factor which is the fourth number in the CALCOMX flight constant. If
+the scaling factor is not available it is assumed to be 1.0.
 
-Data are flagged as "3" if either the AL52CO_cal_status flag is "1" or if the pressure in the
-calibration chamber (AL52CO_calpress) exceeds as defined threshold (3.4).
+Data are flagged as "3" if either the AL52CO_cal_status flag is "1" or if the
+pressure in the calibration chamber (AL52CO_calpress) exceeds as defined
+threshold (3.4).
 
 """
 
@@ -48,8 +50,8 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     """Creates an overview plot, that shows the CO timeseries before and after
     the interpolation of the calibration coefficients.
 
-    On the second y-axis the CO delta is plotted. Calibration periods are indicated
-    by black dots.
+    On the second y-axis the CO delta is plotted. Calibration periods are
+    indicated by black dots.
 
     """
     import matplotlib.pyplot as plt
@@ -61,15 +63,17 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     dt=datetime.datetime.strptime('%0.2i-%0.2i-%0.4i' % tuple(ds['DATE']), '%d-%m-%Y')
     title='QA-CO Aerolaser\n'+'%s - %s' % (ds['FLIGHT'].data.lower(), dt.strftime('%d-%b-%Y'))
 
-    fig=plt.figure()
-    ax0=fig.add_subplot(111)
-    perc=np.percentile(co_orig, [2, 98])
-    co_orig_clean=co_orig[:]
-    co_orig_clean[(co_orig_clean > perc[1]) | (co_orig_clean < 0) | (cal_status == 1)]=np.nan
+    fig = plt.figure()
+    ax0 = fig.add_subplot(111)
+    perc = np.percentile(co_orig, [2, 98])
+    co_orig_clean = co_orig[:]
+    co_orig_clean[(co_orig_clean > perc[1]) | \
+                  (co_orig_clean < 0) | \
+                  (cal_status == 1)] = np.nan
     ax0.plot_date(ts, co_orig_clean, 'b-')
-    yl=ax0.get_ylim()
+    yl = ax0.get_ylim()
     ax0.plot_date(ts, co_orig, 'b-', label='CO raw')
-    co_interp[cal_status == 1]=np.nan
+    co_interp[cal_status == 1] = np.nan
     ax0.plot_date(ts, co_interp, 'g-', label='CO interp')
 
     ax0.set_ylim(yl)
@@ -80,32 +84,32 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
     ax0.xaxis.set_major_formatter(DateFormatter('%H:%M'))
     ax0.xaxis.grid(True)
 
-    ax1=ax0.twinx()
+    ax1 = ax0.twinx()
     ax1.plot_date(ts, co_orig-co_interp, '-', color='red', label='CO delta')
     ax1.set_ylim(-10, 10)
-    #axplt.grid()
 
     # overplot time periods when instrument is calibrating
-    cal_status_ix=np.where(cal_status == 1)[0]
+    cal_status_ix = np.where(cal_status == 1)[0]
     if len(cal_status_ix > 0):
-        plt.plot_date(ts[cal_status_ix], ts[cal_status_ix]*0.0, 'o', markersize=5, color='black', label='Cal')
+        plt.plot_date(ts[cal_status_ix],
+                      ts[cal_status_ix]*0.0,
+                      'o', markersize=5, color='black', label='Cal')
 
     # add padding (3 percent) to the left and right of the plot
-    xlim_margin=(ax0.get_xlim()[1]-ax0.get_xlim()[0])*0.03
+    xlim_margin = (ax0.get_xlim()[1]-ax0.get_xlim()[0])*0.03
     ax0.set_xlim((ax0.get_xlim()[0]-xlim_margin, ax0.get_xlim()[1]+xlim_margin))
 
     ax0.legend(loc='upper left')
     ax1.legend(loc='upper right')
     # estimate T/O and Landing and plot two vertical lines
     wow_min, wow_max = 0, 0
-    counter=np.arange(ds['WOW_IND'][:].size)
-    wow_min=np.where((ds['WOW_IND'][:] == 0) & (ds['HGT_RADR'][:,0] > 100))[0]
+    counter = np.arange(ds['WOW_IND'][:].size)
+    wow_min = np.where((ds['WOW_IND'][:] == 0) & (ds['HGT_RADR'][:,0] > 100))[0]
     if wow_min.size:
-        wow_min=wow_min[0]
-    wow_max=np.where((ds['WOW_IND'][:] == 1) & (counter > wow_min))[0]
+        wow_min = wow_min[0]
+    wow_max = np.where((ds['WOW_IND'][:] == 1) & (counter > wow_min))[0]
     if wow_max.size:
-        wow_max=wow_max[0]
-
+        wow_max = wow_max[0]
 
     # overplot T/O and Landing on the figure
     wow_times=ds['WOW_IND'].data.times/86400.+date2num(datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y'))
@@ -130,22 +134,28 @@ def interpolate_cal_coefficients(utc_time, sens, zero):
         if np.isnan(zero_new[i]):
             zero_new[i]=zero_new[i-1]
     # get calibration periods
-    ix=np.where(sens[1:]-sens[:-1] != 0)[0]
+    ix = np.where(sens[1:]-sens[:-1] != 0)[0]
     #ix=np.where(sens[1:] != sens[:-1])[0]
     # remove nan values
-    ix=ix[~np.isnan((sens[1:]-sens[:-1])[ix])]
+    ix = ix[~np.isnan((sens[1:]-sens[:-1])[ix])]
     # ignore the first 100 data points
-    ix=ix[ix>100]
+    ix = ix[ix>100]
     # the +2 is a dodgy way to make sure that the values have changed.
     # Apparently the zero and sens parameters do not change at
     # exactly the same time in the data stream
-    ix=[10]+list(ix+4)+[sens.size-4]
+    ix = [10]+list(ix+4)+[sens.size-4]
     # loop over all calibration periods
     for i in range(len(ix)-1):
-        ix1=ix[i]
-        ix2=ix[i+1]
-        sens_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [sens[ix1], sens[ix2]])
-        zero_new[ix1:ix2]=np.interp(utc_time[ix1:ix2], np.float32([utc_time[ix1], utc_time[ix2]]), [zero[ix1], zero[ix2]])
+        ix1 = ix[i]
+        ix2 = ix[i+1]
+        sens_new[ix1:ix2] = np.interp(utc_time[ix1:ix2],
+                                      np.float32([utc_time[ix1],
+                                                  utc_time[ix2]]),
+                                      [sens[ix1], sens[ix2]])
+        zero_new[ix1:ix2]=np.interp(utc_time[ix1:ix2],
+                                    np.float32([utc_time[ix1],
+                                                utc_time[ix2]]),
+                                    [zero[ix1], zero[ix2]])
 
         # write calibration information to stdout
         timestamp=datetime.datetime.utcfromtimestamp(utc_time[ix1]).strftime('%Y-%m-%d %H:%M:%S')
@@ -233,7 +243,7 @@ class rio_co_mixingratio(cal_base):
             scaling_factor = 1.0
             sys.stdout.write('    Scaling factor not defined in flight-cst file.\n')
         else:
-            scaling_factor=self.dataset['CALCOMX'][3]
+            scaling_factor = self.dataset['CALCOMX'][3]
             sys.stdout.write('    Scaling factor defined in flight-cst file.\n')
         sys.stdout.write('    Scaling factor set to %f.\n' % (scaling_factor))
         co_mr *= scaling_factor
@@ -245,12 +255,12 @@ class rio_co_mixingratio(cal_base):
         ix = np.where(((counts-np.roll(counts, 1)) < -2000) &
                       ((counts-np.roll(counts, -1)) < -2000) &
                       (counts < (np.nanmedian(counts)*0.8)))[0]
-#        counts[ix] = np.nan
+        counts[ix] = np.nan
         # calc new interpolated calibration coefficients
-        sens_new, zero_new=interpolate_cal_coefficients(utc_time, sens, zero)
+        sens_new, zero_new = interpolate_cal_coefficients(utc_time, sens, zero)
 
-        # recalculate the CO concentration using the interpolated calibration coefficients
-        # zero_new and sens_new
+        # recalculate the CO concentration using the interpolated calibration
+        # coefficients zero_new and sens_new
         conc_new = (counts-zero_new)/sens_new
         # use both cal_status flag and pressure in calibration chamber for indexing calibration time periods
         cal_status_ix = np.where((cal_status == 1) | (calpress > 3.4))[0]
