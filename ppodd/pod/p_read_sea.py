@@ -174,8 +174,7 @@ class read_sea(file_read):
                 housekeeping and ancillary fields.
 
         """
-        # What are input_names? Are these nc short_names?
-        # Or are these some sort of filename
+
         self.input_names=['SEA']
         self.outputs=[]
         self.patterns=('*.wcm',)
@@ -269,20 +268,29 @@ class read_sea(file_read):
             wcm['parsed'][k]['dt'] = np.array([dt_func(t_) for \
                                                t_ in wcm['parsed'][k]['row']])
 
-            # Determine sampling frequency
-            # TODO: Check the formula. Currently the output values are looking
-            #       a bit odd.
-            f = float((wcm['parsed'][k]['dt'][-1]-wcm['parsed'][k]['dt'][0]).seconds) / float((wcm['parsed'][k]['dt']).size)
-            wcm['parsed'][k]['f'] = round(f)
+            # Determine median sampling frequency
+            f = 1. / np.median(np.diff(wcm['parsed'][k]['dt']))
+            wcm['parsed'][k]['f'] = round(f,0)
             print(k, f)
-            # TODO: Right now the output data arrays are 1-dimensional.
-            #       The arrays need to be reshaped using the frequency
+
             # Define outputs
             for i,name in enumerate(self.parser_f[k]['names']):
                 timestamp = [np.datetime64(ts) for ts in wcm['parsed'][k]['dt']]
+
+                # Reshape data based on frequency
+                if f > 1:
+                    # Remove excess array elements from end so that can
+                    # reshape the array
+                    dsize_ = wcm['parsed'][k]['data'][name].size
+                    data_ = wcm['parsed'][k]['data'][name][:-np.remainder(dsize,
+                            wcm['parsed'][k]['f'])].reshape(-1,wcm['parsed'][k]['f'])
+                else:
+                    # What to do if frequency is less than 1Hz?
+                    data_ = wcm['parsed'][k]['data'][name]
+
                 self.outputs.append(parameter('SEAPROBE_'+  name,
                                long_name=self.parser_f[k]['long names'][i],
                                units=self.parser_f[k]['units'][i],
                                frequency=wcm['parsed'][k]['f'],
-                               data=timed_data(wcm['parsed'][k]['data'][name],
+                               data=timed_data(data_,
                                                timestamp)))
