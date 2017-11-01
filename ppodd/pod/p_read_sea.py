@@ -1,8 +1,9 @@
 import os
 import ppodd
-from ppodd.core import file_read, timed_data, parameter
+from ppodd.core import file_read, timed_data, parameter, timestamp
 from datetime import datetime, timedelta
 import numpy as np
+import pandas as pd
 
 import pytz
 
@@ -265,32 +266,37 @@ class read_sea(file_read):
             return None
 
         for k in wcm['parsed'].keys():
-            wcm['parsed'][k]['dt'] = np.array([dt_func(t_) for \
+            wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_)) for \
                                                t_ in wcm['parsed'][k]['row']])
+            
+            # Set frequency for the data sentences
+            if k == 'd3':
+                 freq = 1
+            elif k == 'd0':
+                freq = 20
+            else:
+                continue
 
-            # Determine median sampling frequency
-            f = 1. / np.median(np.diff(wcm['parsed'][k]['dt']))
-            wcm['parsed'][k]['f'] = round(f,0)
-            print(k, f)
-
+            wcm['parsed'][k]['f'] = freq
+            ts_start = wcm['parsed'][k]['dt'][0]
+            ts_end = wcm['parsed'][k]['dt'][-1]
+            # create a new index for resampling the irregular data
+            # This new Index starts on a full second and is the correct frequency
+            newIndex = pd.date_range(start=np.datetime64(ts_start, 's'),
+                                     end=np.datetime64(ts_end, 's'),
+                                     freq='%ims' % (1000/freq,), closed='left')
+            
             # Define outputs
-            for i,name in enumerate(self.parser_f[k]['names']):
-                timestamp = [np.datetime64(ts) for ts in wcm['parsed'][k]['dt']]
-
-                # Reshape data based on frequency
-                if f > 1:
-                    # Remove excess array elements from end so that can
-                    # reshape the array
-                    dsize_ = wcm['parsed'][k]['data'][name].size
-                    data_ = wcm['parsed'][k]['data'][name][:-np.remainder(dsize,
-                            wcm['parsed'][k]['f'])].reshape(-1,wcm['parsed'][k]['f'])
-                else:
-                    # What to do if frequency is less than 1Hz?
-                    data_ = wcm['parsed'][k]['data'][name]
-
+            for i, name in enumerate(self.parser_f[k]['names']):
+                series_ = pd.Series(wcm['parsed'][k]['data'][name],
+                                    index=wcm['parsed'][k]['dt'])
+                series = series_.reindex(index=newIndex, method='nearest')
+                shape_ = (len(series)/freq, freq)
+                data_ = np.reshape(series.values, shape_)
+                            
                 self.outputs.append(parameter('SEAPROBE_'+  name,
                                long_name=self.parser_f[k]['long names'][i],
                                units=self.parser_f[k]['units'][i],
                                frequency=wcm['parsed'][k]['f'],
                                data=timed_data(data_,
-                                               timestamp)))
+                                               timestamp(newIndex.values[::freq]))))
