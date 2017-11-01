@@ -270,10 +270,10 @@ class read_sea(file_read):
                                                t_ in wcm['parsed'][k]['row']])
             
             # Set frequency for the data sentences
-            if k == 'd3':
-                 freq = 1
-            elif k == 'd0':
-                freq = 20
+            if k == 'd0':
+                 freq = 20
+            elif k == 'd3':
+                freq = 1
             else:
                 continue
 
