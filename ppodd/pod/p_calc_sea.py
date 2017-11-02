@@ -1,3 +1,23 @@
+"""
+Computations for converting raw SEA WCM-2000 power data into liquid water
+content, ice water content, and total water content. Included are
+functions for calculating dry air offsets, element efficiencies, and
+housekeeping checks.
+
+References:
+
+Science Engineering Associates, WCM-2000 Manual. January 25, 2016.
+Korolev et al., "Microphysical characterization of mixed-phase clouds",
+    Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
+Korolev et al., "The Nevzorov Airborne Hot-Wire LWC–TWC Probe: Principle
+    of Operation and Performance Characteristics", J. Atmos. Oceanic
+    Technol., 15, pp1495-1510, 1998.
+Osborne, Stimson, and Ginnings, "Measurements of heat capacity and heat
+    of vaporization of water in the range 0 degrees to 100 degrees C",
+    J. Res. Natl. Bur. Stand., Vol. 23, pp197-260, 1939.
+"""
+
+
 
 #import ppodd
 from ppodd.core import cal_base, flagged_data, timed_data, parameter
@@ -16,17 +36,25 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
 
     Psense,dry = k1 * (T - ts) * (ps * tas)**k2
 
-    Args:
-        Psense (float): sense element power (W)
-        T (float): temperature of sense element (deg C)
-        ts (float): ambient static temperature (deg C)
-        ps (float): ambient static air pressure (mbar)
-        tas (float): true air speed (m/s)
-        cloud_mask (boolean): Array of True/False or 1/0 for in/out of cloud
-            Default is None for no cloud.
 
-    Returns:
-        k1,k2 coefficients
+    :param Psense: sense element power (W)
+    :type Psense: float
+    :param T: temperature of sense element (deg C)
+    :type T: float
+    :param ts: ambient static temperature (deg C)
+    :type ts: float
+    :param ps: ambient static air pressure (mbar)
+    :type ps: float
+    :param tas: true air speed (m/s)
+    :type tas: float
+    :param cloud_mask: Array of True/False or 1/0 for in/out of cloud
+        Default is None for no cloud.
+    :type cloud_mask: Boolean
+
+    :returns k1: fitting coefficient
+    :rtype k1: float
+    :returns k2: fitting coefficient
+    :rtype k2: float
     """
 
     from scipy.optimize import curve_fit
@@ -139,12 +167,14 @@ def energy_liq(ps):
     Calculate the evaporative temperature and latent heat of evaporation
 
     Based on WCM-2000 empirical equations on page 64. No references found.
-    Valid for pressures 100-1050mb
+    Valid for pressures 100-1050mb.
 
     :param ps: ambient static air pressure (mbar)
     :type ps: float:
-    :return: latent heat of evaporation (cal/gm)
-    :type return: float
+    :returns Tevap: Temperature of evaporation (deg C)
+    :rtype Tevap: float
+    :returns Levap: Latent heat of evaporation (cal/gm)
+    :rtype: float
     """
 
     # Ensure array so equations work correctly for all inputs
@@ -177,23 +207,108 @@ def liquid():
 
     """
 
+def calc_k(T,ps):
+    """
+    Calculate the ratio of specific energies for melting and/or evaporation
+
+    The ratio of the specific energy expended to evaporate water, given by
+    L*_l, and to melt and then evaporate ice, given by L*_i, is designated k.
+    This is described in Korolev 1998 and 2003. For the Nevzerov probe,
+    a constant value is given but this includes efficiencies and temperatures
+    specific to that probe. k for the SEA probe must be calculated.
+
+    Variables names:
+        L^*_liq     SpecEnergy_liq  Specific energy expended to evaporate
+        C_liq       C_liq           Specific heat of liquid water
+        T_e         T_e             Temperature of evaporation
+        T           T               Ambient temperature
+        L_liq(Te)   L_liq           Latent heat of evaporation at T_e
+        L^*_ice     SpecEnergy_ice  Specific energy expended to melt+evaporate
+        C_ice       C_ice           Specific heat of ice
+        L_ice       L_ice           Latent heat of fusion
+
+    Notes:  1cal/gK == 4.184J/gK
+            1J == 0.239 cal
+            Specific heat (cal/gK) is same as heat capacity (J/molK)
+
+    :param T: Ambient temperature (degree C)
+    :type T:  float
+    :param ps: Ambient static pressure (mb)
+    :type  ps: float
+    :returns k: SpecEnergy_ice / SpecEnergy_liq
+    :rtype: float
+    """
+
+    # Conversion from joules to calories
+    J_to_cal = 0.239
+    cal_to_J = 1/J_to_cal
+
+    # Latent heat of fusion for ice (cal/g)
+    # 333.5J/g == 79.71cal/g from  Osborne, N.S., "Heat of fusion of ice. A revision", J. Res. Natl. Bur. Stand., Vol. 23, No. , p. 643, 1939.
+    # Note that I don't understand the difference between International and
+    # Absolute joules in these papers. Could be 79.72 as quoted by Wikipedia
+    L_ice = 79.71
+
+    # Specific heat of water from 0-100deg C converted to cal/gC
+    # From Osborne et al. 1939.
+    C_liq = lambda t: J_to_cal * (4.169828 \
+                      + (0.000364 * (t+100)**5.26 )*1e-10 \
+                      + 0.046709*10**(-0.036*t))
+
+    # Specific heat of ice
+    # from http://www.kayelaby.npl.co.uk/general_physics/2_3/2_3_6.html
+    # Convert from J to cal
+    C_ice_T = np.array([-196.,-100.,0])
+    C_ice_data = np.array([0.686,1.372,2.097]) * J_to_cal
+    C_ice = lambda t: np.interp(t,C_ice_T,C_ice_data)
+
+    # Obtain evaporation temperature and latent heat for ambient pressure
+    T_e, L_liq = energy_liq(ps)
+
+    # Calculate specific energy of liquid water
+    # from Korolev et al. 2003. eq 5
+    SpecEnergy_liq = C_liq(T_e-T) + L_liq
+
+    # Equation divided into melting (up to 0C) and evaporation (0C -> T_e)
+    # from Korolev et al. 2003. eq 6
+    SpecEnergy_ice = C_ice(0-T) + L_ice + C_liq(T_e) + L_liq
+
+    return SpecEnergy_ice / SpecEnergy_liq
+
+
 def calc_lwc():
     """
     Calculate liquid water content based on method of SEA WCM-2000 manual
 
-    Args:
-        tas (float): true air speed (m/s)
-        ts (float): ambient static air temperature (deg C)
-        ps (float): ambient static air pressure (mbar)
+    The element efficiencies are defined by SEA and Korolev 2003 as follows;
+    k*e_iceT: collection efficiency of TWC element to ice
+        where k is the ratio of expended specific energy for sublimation to evaporation
+    b, epsilon_liqT: collection efficiency of TWC element to liquid
+    c, beta: collection efficiency of LWC element (083 or 021) to ice
+    d, epsilon_liqL: collection efficiency of LWC element (083 or 021) to liquid
+
+    ref: Korolev et al., "Microphysical characterization of mixed-phase
+    clouds", Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
 
     """
 
 
-def calc_twc():
+    lwc = np.divide(beta_iceL * W_twc - k*e_iceT * W_lwc,
+                    beta_iceL * e_liqT - e_liqL * k*e_iceT)
+
+
+
+
+def calc_iwc():
     """
-    Calculate total water content
+    Calculate ice water content
 
     """
+
+    iwc = np.divide(e_liqL * W_twc - e_liqT * W_lwc,
+                    e_liqL * k*e_iceT - beta_lwc * e_liqT)
+
+
 
 def calc_combi(e_liq,e_ice):
     """
@@ -210,8 +325,6 @@ def calc_combi(e_liq,e_ice):
     c, beta: collection efficiency of LWC element (083 or 021) to ice
     d, epsilon_liqL: collection efficiency of LWC element (083 or 021) to liquid
 
-    ref: Korolev et al., "Microphysical characterization of mixed-phase
-    clouds", Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
 
 
     Args:
