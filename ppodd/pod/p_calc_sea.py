@@ -135,17 +135,21 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
 
     From WCM-2000 manual page 62.
 
-    Args:
-        V (float): voltage across element (V)
-        I (float): current through element (I)
-        Tset (float): setpoint temperature (dec C)
-        R100 (float): calibrated element resistance at 100deg C
-        dTdR (float): calibrated element differential temp resistance ratio
-        Twarn (float): Temperature difference from setpoint at which to
-            trigger a warning. Default is None and defined in funtion.
+    :param V: voltage across element (V)
+    :type V: float or int
+    :param I: current through element (I)
+    :type I: float or int
+    :param Tset: setpoint temperature (dec C)
+    :type Tset: float or int
+    :param R100: calibrated element resistance at 100deg C
+    :type R100: float or int
+    :param dTdR: calibrated element differential temp resistance ratio
+    :type V: float or int
+    :param Twarn: Temperature difference from setpoint at which to
+            trigger a warning. Default is None and defined in function.
+    :type Twarn: float or int
 
-    Returns:
-        Array of differences between setpoint and calculated temperature.
+    :returns: Array of differences between setpoint and calculated temperature.
         Masked for differences greater than set warning level
     """
 
