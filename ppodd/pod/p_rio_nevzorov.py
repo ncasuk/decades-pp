@@ -70,11 +70,11 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
 
 class rio_nevzorov_1t2l1r(cal_base):
     """
-    Processing module for the vane that has 
+    Processing module for the vane that has
       1x Total Water sensor
       2x Liquid Water sensors
       1x reference
-        
+
     """
 
     def __init__(self,dataset):
@@ -229,11 +229,11 @@ class rio_nevzorov_1t2l1r(cal_base):
 
 class rio_nevzorov_1t1l2r(cal_base):
     """
-    Processing module for the vane that has 
+    Processing module for the vane that has
       1x Total Water sensor
       1x Liquid Water sensors
       2x references
-        
+
     """
 
     def __init__(self, dataset):
@@ -345,7 +345,7 @@ class rio_nevzorov(cal_base):
     """
     Main Nevzorov processing modules. Calls the appropriate module depending
     on the vanetype that was fitted.
-    
+
     The fitted vanetype is defined in the flight constant file with the
     contant 'VANETYPE'
     """
@@ -358,7 +358,7 @@ class rio_nevzorov(cal_base):
             self.dataset['VANETYPE'] = ['1T1L2R', ]
 
         if self.dataset['VANETYPE'][0] == '1T2L1R':
-            self.dataset.modules['RIO_NEVZOROV_1T"L1R'].run()
+            self.dataset.modules['RIO_NEVZOROV_1T2L1R'].run()
         elif self.dataset['VANETYPE'][0] == '1T1L2R':
             self.dataset.modules['RIO_NEVZOROV_1T1L2R'].run()
         else:
