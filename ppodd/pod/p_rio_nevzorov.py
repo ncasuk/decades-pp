@@ -1,5 +1,5 @@
 import sys
-from ppodd.core import cal_base, timed_data, timestamp, flagged_data, parameter
+from ppodd.core import cal_base, timed_data, flagged_data, parameter
 
 import numpy as np
 
@@ -70,9 +70,20 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
 
 class rio_nevzorov_1t2l1r(cal_base):
     """
+    Processing module for the vane that has 
+      1x Total Water sensor
+      2x Liquid Water sensors
+      1x reference
+        
     """
 
     def __init__(self,dataset):
+        """
+        :param dataset: dataset for flight
+        :type dataset: ppodd.core.decades_dataset
+        """
+        # Check for VANETYPE; leave if it is not the type with 2 liquid water
+        # sensors
         if dataset['VANETYPE'][0] != '1T2L1R':
             return
 
@@ -132,6 +143,8 @@ class rio_nevzorov_1t2l1r(cal_base):
         np.seterr(divide='ignore')  # suppress divide by zero messages
         t = self.dataset.matchtimes(self.input_names)
 
+        # This is the dictionary that is used for translating the variable
+        # names in the dataset
         dictionary = [('CORCON_nv_twc_vref', 'CORCON_nv_twc_vref'),
                       ('CORCON_nv_twc_iref', 'CORCON_nv_twc_iref'),
                       ('CORCON_nv_lwc1_vcol', 'CORCON_nv_lwc_vcol'),
@@ -155,6 +168,7 @@ class rio_nevzorov_1t2l1r(cal_base):
                       ('CTWCIREF', 'CLWCIREF'),
                       ('CTWCVREF', 'CLWCVREF')]
 
+       # translating
         for d in dictionary:
             self.dataset[d[0]] = self.dataset[d[1]]
 
@@ -179,7 +193,6 @@ class rio_nevzorov_1t2l1r(cal_base):
         wow_ind = wow_ind.interp(times=times).reshape(sh)
 
         for n, i in enumerate(insts):
-            # For each instrument (i)
             area = self.dataset[('calnv%s' % i).upper()][1]
             K = self.dataset[('calnv%s' % i).upper()][0]
             for m in measurements:
@@ -216,7 +229,13 @@ class rio_nevzorov_1t2l1r(cal_base):
 
 class rio_nevzorov_1t1l2r(cal_base):
     """
+    Processing module for the vane that has 
+      1x Total Water sensor
+      1x Liquid Water sensors
+      2x references
+        
     """
+
     def __init__(self, dataset):
         if dataset['VANETYPE'][0] != '1T1L2R':
             return
@@ -324,6 +343,11 @@ class rio_nevzorov_1t1l2r(cal_base):
 
 class rio_nevzorov(cal_base):
     """
+    Main Nevzorov processing modules. Calls the appropriate module depending
+    on the vanetype that was fitted.
+    
+    The fitted vanetype is defined in the flight constant file with the
+    contant 'VANETYPE'
     """
 
     def __init__(self, dataset):
