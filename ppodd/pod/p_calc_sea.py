@@ -16,9 +16,19 @@ Additional calculations;
 (2) Determination of evaporative temperature, latent heat, and specific heats
 (3) Various element efficiencies need to be calculated for this
 
+Units:
+Many of the parameters are obtained from empirical equations, thus the
+use of the correct units is important. To use those equations and compare
+values these functions use the units as used by SEA.
+
+Water content:      g/m**3
+Electrical power:   W (or J/s)
+Temperature:        degrees celsius
+True air speed:     m/s
+Element dimensions: mm
+Latent heat:        cal/g
 
 References:
-
 Science Engineering Associates, WCM-2000 Manual. January 25, 2016.
 Korolev et al., "Microphysical characterization of mixed-phase clouds",
     Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
@@ -38,6 +48,13 @@ Osborne, Stimson, and Ginnings, "Measurements of heat capacity and heat
 from ppodd.core import cal_base, flagged_data, timed_data, parameter
 
 import numpy as np
+
+
+# Conversion from calories to joules
+# ref: Woan, G., "The Cambridge Handbook of Physics Formulas", Cambridge University Press, 2000.
+cal_to_J = 4.1868
+J_to_cal = 1./cal_to_J
+
 
 
 def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
@@ -118,7 +135,8 @@ def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
     :param cloud_mask: Array of True/False or 1/0 for in/out of cloud
             Default is None for no cloud.
     :type cloud mask: np.array
-    :return: Function for calculating dry air power of sense element from Pcomp
+
+    :returns: Function for calculating dry air power of sense element from Pcomp
     """
     from scipy.optimize import curve_fit
 
@@ -193,7 +211,8 @@ def energy_liq(ps):
     :type ps: float:
     :returns Tevap: Temperature of evaporation (deg C)
     :rtype Tevap: float
-    :returns Levap: Latent heat of evaporation (cal/gm)
+
+    :returns Levap: Latent heat of evaporation (cal/g)
     :rtype: float
     """
 
@@ -207,7 +226,7 @@ def energy_liq(ps):
             1.785e-7 * ps**3. - \
             5.19e-11 * ps**4.
 
-    # Calculate latent heat of evaporation (cal/gm)
+    # Calculate latent heat of evaporation (cal/g)
     Levap = 594.4 - \
             0.484 * Tevap - \
             7.0e-4 * Tevap**2.
@@ -227,12 +246,15 @@ def liquid():
 
     """
 
-def calc_k(T,ps):
+def calc_L(T,ps):
     """
-    Calculate the ratio of specific energies for melting and/or evaporation
+    Calculate the specific energies for melting and/or evaporation
 
-    The ratio of the specific energy expended to evaporate water, given by
-    L*_l, and to melt and then evaporate ice, given by L*_i, is designated k.
+    The specific energy expended to evaporate water of a given temperature,
+    T, is given by L*_l. The specific energy expended to melt then evaporate
+    ice of a given temperature, T, is given by L*_i. The ratio of L*_i to
+    L*_l is designated as k.
+
     This is described in Korolev 1998 and 2003. For the Nevzerov probe,
     a constant value is given but this includes efficiencies and temperatures
     specific to that probe. k for the SEA probe must be calculated.
@@ -255,19 +277,18 @@ def calc_k(T,ps):
     :type T:  float
     :param ps: Ambient static pressure (mb)
     :type  ps: float
-    :returns k: SpecEnergy_ice / SpecEnergy_liq
+
+    :returns SpecEnergy_liq: The specific energy expended for liquid water (cal/g)
+    :rtype: float
+    :returns SpecEnergy_ice: The specific energy expended for ice (cal/g)
     :rtype: float
     """
-
-    # Conversion from joules to calories
-    J_to_cal = 0.239
-    cal_to_J = 1/J_to_cal
 
     # Latent heat of fusion for ice (cal/g)
     # 333.5J/g == 79.71cal/g from Osborne, 1939.
     # Note that I don't understand the difference between International and
     # Absolute joules in these papers. Could be 79.72 as quoted by Wikipedia
-    L_ice = 79.71
+    L_ice = 333.5 * J_to_cal
 
     # Specific heat of water from 0-100deg C converted to cal/gC
     # From Osborne et al. 1939.
@@ -279,7 +300,7 @@ def calc_k(T,ps):
     # from http://www.kayelaby.npl.co.uk/general_physics/2_3/2_3_6.html
     # Convert from J to cal
     # Have pinned to zero for values greater than zero
-    C_ice_T = np.array([-196.,-100.,0])
+    C_ice_T = np.array([-196.,-100.,0.])
     C_ice_data = np.array([0.686,1.372,2.097]) * J_to_cal
     C_ice = lambda t: np.interp(t,C_ice_T,C_ice_data,right=0)
 
@@ -294,16 +315,20 @@ def calc_k(T,ps):
     # from Korolev et al. 2003. eq 6
     SpecEnergy_ice = C_ice(T) + L_ice + C_liq(T_e) + L_liq
 
-    return SpecEnergy_ice / SpecEnergy_liq
+    return SpecEnergy_liq, SpecEnergy_ice
 
 
 def calc_el_wc():
     """
-    Calculate the element measured water content.
+    Calculate the element-measured water content.
 
 
 
     """
+
+
+    Pel / (tas * el_w * el_l * L)
+
 
 def calc_lwc():
     """
