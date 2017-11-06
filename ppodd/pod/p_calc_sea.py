@@ -65,6 +65,12 @@ cal_to_J = 4.1868
 J_to_cal = 1./cal_to_J
 
 
+### Placeholder function that will be from flight constants file or something
+### similar. This function will be derived from dryair_cal_comp() for
+### many flights.
+Psense_dry_tmp = lambda P: P
+
+
 
 def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
     """
@@ -365,8 +371,8 @@ def calc_sense_wc():
     Pcomp = Vcomp * Icomp
 
     # Calculate wet power by subtracting dry air power term
-    # TODO: Where P is the placeholder function to derive Psens_dry from Pcomp
-    Psense_wet = Psense_tot - P(Pcomp)
+    # TODO: Where Psense_dry_tmp() is the placeholder function to derive Psens_dry from Pcomp
+    Psense_wet = Psense_tot - Psense_dry_tmp(Pcomp)
 
     # Calculate measured water content ignoring any non-ideal efficiencies
     W_meas = Psense_wet / (tas * Wsense * Lsense * L)
