@@ -6,9 +6,17 @@ housekeeping checks.
 
 Calculation process is as follows;
 - Calculate total element power
+ - In calc_sense_wc(), derived from raw voltage and currents
 - Subtraction of dry power to obtain wet element power (1)
+ - Read function to calc Pdry from Pcomp from flight constants file (?)
+ - Calculate func for current flight with dryair_cal_comp() to compare
+ - Calculate wet element power in calc_sense_wc()
 - Calculation of measured water content for each element (2)
+ - Using latent heats from energy_liq(), calculate in calc_sense_wc()
 - Simultaneous calculation of actual IWC and LWC from measured values (3)
+ - Done in same was as dry air power, read efficiencies calculated for
+   many flights from flight constants file. Calculate for this flight to
+   compared.
 - Addition of IWC and LWC to obtain TWC
 
 Additional calculations;
@@ -40,6 +48,8 @@ Osborne, N.S., "Heat of fusion of ice. A revision", J. Res. Natl. Bur.
 Osborne, Stimson, and Ginnings, "Measurements of heat capacity and heat
     of vaporization of water in the range 0 degrees to 100 degrees C",
     J. Res. Natl. Bur. Stand., Vol. 23, pp197-260, 1939.
+Woan, G., "The Cambridge Handbook of Physics Formulas", Cambridge
+    University Press, 2000.
 """
 
 
@@ -50,8 +60,7 @@ from ppodd.core import cal_base, flagged_data, timed_data, parameter
 import numpy as np
 
 
-# Conversion from calories to joules
-# ref: Woan, G., "The Cambridge Handbook of Physics Formulas", Cambridge University Press, 2000.
+# Conversion from calories to joules. From Woan, 2000.
 cal_to_J = 4.1868
 J_to_cal = 1./cal_to_J
 
@@ -64,10 +73,13 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
     The calculation of the dry air power term is based on method three
     as described on page 58 of the WCM-2000 manual. This uses a fit
     between the theoretical and measured (in cloud-free conditions)
-    powers to find the fitting constants K1 and K2.
+    sense powers to find the fitting constants K1 and K2.
 
     Psense,dry = k1 * (T - ts) * (ps * tas)**k2
 
+    Psense,total = Psense,dry + Psense,wet
+    =>
+    Psense,total - Psense,dry = 0 in cloud-free conditions
 
     :param Psense: sense element power (W)
     :type Psense: float
@@ -83,10 +95,9 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
         Default is None for no cloud.
     :type cloud_mask: Boolean
 
-    :returns k1: fitting coefficient
-    :rtype k1: float
-    :returns k2: fitting coefficient
-    :rtype k2: float
+    :returns: Function for calculating dry air power of sense element
+        from Psense
+
     """
 
     from scipy.optimize import curve_fit
@@ -104,9 +115,9 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
     # Find fitting constants that minimise difference between calculated
     # and actual total power on sense element.
     # Interpolations don't accept masked arrays so delete masked elements
-    (k1,k2),pcov = curve_fit(func,Psense[~cloud],np.zeros(len(Psense[~cloud])))
+    popt,pcov = curve_fit(func,Psense[~cloud],np.zeros(len(Psense[~cloud])))
 
-    return k1,k2
+    return lambda x: func(x,*popt)
 
 
 def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
@@ -276,7 +287,7 @@ def calc_L(T,ps):
     :param T: Ambient temperature (degree C)
     :type T:  float
     :param ps: Ambient static pressure (mb)
-    :type  ps: float
+    :type ps: float
 
     :returns SpecEnergy_liq: The specific energy expended for liquid water (cal/g)
     :rtype: float
@@ -318,16 +329,49 @@ def calc_L(T,ps):
     return SpecEnergy_liq, SpecEnergy_ice
 
 
-def calc_el_wc():
+def calc_sense_wc():
     """
-    Calculate the element-measured water content.
+    Calculate the sense element-measured water content (either LWC or IWC).
 
+    Use equation as given on pages 61,65 of the WCM-2000 manual. This is
+    the same as eqs 3,4 from Korolev 2003 but for calories instead of joules.
 
+    NOTE: The same L*liq is used for both liquid and total water contents.
+    This is fine as the difference between liquid and ice is accounted for
+    by including the appropriate efficiencies in calc_lwc() and calc_iwc().
 
+    :param Vsense: Sense element voltage (V)
+    :type Vsense:  float
+    :param Isense: Sense element current (A)
+    :type Isense: float
+    :param Vcomp: Compensation element voltage (V)
+    :type Vcomp:  float
+    :param Icomp: Compensation element current (A)
+    :type Icomp: float
+    :param Lsense: Length of sense element (mm)
+    :type Lsense: float
+    :param Wsense: Width of sense element (mm)
+    :type Wsense: float
+    :param L: Liquid specific energy of evaporation (cal/g)
+    :type L: float
+
+    :returns W_meas: Water content (liquid or total) as measured by the
+        sense element (g/m**3)
+    :rtype: float
     """
 
+    # Calculate total sense power (W)
+    Psense_tot = Vsense * Isense
+    Pcomp = Vcomp * Icomp
 
-    Pel / (tas * el_w * el_l * L)
+    # Calculate wet power by subtracting dry air power term
+    # TODO: Where P is the placeholder function to derive Psens_dry from Pcomp
+    Psense_wet = Psense_tot - P(Pcomp)
+
+    # Calculate measured water content ignoring any non-ideal efficiencies
+    W_meas = Psense_wet / (tas * Wsense * Lsense * L)
+
+    return W_meas
 
 
 def calc_lwc():
