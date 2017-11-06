@@ -278,9 +278,10 @@ def calc_k(T,ps):
     # Specific heat of ice
     # from http://www.kayelaby.npl.co.uk/general_physics/2_3/2_3_6.html
     # Convert from J to cal
+    # Have pinned to zero for values greater than zero
     C_ice_T = np.array([-196.,-100.,0])
     C_ice_data = np.array([0.686,1.372,2.097]) * J_to_cal
-    C_ice = lambda t: np.interp(t,C_ice_T,C_ice_data)
+    C_ice = lambda t: np.interp(t,C_ice_T,C_ice_data,right=0)
 
     # Obtain evaporation temperature and latent heat for ambient pressure
     T_e, L_liq = energy_liq(ps)
@@ -291,10 +292,18 @@ def calc_k(T,ps):
 
     # Equation divided into melting (up to 0C) and evaporation (0C -> T_e)
     # from Korolev et al. 2003. eq 6
-    SpecEnergy_ice = C_ice(0-T) + L_ice + C_liq(T_e) + L_liq
+    SpecEnergy_ice = C_ice(T) + L_ice + C_liq(T_e) + L_liq
 
     return SpecEnergy_ice / SpecEnergy_liq
 
+
+def calc_el_wc():
+    """
+    Calculate the element measured water content.
+
+
+
+    """
 
 def calc_lwc():
     """
