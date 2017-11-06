@@ -4,6 +4,19 @@ content, ice water content, and total water content. Included are
 functions for calculating dry air offsets, element efficiencies, and
 housekeeping checks.
 
+Calculation process is as follows;
+- Calculate total element power
+- Subtraction of dry power to obtain wet element power (1)
+- Calculation of measured water content for each element (2)
+- Simultaneous calculation of actual IWC and LWC from measured values (3)
+- Addition of IWC and LWC to obtain TWC
+
+Additional calculations;
+(1) Determination of dry power from compensation element after calibration
+(2) Determination of evaporative temperature, latent heat, and specific heats
+(3) Various element efficiencies need to be calculated for this
+
+
 References:
 
 Science Engineering Associates, WCM-2000 Manual. January 25, 2016.
@@ -12,6 +25,8 @@ Korolev et al., "Microphysical characterization of mixed-phase clouds",
 Korolev et al., "The Nevzorov Airborne Hot-Wire LWC–TWC Probe: Principle
     of Operation and Performance Characteristics", J. Atmos. Oceanic
     Technol., 15, pp1495-1510, 1998.
+Osborne, N.S., "Heat of fusion of ice. A revision", J. Res. Natl. Bur.
+    Stand., Vol. 23, p. 643, 1939.
 Osborne, Stimson, and Ginnings, "Measurements of heat capacity and heat
     of vaporization of water in the range 0 degrees to 100 degrees C",
     J. Res. Natl. Bur. Stand., Vol. 23, pp197-260, 1939.
@@ -151,6 +166,7 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
 
     :returns: Array of differences between setpoint and calculated temperature.
         Masked for differences greater than set warning level
+    :rtype: float
     """
 
     # +/- temperature difference (deg C) at which to trigger warning
@@ -248,7 +264,7 @@ def calc_k(T,ps):
     cal_to_J = 1/J_to_cal
 
     # Latent heat of fusion for ice (cal/g)
-    # 333.5J/g == 79.71cal/g from  Osborne, N.S., "Heat of fusion of ice. A revision", J. Res. Natl. Bur. Stand., Vol. 23, No. , p. 643, 1939.
+    # 333.5J/g == 79.71cal/g from Osborne, 1939.
     # Note that I don't understand the difference between International and
     # Absolute joules in these papers. Could be 79.72 as quoted by Wikipedia
     L_ice = 79.71
