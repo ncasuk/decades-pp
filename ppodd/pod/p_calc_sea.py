@@ -36,20 +36,21 @@ True air speed:     m/s
 Element dimensions: mm
 Latent heat:        cal/g
 
-References:
-Science Engineering Associates, WCM-2000 Manual. January 25, 2016.
-Korolev et al., "Microphysical characterization of mixed-phase clouds",
-    Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
-Korolev et al., "The Nevzorov Airborne Hot-Wire LWC–TWC Probe: Principle
-    of Operation and Performance Characteristics", J. Atmos. Oceanic
-    Technol., 15, pp1495-1510, 1998.
-Osborne, N.S., "Heat of fusion of ice. A revision", J. Res. Natl. Bur.
-    Stand., Vol. 23, p. 643, 1939.
-Osborne, Stimson, and Ginnings, "Measurements of heat capacity and heat
-    of vaporization of water in the range 0 degrees to 100 degrees C",
-    J. Res. Natl. Bur. Stand., Vol. 23, pp197-260, 1939.
-Woan, G., "The Cambridge Handbook of Physics Formulas", Cambridge
-    University Press, 2000.
+.. rubic:: References:
+.. [SEA16] Science Engineering Associates, WCM-2000 Users Guide. January
+25, 2016. http://www.scieng.com/pdf/WCM2000User.pdf
+.. [KoSI98] Korolev et al., "The Nevzorov Airborne Hot-Wire LWC–TWC Probe:
+Principle of Operation and Performance Characteristics", J. Atmos. Oceanic
+Technol., 15, pp1495-1510, 1998.
+.. [KICS03] Korolev et al., "Microphysical characterization of mixed-phase
+clouds", Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
+.. [Osbo39] Osborne, N.S., "Heat of fusion of ice. A revision", J. Res.
+Natl. Bur. Stand., Vol. 23, p. 643, 1939.
+.. [OsSG39] Osborne, Stimson, and Ginnings, "Measurements of heat capacity
+and heat of vaporization of water in the range 0 degrees to 100 degrees C",
+J. Res. Natl. Bur. Stand., Vol. 23, pp197-260, 1939.
+.. [Woan00] Woan, G., "The Cambridge Handbook of Physics Formulas",
+Cambridge University Press, 2000.
 """
 
 
@@ -60,7 +61,7 @@ from ppodd.core import cal_base, flagged_data, timed_data, parameter
 import numpy as np
 
 
-# Conversion from calories to joules. From Woan, 2000.
+# Conversion from calories to joules [Woan00]_.
 cal_to_J = 4.1868
 J_to_cal = 1./cal_to_J
 
@@ -380,19 +381,9 @@ def calc_sense_wc():
     return W_meas
 
 
-def calc_lwc():
+def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
     """
-    Calculate liquid water content based on method of SEA WCM-2000 manual
-
-    The element efficiencies are defined by SEA and Korolev 2003 as follows;
-    k*e_iceT: collection efficiency of TWC element to ice
-        where k is the ratio of expended specific energy for sublimation to evaporation
-    b, epsilon_liqT: collection efficiency of TWC element to liquid
-    c, beta: collection efficiency of LWC element (083 or 021) to ice
-    d, epsilon_liqL: collection efficiency of LWC element (083 or 021) to liquid
-
-    ref: Korolev et al., "Microphysical characterization of mixed-phase
-    clouds", Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
+    Calculate liquid water content from the meaured LWC and TWC.
 
     """
 
@@ -401,17 +392,61 @@ def calc_lwc():
                     beta_iceL * e_liqT - e_liqL * k*e_iceT)
 
 
-
-
-def calc_iwc():
+def calc_iwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
     """
-    Calculate ice water content
+    Calculate ice water content from the meaured LWC and TWC
 
     """
 
     iwc = np.divide(e_liqL * W_twc - e_liqT * W_lwc,
-                    e_liqL * k*e_iceT - beta_lwc * e_liqT)
+                    e_liqL * k*e_iceT - beta_iceL * e_liqT)
 
+
+
+def calc_wc():
+    r"""
+    Calculate real water contents including sensor efficiencies.
+
+    The actual liquid water content, :math:`W_{\scriptsize\text{liq}}`, and
+    ice water content, :math:`W_{\scriptsize\text{ice}}`, are derived from the
+    measured liquid water content, :math:`W_{\scriptsize\text{LWC}}` and
+    total water contents, :math:`W_{\scriptsize\text{TWC}}`. The element
+    efficiencies are required for this process which are given by equations
+    1 and 2 in [KICS03]_.
+
+    .. math::
+
+    W_{\scriptsize\text{TWC}} = \epsilon_{\scriptsize\text{liqT}} W_{\scriptsize\text{liq}}
+        + k \epsilon_{\scriptsize\text{iceT}} W_{\scriptsize\text{ice}}
+
+    W_{\scriptsize\text{LWC}} = \epsilon_{\scriptsize\text{liqL}} W_{\scriptsize\text{liq}}
+        + \beta W_{\scriptsize\text{ice}}
+
+    where :math:`\epsilon_{\scriptsize\text{liqT}}` and
+    :math:`\epsilon_{\scriptsize\text{iceT}}` are the integrated collection
+    efficiencies of the TWC sensor for liquid droplets and ice particles
+    respectively. :math:`\epsilon_{\scriptsize\text{liqL}}` is the integrated
+    collection efficiency of the LWC sensor/s to liquid droplets (this will)
+    be size dependent but this is not dealt with here) while :math:`\beta` is
+    the residual collection efficiency of the LWC sensor/s to ice particles.
+    :math:`k = L^*_{\scriptsize\text{ice}} / L^*_{\scriptsize\text{liq}}` is
+    the ratio of energies required to melt and evaporate ice to that required
+    to evaporate water.
+
+    Rearranging these equations gives the actual liquid and ice water contents
+    that are dependent on both the liquid water and total water elements.
+
+    .. math::
+
+    W_{\scriptsize\text{liq}} = \frac{\beta W_{\scriptsize\text{TWC}} - k \epsilon_{\scriptsize\text{iceT}} W_{\scriptsize\text{LWC}}}
+        {\beta \epsilon_{\scriptsize\text{liqT}} - \epsilon_{\scriptsize\text{liqL}} k \epsilon_{\scriptsize\text{iceT}}}
+
+    W_{\scriptsize\text{ice}} = \frac{\epsilon_{\scriptsize\text{liqL}} W_{\scriptsize\text{TWC}} - \epsilon_{\scriptsize\text{liqT}} W_{\scriptsize\text{LWC}}}
+        {\epsilon_{\scriptsize\text{liqL}} k \epsilon_{\scriptsize\text{iceT}} - \beta \epsilon_{\scriptsize\text{liqT}}}
+
+    Note that for the SEA WCM-2000 there are two LWC sensors, the 083 and 021.
+
+    """
 
 
 def calc_combi(e_liq,e_ice):
