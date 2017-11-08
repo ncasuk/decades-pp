@@ -1,40 +1,79 @@
-"""
+r"""
+Code Overview:
+==============
+
 Computations for converting raw SEA WCM-2000 power data into liquid water
 content, ice water content, and total water content. Included are
 functions for calculating dry air offsets, element efficiencies, and
 housekeeping checks.
 
 Calculation process is as follows;
-- Calculate total element power
- - In calc_sense_wc(), derived from raw voltage and currents
-- Subtraction of dry power to obtain wet element power (1)
- - Read function to calc Pdry from Pcomp from flight constants file (?)
- - Calculate func for current flight with dryair_cal_comp() to compare
- - Calculate wet element power in calc_sense_wc()
-- Calculation of measured water content for each element (2)
- - Using latent heats from energy_liq(), calculate in calc_sense_wc()
-- Simultaneous calculation of actual IWC and LWC from measured values (3)
- - Done in same was as dry air power, read efficiencies calculated for
+* Calculate total element power
+  * In calc_sense_wc(), derived from raw voltage and currents
+* Subtraction of dry power to obtain wet element power (1)
+  * Read function to calc Pdry from Pcomp from flight constants file (?)
+  * Calculate func for current flight with dryair_cal_comp() to compare
+  * Calculate wet element power in calc_sense_wc()
+* Calculation of measured water content for each element (2)
+  * Using latent heats from energy_liq(), calculate in calc_sense_wc()
+* Simultaneous calculation of actual IWC and LWC from measured values (3)
+  * Done in same was as dry air power, read efficiencies calculated for
    many flights from flight constants file. Calculate for this flight to
    compared.
-- Addition of IWC and LWC to obtain TWC
+* Addition of IWC and LWC to obtain TWC
 
 Additional calculations;
-(1) Determination of dry power from compensation element after calibration
-(2) Determination of evaporative temperature, latent heat, and specific heats
-(3) Various element efficiencies need to be calculated for this
+1. Determination of dry power from compensation element after calibration
+2. Determination of evaporative temperature, latent heat, and specific heats
+3. Various element efficiencies need to be calculated for this
 
 Units:
+======
+
 Many of the parameters are obtained from empirical equations, thus the
 use of the correct units is important. To use those equations and compare
 values these functions use the units as used by SEA.
 
-Water content:      g/m**3
-Electrical power:   W (or J/s)
-Temperature:        degrees celsius
-True air speed:     m/s
-Element dimensions: mm
-Latent heat:        cal/g
+.. glossary::
+
+   Electrical power
+      W (or J/s)
+   Element dimensions
+      mm
+   Latent heat
+      cal/g
+   Temperature
+      degrees celsius
+   True air speed
+      m/s
+   Water content
+      g/m\ :sup:`3`
+
+
+Variable Names:
+===============
+
+In an attempt to clarify the use of different symbols from different sources
+here they all are;
+
+.. csv-table:: Variables
+   :header: "this file", "Korolev et al. [[KICS03]_", "SEA docs", "description"
+   :widths: "auto","auto","auto"
+
+   "iwc", :math:`W_{\scriptsize\text{liq}}`, "IWC", "Actual ice water content"
+   "lwc", :math:`W_{\scriptsize\text{ice}}`, "LWC", "Actual liquid water content"
+   "W_twc", :math:`W_{\scriptsize\text{TWC}}`, "TWCm", "Measured total water content"
+   "W_lwc", :math:`W_{\scriptsize\text{LWC}}`, "LWCm", "Measured liquid water content"
+   "k", :math:`k`, "", :math:`k = L^*_{\scriptsize\text{ice}} / L^*_{\scriptsize\text{liq}}`
+   "e_liqL", :math:`\epsilon_{\scriptsize\text{liqL}}`, "d", "collection efficiency of the LWC sensor for liquid droplets"
+   "e_liqT", :math:`\epsilon_{\scriptsize\text{liqT}}`, "b", "collection efficiency of the TWC sensor for liquid droplets"
+   "e_iceT", :math:`\epsilon_{\scriptsize\text{iceT}}`, "", "collection efficiency of the TWC sensor for ice particles"
+   "", :math:`k \epsilon_{\scriptsize\text{iceT}}`, "a", ""
+   "beta_iceL", :math:`\beta`, "c", "collection efficiency of the LWC sensor for ice particles"
+
+The SEA docs referred to is not the WCM-2000 manual but from the presentation
+"Simultaneous Solution for IWC and LWC Using Two Elements with Differing LWC
+and IWC Sensitivities" received from Lyle Lilie via email, 20/07/2017.
 
 .. rubic:: References:
 .. [SEA16] Science Engineering Associates, WCM-2000 Users Guide. January
@@ -449,13 +488,10 @@ def calc_wc():
     """
 
 
-def calc_combi(e_liq,e_ice):
+def find_efficiencies(e_liq,e_ice):
     """
-    Calculate TWC and LWC from combined TWC and LWC element.
+    Find the sense element collection efficiencies by fitting.
 
-    The method uses both the TWC element and LWC element/s simultaneously
-    to calculate the TWC and LWC. This is not described in the SEA manual
-    (is described by L Lilie in email, 20170720) but is used by Korolev etc.
 
     The element efficiencies are defined by SEA and Korolev 2003 as follows;
     a, k*epsilon_iceT: collection efficiency of TWC element to ice
