@@ -15,7 +15,7 @@ def get_no_cloud_mask(twc_col_p, wow):
     """
     # set range limits for a one second measurement
     # interval (=64 single measurements)
-    rng_limits = (0.01, 0.1)
+    rng_limits = (1E-12, 0.1)
     mask = np.zeros(twc_col_p.shape[0], dtype=np.int8)
 
     rng = np.max(twc_col_p, axis=1)-np.min(twc_col_p, axis=1)
@@ -40,13 +40,12 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
     clouds) to remove the zero offset of the liquid and total water
     measurements.
 
-    Input:
-        col_p: collector Power
-        ref_p: Reference Power
-        ias:   Indicated airspeed
-        ps:    Static pressure
-        no_cloud_mask: array indicating if in (0) or out (1) of cloud
-        k:     K value from the flight-cst file
+    :param col_p: collector Power
+    :param ref_p: Reference Power
+    :param ias:   Indicated airspeed
+    :param ps:    Static pressure
+    :param no_cloud_mask: array indicating if in (0) or out (1) of cloud
+    :param k:     K value from the flight-cst file
 
     Reference:
       S J Abel, R J Cotton, P A Barrett and A K Vance. A comparison of ice
@@ -60,10 +59,10 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
     def func(x, a, b):
         return x[0, :]/x[1,:]-k-(a*(1.0/x[2, :])+b*np.log10(x[3, :]))
     ix = np.where(no_cloud_mask == 1)[0]
-    xdata = np.vstack([col_p[ix, :].ravel(),
-                       ref_p[ix, :].ravel(),
-                       ias[ix, :].ravel(),
-                       ps[ix, :].ravel()])
+    xdata = np.vstack([np.array(col_p)[ix, :].ravel(),
+                       np.array(ref_p)[ix, :].ravel(),
+                       np.array(ias)[ix, :].ravel(),
+                       np.array(ps)[ix, :].ravel()])
     popt, pcov = curve_fit(func, xdata, xdata[0, :]*0.0)
     return (k+(popt[0]*(1.0/ias)+popt[1]*np.log10(ps)), popt)
 
@@ -84,8 +83,9 @@ class rio_nevzorov_1t2l1r(cal_base):
         """
         # Check for VANETYPE; leave if it is not the type with 2 liquid water
         # sensors
-        if dataset['VANETYPE'][0] != '1T2L1R':
-            return
+        # TODO
+        #if dataset['VANETYPE'][0] != '1T2L1R':
+        #    return
 
         self.input_names = ['CORCON_nv_lwc_vcol',
                             'CORCON_nv_lwc_icol',
@@ -101,7 +101,6 @@ class rio_nevzorov_1t2l1r(cal_base):
                             'WOW_IND',
                             'CLWCIREF', 'CLWCVREF', 'CLWCICOL', 'CLWCVCOL',
                             'CTWCIREF', 'CTWCVREF', 'CTWCICOL', 'CTWCVCOL',
-                            'CALNVLWC',
                             'CALNVTWC',
                             'CALNVLWC1',
                             'CALNVLWC2',
@@ -214,6 +213,14 @@ class rio_nevzorov_1t2l1r(cal_base):
                 FITTING_SUCCESS = True
             except:
                 pass
+
+            # TODO
+            # Just for testing
+            no_cloud_mask = get_no_cloud_mask(col_p, wow_ind)
+            fitted_K, params = get_fitted_k(col_p, ref_p,
+                                            ias, ps, no_cloud_mask, K)
+
+
             flag = np.zeros(sh, dtype=np.int8)
             flag[wow_ind != 0] = 3
             p = col_p-K*ref_p
@@ -223,7 +230,7 @@ class rio_nevzorov_1t2l1r(cal_base):
             if FITTING_SUCCESS:
                 p = col_p-fitted_K*ref_p
                 self.outputs[n+3].data = flagged_data(p/(tas*area*nvl),
-                                                      times[:, 0],
+                                                      times.reshape(sh)[:, 0],
                                                       flag)
 
 
@@ -237,8 +244,9 @@ class rio_nevzorov_1t1l2r(cal_base):
     """
 
     def __init__(self, dataset):
-        if dataset['VANETYPE'][0] != '1T1L2R':
-            return
+        # TODO
+        #if dataset['VANETYPE'][0] != '1T1L2R':
+        #    return
 
         self.input_names = ['CORCON_nv_lwc_vcol',
                             'CORCON_nv_lwc_icol',
@@ -321,6 +329,7 @@ class rio_nevzorov_1t1l2r(cal_base):
             ref_p = cal['%siref' % i]*cal['%svref' % i]
             if i.lower() == 'twc':
                 no_cloud_mask = get_no_cloud_mask(col_p, wow_ind)
+            print(no_cloud_mask.shape)
             FITTING_SUCCESS = False
             try:
                 fitted_K, params = get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, K)
@@ -344,22 +353,14 @@ class rio_nevzorov_1t1l2r(cal_base):
 class rio_nevzorov(cal_base):
     """
     Main Nevzorov processing modules. Calls the appropriate module depending
-    on the vanetype that was fitted.
+    on the vanetype that was fitted on the flight.
 
     The fitted vanetype is defined in the flight constant file with the
     contant 'VANETYPE'
     """
 
     def __init__(self, dataset):
-        cal_base.__init__(self, dataset)
-
+        rio_nevzorov_1t2l1r.__init__(self, dataset)
+        rio_nevzorov_1t1l2r.__init__(self, dataset)
     def process(self):
-        if 'VANETYPE' not in self.dataset.keys():
-            self.dataset['VANETYPE'] = ['1T1L2R', ]
-
-        if self.dataset['VANETYPE'][0] == '1T2L1R':
-            self.dataset.modules['RIO_NEVZOROV_1T2L1R'].run()
-        elif self.dataset['VANETYPE'][0] == '1T1L2R':
-            self.dataset.modules['RIO_NEVZOROV_1T1L2R'].run()
-        else:
-            pass
+        pass
