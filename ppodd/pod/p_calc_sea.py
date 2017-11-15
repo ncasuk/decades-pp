@@ -78,7 +78,7 @@ and IWC Sensitivities" received from Lyle Lilie via email, 20/07/2017.
 .. rubic:: References:
 .. [SEA16] Science Engineering Associates, WCM-2000 Users Guide. January
 25, 2016. http://www.scieng.com/pdf/WCM2000User.pdf
-.. [KoSI98] Korolev et al., "The Nevzorov Airborne Hot-Wire LWC–TWC Probe:
+.. [KoSI98] Korolev et al., "The Nevzorov Airborne Hot-Wire LWC-TWC Probe:
 Principle of Operation and Performance Characteristics", J. Atmos. Oceanic
 Technol., 15, pp1495-1510, 1998.
 .. [KICS03] Korolev et al., "Microphysical characterization of mixed-phase
@@ -98,7 +98,7 @@ Cambridge University Press, 2000.
 from ppodd.core import cal_base, flagged_data, timed_data, parameter
 
 import numpy as np
-
+from copy import deepcopy
 
 # Conversion from calories to joules [Woan00]_.
 cal_to_J = 4.1868
@@ -163,6 +163,10 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
     # Interpolations don't accept masked arrays so delete masked elements
     popt,pcov = curve_fit(func,Psense[~cloud],np.zeros(len(Psense[~cloud])))
 
+    if np.any(np.isinf(pcov)):
+        # No convergence
+        return None         #### THis should RAISE an error instead
+
     return lambda x: func(x,*popt)
 
 
@@ -210,6 +214,10 @@ def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
     # Fit compensation power to sense power
     # Interpolations don't accept masked arrays so delete masked elements
     popt,pcov = curve_fit(func, Pcomp[~cloud], Psense[~cloud])
+
+    if np.any(np.isinf(pcov)):
+        # No convergence
+        return None         #### THis should RAISE an error instead
 
     return lambda x: func(x,*popt)
 
@@ -487,34 +495,112 @@ def calc_wc():
 
     """
 
+    pass
 
-def find_efficiencies(e_liq,e_ice):
+
+
+def find_efficiencies(W_twc,W_083,W_021,
+                      e_liq=None,e_ice=None,
+                      cloud_mask=None,liq_mask=None,ice_mask=None):
     """
     Find the sense element collection efficiencies by fitting.
 
 
-    The element efficiencies are defined by SEA and Korolev 2003 as follows;
-    a, k*epsilon_iceT: collection efficiency of TWC element to ice
-        where k is the ratio of expended specific energy for sublimation to evaporation
-    b, epsilon_liqT: collection efficiency of TWC element to liquid
-    c, beta: collection efficiency of LWC element (083 or 021) to ice
-    d, epsilon_liqL: collection efficiency of LWC element (083 or 021) to liquid
-
-
-
-    Args:
-        dataset (?)
+    :param W_twc: array of as-measured total water content from TWC element
+            in g/m**3.
+    :type W_twc: floats
+    :param W_083: array of as-measured total water content from 083 LWC
+            element in g/m**3.
+    :type W_083: floats
+    :param W_021: array of as-measured total water content from 021 LWC
+            element in g/m**3.
+    :type W_021: floats
+    :param e_liq: record array of existing efficiencies for each sense element
+            to liquid droplets. Used as a starting point for fit. Default
+            is None with e_liq_default values used.
+    :type e_liq: numpy record of floats
+    :param e_ice: record array of existing efficiencies for each sense element
+            to ice particles. Used as a starting point for fit. Default
+            is None with e_ice_default values used.
+    :type e_ice: numpy record of floats
+    :param cloud_mask: Array of True/False or 1/0 for in/out of cloud
+            Default is None for no cloud.
+    :type cloud_mask: np.array
+    :param liq_mask: Array of True/False or 1/0 for in/out of pure liquid cloud
+            Default is None for no liquid cloud.
+    :type liq_mask: np.array
+    :param ice_mask: Array of True/False or 1/0 for in/out pure glaciated cloud
+            Default is None for no ice cloud.
+    :type ice_mask: np.array
     """
+    from scipy.optimize import curve_fit
 
     # Define default element efficiencies as record arrays for each of the
     # three elements, TWC, 083, and 021
     # These were obtained from Lyle Lilie via email, 20/07/2017
-    e_liq = np.array([(0.95,0.9,None)],
+    e_liq_default = np.array([(0.95,0.9,None)],
                      dtype={'names': ['TWC','083','021'],
                             'formats': ['f','f','f']})
-    e_ice = np.array([(0.462,0.095,None)],
+    e_ice_default = np.array([(0.462,0.095,None)],
                      dtype={'names': ['TWC','083','021'],
                             'formats': ['f','f','f']})
+
+    if e_liq is None:
+        e_liq = deepcopy(e_liq_default)
+    if e_ice is None:
+        e_ice = deepcopy(e_ice_default)
+
+
+    # Create masks based on cloud_mask, liq_mask, and ice_mask
+    # This step is to cope with different types of binary elements
+    if cloud_mask is None:
+        cloud = np.array([False]*len(W_twc))
+    else:
+        cloud = np.ma.make_mask(cloud_mask)
+
+    if liq_mask is None and ice_mask is None:
+        liq = np.array([False]*len(W_twc))
+        ice = np.array([False]*len(W_twc))
+    elif liq_mask is None:
+        # None of the cloud designated by cloud_mask is liquid
+        # therefor make ice_mask same as cloud_mask
+        liq = np.array([False]*len(W_twc))
+        ice = cloud
+    elif ice_mask is None:
+        # None of the cloud designated by cloud_mask is glaciated
+        # therefor make liq_mask same as cloud_mask
+        ice = np.array([False]*len(W_twc))
+        ice = cloud
+    else:
+        liq = np.ma.make_mask(liq_mask)
+        ice = np.ma.make_mask(ice_mask)
+
+
+    # Find efficiencies in glaciated clouds
+    def ice_fit(Wvars,fitvars):
+        """
+        W_liq083 = W_liq021 = 0 therefore
+        beta * W_twc = k * e_iceT*W_083 and beta*W_twc = k*e_iceT*W_021
+        """
+        (W_twc,W_083,W_021) = Wvars
+        (e_liq083,e_liq021,e_liqT,beta_ice083,beta_ice021,e_iceT) = fitvars
+
+        return [calc_lwc(W_twc,W_083,k,e_liq083,e_liqT,beta_ice083,e_iceT),
+                calc_lwc(W_twc,W_21,k,e_liq021,e_liqT,beta_ice021,e_iceT)]
+
+
+    popt,pcov = curve_fit(ice_fit,(W_twc[ice],W_083[ice],W_021[ice]),
+                          np.zeros(len(W_twc[ice])),
+                          p0=None,  #### <- this needs to be done
+                          bounds=([0.1,0,0],[1,0.5,0.5])) # are all efficiencies
+
+    #### NOTE: Efficiency bounds can be narrowed down.
+    #### eg know that beta_iceL is very small
+    #### and e_iceT, eliqT, and e_liqL are large.
+
+    # Find efficiencies in liquid clouds
+    # W_twc = 0 therefore
+    # e_liq083 * W_twc = e_liqT * W_083 and e_liq021 * W_twc = e_liqT * W_021
 
 
 
