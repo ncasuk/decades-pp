@@ -133,7 +133,23 @@ class rio_nevzorov_1t2l1r(cal_base):
                                   units='gram m-3',
                                   frequency=64,
                                   long_name='Corrected liquid water content from the Nevzorov probe',
-                                  standard_name='mass_concentration_of_liquid_water_in_air')]
+                                  standard_name='mass_concentration_of_liquid_water_in_air'),
+                        parameter('NV_TWC_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='TWC collector power'),
+                        parameter('NV_LWC1_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='LWC1 collector power'),
+                        parameter('NV_LWC2_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='LWC2 collector power'),
+                        parameter('NV_REF_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='Reference power')]
 
         self.version = 1.00
         cal_base.__init__(self, dataset)
@@ -143,10 +159,35 @@ class rio_nevzorov_1t2l1r(cal_base):
         t = self.dataset.matchtimes(self.input_names)
 
         # This is the dictionary that is used for translating the variable
-        # names in the dataset
-        dictionary = [('CORCON_nv_twc_vref', 'CORCON_nv_twc_vref'),
-                      ('CORCON_nv_twc_iref', 'CORCON_nv_twc_iref'),
-                      ('CORCON_nv_lwc1_vcol', 'CORCON_nv_lwc_vcol'),
+        # names in the dataset; the original DLU variable names were defined
+        # for the 'old' vane type with two references
+# =============================================================================
+#         dictionary = [('CORCON_nv_twc_vref',  'CORCON_nv_twc_vref'),
+#                       ('CORCON_nv_twc_iref',  'CORCON_nv_twc_iref'),
+#                       ('CORCON_nv_lwc1_vcol', 'CORCON_nv_lwc_vcol'),
+#                       ('CORCON_nv_lwc1_icol', 'CORCON_nv_lwc_icol'),
+#                       ('CORCON_nv_lwc1_vref', 'CORCON_nv_lwc_vref'),
+#                       ('CORCON_nv_lwc1_iref', 'CORCON_nv_lwc_iref'),
+#                       ('CORCON_nv_lwc2_vcol', 'CORCON_nv_twc_vref'),
+#                       ('CORCON_nv_lwc2_icol', 'CORCON_nv_twc_iref'),
+#                       ('CORCON_nv_lwc2_vref', 'CORCON_nv_lwc_vref'),
+#                       ('CORCON_nv_lwc2_iref', 'CORCON_nv_lwc_iref'),
+#                       ('CLWC1ICOL', 'CLWCICOL'),
+#                       ('CLWC1VCOL', 'CLWCVCOL'),
+#                       ('CLWC1IREF', 'CLWCIREF'),
+#                       ('CLWC1VREF', 'CLWCVREF'),
+#                       ('CLWC2ICOL', 'CTWCIREF'),
+#                       ('CLWC2VCOL', 'CTWCVREF'),
+#                       ('CLWC2IREF', 'CLWCIREF'),
+#                       ('CLWC2VREF', 'CLWCVREF'),
+#                       ('CTWCICOL', 'CTWCICOL'),
+#                       ('CTWCVCOL', 'CTWCVCOL'),
+#                       ('CTWCIREF', 'CLWCIREF'),
+#                       ('CTWCVREF', 'CLWCVREF')]
+#
+# =============================================================================
+
+        dictionary = [('CORCON_nv_lwc1_vcol', 'CORCON_nv_lwc_vcol'),
                       ('CORCON_nv_lwc1_icol', 'CORCON_nv_lwc_icol'),
                       ('CORCON_nv_lwc1_vref', 'CORCON_nv_lwc_vref'),
                       ('CORCON_nv_lwc1_iref', 'CORCON_nv_lwc_iref'),
@@ -154,6 +195,8 @@ class rio_nevzorov_1t2l1r(cal_base):
                       ('CORCON_nv_lwc2_icol', 'CORCON_nv_twc_iref'),
                       ('CORCON_nv_lwc2_vref', 'CORCON_nv_lwc_vref'),
                       ('CORCON_nv_lwc2_iref', 'CORCON_nv_lwc_iref'),
+                      ('CORCON_nv_twc_vref',  'CORCON_nv_lwc_vref'),
+                      ('CORCON_nv_twc_iref',  'CORCON_nv_lwc_iref'),
                       ('CLWC1ICOL', 'CLWCICOL'),
                       ('CLWC1VCOL', 'CLWCVCOL'),
                       ('CLWC1IREF', 'CLWCIREF'),
@@ -162,10 +205,10 @@ class rio_nevzorov_1t2l1r(cal_base):
                       ('CLWC2VCOL', 'CTWCVREF'),
                       ('CLWC2IREF', 'CLWCIREF'),
                       ('CLWC2VREF', 'CLWCVREF'),
-                      ('CTWCICOL', 'CTWCICOL'),
-                      ('CTWCVCOL', 'CTWCVCOL'),
-                      ('CTWCIREF', 'CLWCIREF'),
-                      ('CTWCVREF', 'CLWCVREF')]
+                      ('CTWCICOL',  'CTWCICOL'),
+                      ('CTWCVCOL',  'CTWCVCOL'),
+                      ('CTWCIREF',  'CLWCIREF'),
+                      ('CTWCVREF',  'CLWCVREF')]
 
        # translating
         for d in dictionary:
@@ -214,17 +257,13 @@ class rio_nevzorov_1t2l1r(cal_base):
             except:
                 pass
 
-            # TODO
-            # Just for testing
-            no_cloud_mask = get_no_cloud_mask(col_p, wow_ind)
-            fitted_K, params = get_fitted_k(col_p, ref_p,
-                                            ias, ps, no_cloud_mask, K)
-
-
             flag = np.zeros(sh, dtype=np.int8)
             flag[wow_ind != 0] = 3
             p = col_p-K*ref_p
             self.outputs[n].data = flagged_data(p/(tas*area*nvl),
+                                                times.reshape(sh)[:, 0],
+                                                flag)
+            self.outputs[n+6].data = flagged_data(col_p,
                                                 times.reshape(sh)[:, 0],
                                                 flag)
             if FITTING_SUCCESS:
@@ -232,6 +271,10 @@ class rio_nevzorov_1t2l1r(cal_base):
                 self.outputs[n+3].data = flagged_data(p/(tas*area*nvl),
                                                       times.reshape(sh)[:, 0],
                                                       flag)
+        # The last parameter to add is the reference power
+        self.outputs[-1].data = flagged_data(ref_p,
+                                         times.reshape(sh)[:, 0],
+                                         flag)
 
 
 class rio_nevzorov_1t1l2r(cal_base):
@@ -244,10 +287,6 @@ class rio_nevzorov_1t1l2r(cal_base):
     """
 
     def __init__(self, dataset):
-        # TODO
-        #if dataset['VANETYPE'][0] != '1T1L2R':
-        #    return
-
         self.input_names = ['CORCON_nv_lwc_vcol',
                             'CORCON_nv_lwc_icol',
                             'CORCON_nv_lwc_vref',
@@ -287,7 +326,23 @@ class rio_nevzorov_1t1l2r(cal_base):
                                   frequency=64,
                                   number=608,
                                   long_name='Corrected liquid water content from the Nevzorov probe',
-                                  standard_name='mass_concentration_of_liquid_water_in_air')]
+                                  standard_name='mass_concentration_of_liquid_water_in_air'),
+                        parameter('NV_TWC_COL_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='TWC collector power'),
+                        parameter('NV_TWC_REF_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='TWC reference power'),
+                        parameter('NV_LWC_COL_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='LWC collector power'),
+                        parameter('NV_LWC_REF_P',
+                                  units='W',
+                                  frequency=64,
+                                  long_name='LWC reference power')]
 
         self.version = 1.00
         cal_base.__init__(self, dataset)
@@ -340,13 +395,25 @@ class rio_nevzorov_1t1l2r(cal_base):
             flag = np.zeros(sh, dtype=np.int8)
             flag[wow_ind != 0] = 3
             p = col_p-K*ref_p
+            # define the uncalibrated data
             self.outputs[n].data = flagged_data(p/(tas*area*nvl),
-                                                times[:, 0],
+                                                times.reshape(sh)[:, 0],
                                                 flag)
+            # define the collector power
+            self.outputs[n+4].data = flagged_data(col_p,
+                                                  times.reshape(sh)[:, 0],
+                                                  flag)
+            # define the reference power
+            self.outputs[n+5].data = flagged_data(ref_p,
+                                                  times.reshape(sh)[:, 0],
+                                                  flag)
+
+            # define the calibrated water contents *if* the fitting
+            # worked
             if FITTING_SUCCESS:
                 p = col_p-fitted_K*ref_p
                 self.outputs[n+2].data = flagged_data(p/(tas*area*nvl),
-                                                      times[:, 0],
+                                                      times.reshape(sh)[:, 0],
                                                       flag)
 
 
