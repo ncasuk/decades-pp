@@ -209,7 +209,11 @@ def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
     if cloud_mask is None:
         cloud = np.array([False]*len(Pcomp))
     else:
-        cloud=np.ma.make_mask(cloud_mask)
+        cloud = np.ma.make_mask(cloud_mask)
+
+    # Remove any nan's from input arrays by wrapping up into cloud mask
+    nan_mask = np.logical_or(np.isnan(Pcomp),np.isnan(Psense))
+    cloud = np.logical_or(cloud[::],nan_mask)
 
     # Fit compensation power to sense power
     # Interpolations don't accept masked arrays so delete masked elements
