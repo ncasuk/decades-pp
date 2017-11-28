@@ -22,17 +22,17 @@ parser_f['d0'] = {'descr': 'Raw element power and temperature',
                   'dtypes': ['S2',]+['S3', 'float32', 'float32', 'float32']*5,
                   'names': ['id',] + \
                            [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
-                               for s2 in ['', '_A', '_V', '_T']],
+                                  for s2 in ['', '_V', '_A', '_T']],
                   'long_names': ['id',] + \
                                 [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
-                                    for s2 in ['', ' current', ' voltage',' temperature']],
-                  'units': ['',] + ['','amp', 'volt','deg C']*5,
+                                       for s2 in ['', ' voltage', ' current', ' temperature']],
+                  'units': ['',] + ['', 'volt','amp','deg C']*5,
                   'converters': None}
 parser_f['d1'] = {'descr': 'Calculated total and liquid water contents',
                   'dtypes': ['S2',] + ['S3', 'float32']*3,
                   'names': ['id',] + \
                            [s1+s2 for s1 in ['TWC', '083', '021'] \
-                               for s2 in ['', '_wc']],
+                                  for s2 in ['', '_wc']],
                   'long_names': ['id', '', 'total water content', '',
                                  'liquid water content', '', 'liquid water content'],
                   'units': ['', '', 'g/m^3', '', 'g/m^3', '', 'g/m^3'],
@@ -40,11 +40,11 @@ parser_f['d1'] = {'descr': 'Calculated total and liquid water contents',
 parser_f['d2'] = {'descr': 'Element status information',
                   'dtypes': ['S2',]+['S3', 'S6', 'int', 'i1', 'i1', 'i1']*5,
                   'names': ['id',] + \
-                           [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] for \
-                                s2 in ['', '_status', '_DAC', '_pt', '_it', '_dt']],
+                           [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
+                                  for s2 in ['', '_status', '_DAC', '_pt', '_it', '_dt']],
                   'long_names': ['id'] + \
-                                [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] for \
-                                 s2 in ['', '_status', '_DAC', '_pt', '_it', '_dt']],
+                                [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
+                                       for s2 in ['', '_status', '_DAC', '_pt', '_it', '_dt']],
                   'units': ['']+['']*30,
                   'converters': None}
 parser_f['d3'] = {'descr': 'Aircraft parameters',
@@ -65,10 +65,10 @@ parser_f['c0'] = {'descr': 'Sense element information',
                             ['S3', 'float32', 'float32', 'float32'],
                   'names': ['id', 'sn'] + \
                            [s1+s2 for s1 in ['TWC', '083', '021'] \
-                               for s2 in ['','_l','_w','_f','_s','_o']] + \
+                                  for s2 in ['','_l','_w','_f','_s','_o']] + \
                            ['CMP'+s2 for s2 in ['','_l','_w','_f']],
-                 'long_names': ['id', 'serial number'] + \
-                               [s1+s2 for s1 in ['TWC', '083', '021'] \
+                  'long_names': ['id', 'serial number'] + \
+                                [s1+s2 for s1 in ['TWC', '083', '021'] \
                                    for s2 in ['',' length',' width',
                                               ' fixture resistance', ' slope correction',
                                               ' offset correction']] + \
@@ -76,13 +76,12 @@ parser_f['c0'] = {'descr': 'Sense element information',
                  'units': ['', ''] + ['', 'mm', 'mm', 'milliohm', '', '']*3 + \
                           ['', 'mm', 'mm', 'milliohm'],
                  'converters': None}
-# Have not done the parser for this yet
 parser_f['cpbx'] = {'descr': 'Power box configuration',
                     'dtypes': ['S4', 'S4', 'S16', 'S16', 'S16', 'S4', 'S4']+(['int', 'int']+['float32']*6)*5,
                     'names': ['id', 'sn', 'chipid', 'tid', 'endid', 'rev'] + \
                              [s1+s2 for s1 in ['ele1', 'ele2', 'ele3', 'cmp', 'dce']
-                                 for s2 in ['state', 'vrawv', 'vrawi', 'shunt', 'maxamps', 'maxvolts', 'hardver', 'softver']],
-                    'long_names': ['id', 'sn', 'chip id', 'Temperature EPROM id', 'End EPROM id'] + \
+                                    for s2 in ['state', 'vrawv', 'vrawi', 'shunt', 'maxamps', 'maxvolts', 'hardver', 'softver']],
+                    'long_names': ['id', 'serial number', 'chip id', 'Temperature EPROM id', 'End EPROM id'] + \
                                   [s1+s2 for s1 in ['ele1', 'ele2', 'ele3', 'cmp', 'dce']
                                       for s2 in [' state of element',
                                                  ' Vraw-V value',
@@ -94,7 +93,6 @@ parser_f['cpbx'] = {'descr': 'Power box configuration',
                                                  ' software versionr']],
                     'units': ['',]*6 + ['', 'volt', 'amp', 'milliohm', 'amp', 'volt', '', '']*5,
                     'converters': None}
-# Have not done the parser for this yet
 parser_f['cprb'] = {'descr': 'Probe configuration',
                     'dtypes': ['S4', 'S4', 'S16', 'S4'] + \
                               ['S3',]+['int',]*5+['float32',]*5 + \
@@ -105,12 +103,12 @@ parser_f['cprb'] = {'descr': 'Probe configuration',
                               ['S3',]+['int']*11,
                     'names': ['id','sn','chipid','rev'] + \
                              [s1+s2 for s1 in ['TWC','083','021','CMP','DCE'] \
-                                  for s2 in ['','_kp','_ki','_kd','_dacmin','_setpoint']] + \
+                                    for s2 in ['','_kp','_ki','_kd','_dacmin','_setpoint']] + \
                              [s1+s2 for s1 in ['TWC','083','021','CMP'] \
-                                  for s2 in ['_r100','_dtdr','_l','_w','_d','_shape','_f']] + \
+                                    for s2 in ['_r100','_dtdr','_l','_w','_d','_shape','_f']] + \
                              [s1+s2 for s1 in ['TWC','083','021'] for s2 in ['_s','_o']] + \
                              [s1+s2 for s1 in ['caldate','calduedate'] \
-                                   for s2 in ['_month','_day','_year']],
+                                    for s2 in ['_month','_day','_year']],
                     'long_names': ['id','serial number','chip id','revision'] + \
                                   [s1+s2 for s1 in ['TWC','083','021','CMP','DCE'] \
                                       for s2 in ['',' integral control loop gain',
@@ -124,9 +122,9 @@ parser_f['cprb'] = {'descr': 'Probe configuration',
                                                  ' length',' width',' depth',
                                                  ' shape',' fixture resistance']] + \
                                   [s1+s2 for s1 in ['TWC','083','021'] \
-                                      for s2 in [' slope correction',' offset correction']] + \
+                                         for s2 in [' slope correction',' offset correction']] + \
                                   [s1+s2 for s1 in ['calibration','calibration due'] \
-                                      for s2 in [' month',' day',' year']],
+                                         for s2 in [' month',' day',' year']],
                     'units': ['']*4 + \
                              ['', '', '', '', '', 'deg C']*5 + \
                              ['milliohm', 'deg C/milliohm', 'mm', 'mm', 'mm', '', 'milliohm']*4 + \
@@ -140,16 +138,16 @@ parser_f['cmcb'] = {'descr': 'Main cable configuration',
                                    'element 3 resistance',
                                    'compensation resistance',
                                    'deice resistance'],
-                    'units': ['',]*4 + ['ft', 'milliohm', 'milliohml', 'milliohm'],
+                    'units': ['']*4 + ['ft', 'milliohm', 'milliohm', 'milliohm'],
                     'converters': None}
 parser_f['cscb'] = {'descr': 'Secondary cable configuration',
                     'dtypes': ['S4', 'S5', 'S16', 'S4']+['int',]*3,
-                    'names': ['cscb', 'sn', 'chipid', 'rev', 'cablelen', 'ele1res', 'ele2res'],
+                    'names': ['id', 'sn', 'chipid', 'rev', 'cablelen', 'ele1res', 'ele2res'],
                     'long_names': ['id', 'serial number', 'chip id', '',
                                    'cable length',
                                    'element 1 resistance',
                                    'element 2 resistance'],
-                    'units': ['id', 'sn', 'chipid', '', 'ft', 'milliohm', 'milliohm'],
+                    'units': ['']*4 + [ 'ft', 'milliohm', 'milliohm'],
                     'converters': None}
 
 
