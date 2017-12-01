@@ -1,16 +1,22 @@
 import sys
-from ppodd.core import cal_base, timed_data, flagged_data, parameter
+from ppodd.core import cal_base, flagged_data, parameter
 
 import numpy as np
 
 
 def get_no_cloud_mask(twc_col_p, wow):
-    """Create a mask where times in cloud are indicated by zero
+    """
+    Create a mask where times in cloud are indicated by zero
     and time outside of cloud (*no* total water) are indicated by a
     one.
     The way we determine whether cloud or not is present is looking at the
     range (max-min) of the power reading of the total water collector. The
     variance in a cloud should be much higher than outside.
+
+    :param twc_col_p: Total water Collector power (J/s)
+    :param wow: Weight on wheels indicator ('1' aircraft on the ground)
+    :returns: mask
+    :rtype: np.array
 
     """
     # set range limits for a one second measurement
@@ -33,20 +39,21 @@ def get_no_cloud_mask(twc_col_p, wow):
 
 
 def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
-    """The Nevzorov baseline is not constant, but varies as a function of
+    """
+    The Nevzorov baseline is not constant, but varies as a function of
     indicated air speed (IAS_RVSM) and static air pressure (PS_RVSM).
-    Abel et al. (2014) provide a fitting formula in the Appendix A to correct
+    Abel et al. (2014) provide a fitting formula in Appendix A to correct
     the K value (ratio between collector and reference power, when outside of
     clouds) to remove the zero offset of the liquid and total water
     measurements.
 
-    :param col_p: collector Power
-    :param ref_p: Reference Power
+    :param col_p: collector power (J/s)
+    :param ref_p: Reference power (J/s)
     :param ias: Indicated airspeed (m s-1)
     :param ps: Static pressure (mb)
     :param no_cloud_mask: array indicating if in (0) or out (1) of cloud
     :param k: K value which is defined in the flight-cst file
-    :return: fitted valus
+    :return: fitted values
 
     Reference:
       S J Abel, R J Cotton, P A Barrett and A K Vance. A comparison of ice
@@ -70,9 +77,9 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
 
 class rio_nevzorov_1t2l1r(cal_base):
     """
-    Processing module for the vane Nevzorov vane that has:
-      1x Total Water sensor
-      2x Liquid Water sensors
+    Processing module for the  Nevzorov vane that has:
+      1x Total Water sensor (TWC)
+      2x Liquid Water sensors (LWC1 & LWC2)
       1x reference
 
     """
@@ -212,23 +219,32 @@ class rio_nevzorov_1t2l1r(cal_base):
                 raw = self.dataset['CORCON_nv_%s_%s' % (i, m)].ismatch(t)
                 cons = self.dataset[('c%s%s' % (i, m)).upper()]
                 # Calibrate to volts or current
-                cal['%s%s' % (i, m)] = (cons[0]+cons[1]*raw)*cons[2]
+                cal['%s%s' % (i, m)] = (cons[0]+cons[1]*np.array(raw, dtype=np.float32))*cons[2]
 
                 # TODO
+                print('%s%s %f %f %f' % (i, m, cons[0], cons[1], cons[2]))
                 outputname = 'NV__%s_%s' % (i, m)
-                _data = (cons[0]+cons[1]*raw)*cons[2]
-                print(_data.shape)
+                #_data = (cons[0]+cons[1]*raw)*cons[2]
                 self.outputs.insert(-1, parameter(outputname,
                                                   units='',
                                                   frequency=64))
-                self.outputs[-2].data = flagged_data(_data[:],
+                self.outputs[-2].data = flagged_data(cal['%s%s' % (i, m)][:],
                                                      times.reshape(sh)[:, 0],
-                                                     _data[:]*0)
+                                                     cal['%s%s' % (i, m)]*0)
 
-            # Sensor power (J/s).
-            col_p = cal['%sicol' % i]*cal['%svcol' % i]  # V*I
-            ref_p = cal['%siref' % i]*cal['%svref' % i]
+            # Sensor power (J/s)
+            col_p = cal['%sicol' % i]*cal['%svcol' % i]  # V*I; collector
+            ref_p = cal['%siref' % i]*cal['%svref' % i]  # V*I; reference
 
+            # TODO
+            outputname = 'NV__%s_p' % (i)
+            # _data = col_p[:]
+            self.outputs.insert(-1, parameter(outputname,
+                                              units='',
+                                              frequency=64))
+            self.outputs[-2].data = flagged_data(col_p[:],
+                                                 times.reshape(sh)[:, 0],
+                                                 col_p[:]*0)
 
             if i.lower() == 'twc':
                 no_cloud_mask = get_no_cloud_mask(col_p, wow_ind)
@@ -236,7 +252,7 @@ class rio_nevzorov_1t2l1r(cal_base):
             try:
                 fitted_K, params = get_fitted_k(col_p, ref_p,
                                                 ias, ps, no_cloud_mask, K)
-                sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(),params[0], params[1]))
+                sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(), params[0], params[1]))
                 FITTING_SUCCESS = True
             except:
                 pass
@@ -244,10 +260,10 @@ class rio_nevzorov_1t2l1r(cal_base):
             flag = np.zeros(sh, dtype=np.int8)
             flag[wow_ind != 0] = 3
             p = col_p-K*ref_p
-            self.outputs[n].data = flagged_data(p/(tas*area*nvl),
+            self.outputs[n].data = flagged_data(p[:]/(tas*area*nvl),
                                                 times.reshape(sh)[:, 0],
                                                 flag)
-            self.outputs[n+6].data = flagged_data(col_p,
+            self.outputs[n+6].data = flagged_data(col_p[:],
                                                   times.reshape(sh)[:, 0],
                                                   flag)
             if FITTING_SUCCESS:
@@ -367,8 +383,11 @@ class rio_nevzorov_1t1l2r(cal_base):
                 no_cloud_mask = get_no_cloud_mask(col_p, wow_ind)
             FITTING_SUCCESS = False
             try:
-                fitted_K, params = get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, K)
-                sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(),params[0], params[1]))
+                fitted_K, params = get_fitted_k(col_p, ref_p,
+                                                ias,
+                                                ps,
+                                                no_cloud_mask, K)
+                sys.stdout.write('Nevzorov %s baseline fitted ...\n   a_ias: %.2f\n   a_p: %.2f\n' % (i.upper(), params[0], params[1]))
                 FITTING_SUCCESS = True
             except:
                 pass
@@ -409,5 +428,6 @@ class rio_nevzorov(cal_base):
     def __init__(self, dataset):
         rio_nevzorov_1t2l1r.__init__(self, dataset)
         rio_nevzorov_1t1l2r.__init__(self, dataset)
+
     def process(self):
         pass
