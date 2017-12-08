@@ -153,7 +153,8 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
 
     # Create mask based on cloud_mask
     # This step is to cope with different types of binary elements
-    if cloud_mask is None:
+    # np.all statement so that cloud does not become False in make_mask step
+    if cloud_mask is None or np.all(cloud_mask==False):
         cloud = np.array([False]*len(Psense))
     else:
         cloud=np.ma.make_mask(cloud_mask)
@@ -206,7 +207,8 @@ def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
 
     # Create mask based on cloud_mask
     # This step is to cope with different types of binary elements
-    if cloud_mask is None:
+    # np.all statement so that cloud does not become False in make_mask step
+    if cloud_mask is None or np.all(cloud_mask==False):
         cloud = np.array([False]*len(Pcomp))
     else:
         cloud = np.ma.make_mask(cloud_mask)
