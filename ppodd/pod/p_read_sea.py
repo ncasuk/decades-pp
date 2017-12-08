@@ -14,6 +14,9 @@ try:
 except:
     pass
 
+# Define time zone for data. If None then is timezone naive
+# Note np.datetime64 is used and as of numpy 1.11 does not support timezones
+tz = pytz.UTC
 
 # Dictionary of parser functions for each sentence type
 # Each top-level sub-dict key is the id string of the sentence
@@ -58,7 +61,7 @@ parser_f['d3'] = {'descr': 'Aircraft parameters',
                    # use col indicies instead
                    # As SEA controller is sync'd to timeserver is in UTC
                   'converters': {1: lambda x: datetime.strptime(x, '%Y/%m/%d').date(),
-                                 2: lambda x: datetime.strptime(x, '%H:%M:%S.%f').time().replace(tzinfo=pytz.utc)}}
+                                 2: lambda x: datetime.strptime(x, '%H:%M:%S.%f').time().replace(tzinfo=tz)}}
 parser_f['c0'] = {'descr': 'Sense element information',
                   'dtypes': ['S2', 'S4'] + \
                             ['S3', 'float32', 'float32', 'float32', 'float32', 'float32']*3 + \
@@ -253,7 +256,8 @@ def to_dataframe(ifile, rtn_all=False):
 
     df_dic = {}
     for k in list(wcm['parsed'].keys()):
-        wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_)) for \
+
+        wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_).replace(tzinfo=tz)) for \
                                            t_ in wcm['parsed'][k]['row']])
 
         freq = get_frequency(wcm['parsed'][k]['dt'])
@@ -282,7 +286,9 @@ def to_dataframe(ifile, rtn_all=False):
                                      freq='%ims' % (1000/freq,), closed='left')
 
             df = df.reindex(index=newIndex, method='nearest')
+
         df_dic[k] = df.copy()
+
     return df_dic
 
 
