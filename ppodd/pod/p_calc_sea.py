@@ -12,7 +12,7 @@ Calculation process is as follows;
   * In calc_sense_wc(), derived from raw voltage and currents
 * Subtraction of dry power to obtain wet element power (1)
   * Read function to calc Pdry from Pcomp from flight constants file (?)
-  * Calculate func for current flight with dryair_cal_comp() to compare
+  * Calculate func for current flight with dryair_calc_comp() to compare
   * Calculate wet element power in calc_sense_wc()
 * Calculation of measured water content for each element (2)
   * Using latent heats from energy_liq(), calculate in calc_sense_wc()
@@ -106,7 +106,7 @@ J_to_cal = 1./cal_to_J
 
 
 ### Placeholder function that will be from flight constants file or something
-### similar. This function will be derived from dryair_cal_comp() for
+### similar. This function will be derived from dryair_calc_comp() for
 ### many flights.
 Psense_dry_tmp = lambda P: P
 
@@ -170,7 +170,7 @@ def get_slr_mask(dt,hdgr,altr,hdgr_atol=None,altr_atol=None):
     return slr_mask
 
 
-def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
+def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None):
     """
     Calculate dry air power term by fitting constants for 1st principles.
 
@@ -233,7 +233,7 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
     return result
 
 
-def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
+def dryair_calc_comp(Psense,Pcomp,cloud_mask=None):
     """
     Calculate dry air power term from compensation element measurements.
 
@@ -780,9 +780,9 @@ class calc_sea(cal_base):
 
         cloud_mask = get_cloud_mask(sea_twc_p_sense_total)
 
-        sea_twc_p_sense_dry = dryair_cal(sea_twc_p_sense_total, tat, sea_twc_t, ps, tas, cloud_mask=cloud_mask)
-        sea_021_p_sense_dry = dryair_cal(sea_021_p_sense_total, tat, sea_021_t, ps, tas, cloud_mask=cloud_mask)
-        sea_083_p_sense_dry = dryair_cal(sea_083_p_sense_total, tat, sea_083_t, ps, tas, cloud_mask=cloud_mask)
+        sea_twc_p_sense_dry = dryair_calc(sea_twc_p_sense_total, tat, sea_twc_t, ps, tas, cloud_mask=cloud_mask)
+        sea_021_p_sense_dry = dryair_calc(sea_021_p_sense_total, tat, sea_021_t, ps, tas, cloud_mask=cloud_mask)
+        sea_083_p_sense_dry = dryair_calc(sea_083_p_sense_total, tat, sea_083_t, ps, tas, cloud_mask=cloud_mask)
 
         sea_twc_p_sense_wet = sea_twc_p_sense_total-sea_twc_p_sense_dry
         sea_021_p_sense_wet = sea_021_p_sense_total-sea_021_p_sense_dry
