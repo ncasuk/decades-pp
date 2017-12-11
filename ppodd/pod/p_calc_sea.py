@@ -111,10 +111,68 @@ J_to_cal = 1./cal_to_J
 Psense_dry_tmp = lambda P: P
 
 
+def get_cloud_mask(twc_power, threshold=0.45, _buffer=3):
+    """
+    Use the range of values within a second.
+    The _buffer is used to mask also values around flagged values. For example
+    a _buffer value of three also masks the three seconds before *and* three
+    seconds after each masked value as cloud.
+    :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
+
+    """
+    # init cloud mask
+    n = twc_power.shape[0]
+    cloud_mask = np.zeros((n,), dtype=np.bool)
+    rng = np.max(twc_power, axis=1)-np.min(twc_power, axis=1)
+    ix = np.where(rng > threshold)[0]
+    for i in range(_buffer*-1, _buffer+1):
+        ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
+    ix = np.clip(ix, 0, n-1)
+    cloud_mask[ix] = True
+    return cloud_mask
+
+
+def get_slr_mask(dt,hdgr,altr,hdgr_atol=None,altr_atol=None):
+    """
+    Create a straight and level run mask based on aircraft flight conditions.
+
+    Note that these parameters are not intrinsically related to SEA parameters
+    thus datetime stamp of aircraft parameters are included and passed
+    straight through so slr_mask can be merged with SEA data. Should
+    interpolate and merge be done to hdgr and altr before get_slr_mask called?
+
+    :param dt: Datetime stamp of aircraft parameters
+    :type dt: datetime.datetime or numpy.datetime64
+    :param hdgr: Rate of heading change (deg/s)
+    :type hdgr: float
+    :param altr: Rate of altitude change (distance /s). Distance units
+        may be imperial or metric
+    :param hdgr_atol: Absolute tolerance for determining acceptable rate
+        of change of heading (deg). Default is ??
+    :type hdgr: float
+    :param altr_atol: Absolute tolerance for determining acceptable rate
+        of change of altitude (distance). Default is ??
+    :type altr_atol: float
+
+    :returns: dt: Datetime stamp of slr_mask.
+    :returns: slr_mask: boolean array. `True` means SLR, `False` means in
+        climb or turn.
+
+    NOTE: This means that the masking is the inverse of cloud_mask. Change?
+    """
+
+    # init slr mask
+    n = twc_power.shape[0]
+    slr_mask = np.zeros((n,), dtype=np.bool)
+
+    # TODO: Create running avg of params and see if np.isclose(param,0)
+
+    return slr_mask
+
 
 def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
     """
-    Find dry air power fitting constants for 1st principles calculation.
+    Calculate dry air power term by fitting constants for 1st principles.
 
     The calculation of the dry air power term is based on method three
     as described on page 58 of the WCM-2000 manual. This uses a fit
@@ -141,39 +199,43 @@ def dryair_cal(Psense,T,ts,ps,tas,cloud_mask=None):
         Default is None for no cloud.
     :type cloud_mask: Boolean
 
-    :returns: Function for calculating dry air power of sense element
-        from Psense
+    :returns result: Array of dry air power terms calculated for each
+        value of Psense. Will return None if the fitting routine fails.
 
     """
 
     from scipy.optimize import curve_fit
 
-    # Linear fitting function
-    func = lambda x,a,b: a * (T - ts) * (ps * tas)**b - x
+    if cloud_mask is None:
+        n = Psense.shape[0]
+        cloud_mask = np.zeros((n,), dtype=np.bool)
 
-    # Create mask based on cloud_mask
-    # This step is to cope with different types of binary elements
-    # np.all statement so that cloud does not become False in make_mask step
-    if cloud_mask is None or np.all(cloud_mask==False):
-        cloud = np.array([False]*len(Psense))
-    else:
-        cloud=np.ma.make_mask(cloud_mask)
+    _Psense = Psense[cloud_mask == 0, :].ravel()
+    _T = T[cloud_mask == 0, :].ravel()
+    _ts = ts[cloud_mask == 0, :].ravel()
+    _ps = ps[cloud_mask == 0, :].ravel()
+    _tas = tas[cloud_mask == 0, :].ravel()
+
+    # Linear fitting function
+    func1 = lambda x,a,b: a * (_T - _ts) * (_ps * _tas)**b - x
+    func2 = lambda a,b: a * (T - ts) * (ps * tas)**b
 
     # Find fitting constants that minimise difference between calculated
     # and actual total power on sense element.
     # Interpolations don't accept masked arrays so delete masked elements
-    popt,pcov = curve_fit(func,Psense[~cloud],np.zeros(len(Psense[~cloud])))
+    popt,pcov = curve_fit(func1, _Psense, np.zeros(_Psense.size))
 
     if np.any(np.isinf(pcov)):
         # No convergence
-        return None         #### THis should RAISE an error instead
+        return None
 
-    return lambda x: func(x,*popt)
+    result = func2(popt[0], popt[1])
+    return result
 
 
 def dryair_cal_comp(Psense,Pcomp,cloud_mask=None):
     """
-    Find dry air power term from compensation element measurements
+    Calculate dry air power term from compensation element measurements.
 
     The calculation of the dry air power term is based on the use of the
     compensation element as described on page 56 of the WCM-2000 manual.
@@ -436,7 +498,7 @@ def calc_sense_wc():
 
 def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
     """
-    Calculate liquid water content from the meaured LWC and TWC.
+    Calculate liquid water content from the measured LWC and TWC.
 
     """
 
@@ -447,7 +509,7 @@ def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
 
 def calc_iwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
     """
-    Calculate ice water content from the meaured LWC and TWC
+    Calculate ice water content from the measured LWC and TWC
 
     """
 
@@ -620,7 +682,11 @@ class calc_sea(cal_base):
         """
         :param dataset: ppodd.core.decades_dataset
         """
+
         self.input_names = ['WOW_IND',
+                            'PS_RVSM',
+                            'TAS_RVSM',
+                            'TAT_DI_R',
                             'SEAPROBE_021',
                             'SEAPROBE_021_A',
                             'SEAPROBE_021_T',
@@ -652,21 +718,86 @@ class calc_sea(cal_base):
 
         self.outputs = [parameter('SEA_TWC',
                                   units='WATER PER VOLUME',
-                                  frequency=1,
+                                  frequency=20,
                                   long_name='',
-                                  standard_name='')]
+                                  standard_name=''),
+                        parameter('SEA_LWC1',
+                                  units='WATER PER VOLUME',
+                                  frequency=20,
+                                  long_name='From element 021',
+                                  standard_name=''),
+                        parameter('SEA_LWC2',
+                                  units='WATER PER VOLUME',
+                                  frequency=20,
+                                  long_name='From element 083',
+                                  standard_name=''),]
         self.version = 1.00
         cal_base.__init__(self, dataset)
 
     def process(self):
+        # TODO: Move those values to the flight-constant file
+        CALSEA083LENGTH = 22.8090
+        CALSEA083WIDTH = 2.1080
+        CALSEA021LENGTH = 21.3110
+        CALSEA021WIDTH = 0.5330
+        CALSEATWCLENGTH = 23.3170
+        CALSEATWCWIDTH = 2.1080
+
         match = self.dataset.matchtimes(self.input_names)
+        freq = self.dataset['SEAPROBE_021'].shape[1]
         wow_ind = self.dataset['WOW_IND'].data.ismatch(match)
-        # TODO: Not working yet, because of wrong shape of data array
-        sea_twc_data = self.dataset['SEAPROBE_TWC_A'].data.ismatch(match)
-        flag = np.zeros(sea_twc_data.shape, dtype=np.uint8)
-        ix = np.where(wow_ind != 0)[0]
-        flag[ix,:] = 3
+        tas = self.dataset['TAS_RVSM'].data.ismatch(match)
+        tas = tas.interp(frequency=freq)
+        ps = self.dataset['PS_RVSM'].data.ismatch(match)
+        ps = ps.interp(frequency=freq)
+        tat = self.dataset['TAT_DI_R'].data.ismatch(match)
+        tat = tat.interp(frequency=freq)
+        tat -= 273.15
 
-        sea_twc = flagged_data(sea_twc_data, match, flag)
-        self.outputs[0] = seaprobe_twc
+        sea_twc_a = self.dataset['SEAPROBE_TWC_A'].data.ismatch(match)
+        sea_021_a = self.dataset['SEAPROBE_021_A'].data.ismatch(match)
+        sea_083_a = self.dataset['SEAPROBE_083_A'].data.ismatch(match)
+        sea_cmp_a = self.dataset['SEAPROBE_CMP_A'].data.ismatch(match)
+        sea_dec_a = self.dataset['SEAPROBE_DCE_A'].data.ismatch(match)
 
+        sea_twc_v = self.dataset['SEAPROBE_TWC_V'].data.ismatch(match)
+        sea_021_v = self.dataset['SEAPROBE_021_V'].data.ismatch(match)
+        sea_083_v = self.dataset['SEAPROBE_083_V'].data.ismatch(match)
+        sea_cmp_v = self.dataset['SEAPROBE_CMP_V'].data.ismatch(match)
+        sea_dec_v = self.dataset['SEAPROBE_DCE_V'].data.ismatch(match)
+
+        sea_twc_p_sense_total = sea_twc_a*sea_twc_v
+        sea_021_p_sense_total = sea_021_a*sea_021_v
+        sea_083_p_sense_total = sea_083_a*sea_083_v
+        sea_cmp_p_sense_total = sea_cmp_a*sea_cmp_v
+        sea_dec_p_sense_total = sea_dec_a*sea_dec_v
+
+        sea_twc_t = self.dataset['SEAPROBE_TWC_T'].data.ismatch(match)
+        sea_021_t = self.dataset['SEAPROBE_021_T'].data.ismatch(match)
+        sea_083_t = self.dataset['SEAPROBE_083_T'].data.ismatch(match)
+        sea_cmp_t = self.dataset['SEAPROBE_CMP_T'].data.ismatch(match)
+        sea_dec_t = self.dataset['SEAPROBE_DCE_T'].data.ismatch(match)
+
+        cloud_mask = get_cloud_mask(sea_twc_p_sense_total)
+
+        sea_twc_p_sense_dry = dryair_cal(sea_twc_p_sense_total, tat, sea_twc_t, ps, tas, cloud_mask=cloud_mask)
+        sea_021_p_sense_dry = dryair_cal(sea_021_p_sense_total, tat, sea_021_t, ps, tas, cloud_mask=cloud_mask)
+        sea_083_p_sense_dry = dryair_cal(sea_083_p_sense_total, tat, sea_083_t, ps, tas, cloud_mask=cloud_mask)
+
+        sea_twc_p_sense_wet = sea_twc_p_sense_total-sea_twc_p_sense_dry
+        sea_021_p_sense_wet = sea_021_p_sense_total-sea_021_p_sense_dry
+        sea_083_p_sense_wet = sea_083_p_sense_total-sea_083_p_sense_dry
+
+        Tevap, Levap = energy_liq(ps)
+
+        twc = (sea_twc_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEATWCLENGTH*CALSEATWCWIDTH)
+        lwc_021 = (sea_021_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA021LENGTH*CALSEA021WIDTH)
+        lwc_083 = (sea_083_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA083LENGTH*CALSEA083WIDTH)
+
+        flag = np.zeros(twc.shape, dtype=np.int8)
+
+        flag[wow_ind != 0, :] = 3  # flag all data as 3 when aircraft is on th ground
+
+        self.outputs[0].data = flagged_data(twc, match, flag)
+        self.outputs[1].data = flagged_data(lwc_021, match, flag)
+        self.outputs[2].data = flagged_data(lwc_083, match, flag)
