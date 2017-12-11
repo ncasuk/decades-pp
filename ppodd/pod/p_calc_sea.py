@@ -111,6 +111,38 @@ J_to_cal = 1./cal_to_J
 Psense_dry_tmp = lambda P: P
 
 
+def moving_avg(a, n=3, pad=True):
+    """
+    Caculate the running average of a for smoothing with window length n.
+
+    :param a: Input 1D array to be smoothed
+    :type a: array of numbers
+    :param n: window length in samples
+    :type n: whole number
+    :param pad: Boolean. If true then make retun the same length as a by
+        placing unsmoothed a values where smoothed values do not exist.
+        Not sophisticated but should do as we expect n << len(a)
+
+    :returns: Array of floats of smoothed a
+    """
+    n = np.around(n,0)
+
+    if n <= 1: return a
+
+    # Make sure window is odd
+    if n//2. == n/2.: n += 1
+
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+
+    if pad is True:
+        # TODO: Hmm, numpy complains about this
+        a[int(n//2.):-int(n//2.)] = ret[n - 1:] / float(n)
+        return a
+    else:
+        return ret[n - 1:] / float(n)
+
+
 def get_cloud_mask(twc_power, threshold=0.45, _buffer=3):
     """
     Use the range of values within a second.
@@ -132,7 +164,7 @@ def get_cloud_mask(twc_power, threshold=0.45, _buffer=3):
     return cloud_mask
 
 
-def get_slr_mask(dt,hdgr,altr,hdgr_atol=None,altr_atol=None):
+def get_slr_mask(dt,hdgr,altr,hdgr_atol=0.1,altr_atol=0.2):
     """
     Create a straight and level run mask based on aircraft flight conditions.
 
@@ -145,13 +177,13 @@ def get_slr_mask(dt,hdgr,altr,hdgr_atol=None,altr_atol=None):
     :type dt: datetime.datetime or numpy.datetime64
     :param hdgr: Rate of heading change (deg/s)
     :type hdgr: float
-    :param altr: Rate of altitude change (distance /s). Distance units
+    :param altr: Rate of altitude change (distance/s). Distance units
         may be imperial or metric
     :param hdgr_atol: Absolute tolerance for determining acceptable rate
-        of change of heading (deg). Default is ??
+        of change of heading. Default is 0.1 deg/s
     :type hdgr: float
     :param altr_atol: Absolute tolerance for determining acceptable rate
-        of change of altitude (distance). Default is ??
+        of change of altitude (distance). Default is 0.2 distance/s.
     :type altr_atol: float
 
     :returns: dt: Datetime stamp of slr_mask.
@@ -161,13 +193,25 @@ def get_slr_mask(dt,hdgr,altr,hdgr_atol=None,altr_atol=None):
     NOTE: This means that the masking is the inverse of cloud_mask. Change?
     """
 
+    # TODO: Need to test default atols more rigorously
+    # TODO: hdgr_mask does not appear to work properly
+
+    # Define the window length (in samples) for running average
+    # 30sec worth of samples
+    # TODO: Cope with dt arrays that are not 1Hz
+    hdgr_win = 30.
+    altr_win = 30.
+
     # init slr mask
-    n = twc_power.shape[0]
+    n = dt.shape[0]
     slr_mask = np.zeros((n,), dtype=np.bool)
 
-    # TODO: Create running avg of params and see if np.isclose(param,0)
+    hdgr_mask = np.isclose(moving_avg(hdgr,hdgr_win),0,atol=hdgr_atol,rtol=0)
+    altr_mask = np.isclose(moving_avg(altr,altr_win),0,atol=altr_atol,rtol=0)
 
-    return slr_mask
+    slr_mask = np.logical_or(hdgr_mask,altr_mask)
+
+    return dt, slr_mask
 
 
 def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None):
