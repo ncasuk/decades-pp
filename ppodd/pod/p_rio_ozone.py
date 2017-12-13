@@ -6,8 +6,8 @@ class rio_ozone(cal_base):
   Calibrated TEI Ozone instrument data
   The flagging of the data uses mainly the
   flow measurements in the two chambers
-    | TEIOZO_FlowA
-    | TEIOZO_FlowB
+  | TEIOZO_FlowA
+  | TEIOZO_FlowB
   Data points while on the ground (WOW_IND = 1) are
   also flagged as '3' and so are all data points for
   the first 20 seconds after take-off
@@ -18,13 +18,14 @@ class rio_ozone(cal_base):
 :FLAGGING:
   Flag values are set using flow_a, flow_b, weight on wheels index
   and the instruments own flag value
-    | flag=flag!='1c100000'
-    | flag[conc < -10]=2
-    | flag[flow_a < flow_threshold]=3
-    | flag[flow_b < flow_threshold]=3
-    | flag[wow_ind != 0]=3
+  | flag=flag!='1c100000'
+  | flag[conc < -10]=2
+  | flag[flow_a < flow_threshold]=3
+  | flag[flow_b < flow_threshold]=3
+  | flag[wow_ind != 0]=3
 
 """
+
     def __init__(self,dataset):
         self.input_names=['CALO3', 'CALO3P', 'CALO3T', 'CALO3F', 'CALO3MX',
                           'TEIOZO_conc', 'TEIOZO_benchtemp', 'TEIOZO_press',

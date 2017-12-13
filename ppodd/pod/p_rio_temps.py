@@ -91,27 +91,27 @@ FORTRAN routine C_TEMPS2
 
 :ARGUMENTS:
   :Constants:
-  | RCONST(1)   Recovery factor for Deiced sensor
-  | RCONST(2)   Recovery factor for Non-deiced sensor
-  | RCONST(3)   Deiced X0 calibration constant (deg C)
-  | RCONST(4)   Deiced X1 calibration constant (deg C)
-  | RCONST(5)   Deiced X2 calibration constant (deg C)
-  | RCONST(6)   Non-deiced X0 calibration constant (deg C)
-  | RCONST(7)   Non-deiced X1 calibration constant (deg C)
-  | RCONST(8)   Non-deiced X2 calibration constant (deg C)
+    | RCONST(1)   Recovery factor for Deiced sensor
+    | RCONST(2)   Recovery factor for Non-deiced sensor
+    | RCONST(3)   Deiced X0 calibration constant (deg C)
+    | RCONST(4)   Deiced X1 calibration constant (deg C)
+    | RCONST(5)   Deiced X2 calibration constant (deg C)
+    | RCONST(6)   Non-deiced X0 calibration constant (deg C)
+    | RCONST(7)   Non-deiced X1 calibration constant (deg C)
+    | RCONST(8)   Non-deiced X2 calibration constant (deg C)
 
   :Inputs:
-  | DEICED TEMPERATURE            [bits 0-15]     Para  10 32Hz
-  | NON DEICED TEMPERATURE        [bits 0-15]     Para  23 32Hz
-  | SIGNAL REGISTER               [drs units-bcd] Para  27  2Hz
-  | STATIC PRESSURE               [mbs]           Para 576 32Hz
-  | PITOT STATIC PRESSURE         [mbs]           Para 577 32Hz
+    | DEICED TEMPERATURE            [bits 0-15]     Para  10 32Hz
+    | NON DEICED TEMPERATURE        [bits 0-15]     Para  23 32Hz
+    | SIGNAL REGISTER               [drs units-bcd] Para  27  2Hz
+    | STATIC PRESSURE               [mbs]           Para 576 32Hz
+    | PITOT STATIC PRESSURE         [mbs]           Para 577 32Hz
 
   :Outputs:
-  | INDICATED AIR TEMPERATURE (Deiced)   [K]      Para 519 32Hz
-  | TRUE AIR TEMPERATURE      (Deiced)   [K]      Para 520 32Hz
-  | INDICATED AIR TEMPERATURE (NonDeiced)[K]      Para 524 32Hz
-  | TRUE AIR TEMPERATURE      (NonDeiced)[K]      Para 525 32Hz
+    | INDICATED AIR TEMPERATURE (Deiced)   [K]      Para 519 32Hz
+    | TRUE AIR TEMPERATURE      (Deiced)   [K]      Para 520 32Hz
+    | INDICATED AIR TEMPERATURE (NonDeiced)[K]      Para 524 32Hz
+    | TRUE AIR TEMPERATURE      (NonDeiced)[K]      Para 525 32Hz
 
 :SUBPROGRAMS:
   | S_MACH           Calculates Mach no

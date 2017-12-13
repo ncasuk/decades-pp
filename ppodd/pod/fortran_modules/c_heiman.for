@@ -185,7 +185,7 @@ C  if last 3 BB ref means are within +/-86 (equivalent to approx 0.1K)
      -           RCONST(1) + 
      -           RCONST(2) * FLOAT(IRAW(I_COUNT_1,142)) + 
      -           RCONST(3) * FLOAT(IRAW(I_COUNT_1,142)) ** 2
-C       set flag to 2 if data is out of expected range (-20 to +40°C)
+C       set flag to 2 if data is out of expected range (-20 to +40 degC)
             IF (RDER(I_COUNT_1,537) .GT. 3313.16 .OR.
      +          RDER(I_COUNT_1,537) .LT. 3253.16)  IFLAG = 2
 

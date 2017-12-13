@@ -22,12 +22,12 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 
-MOCK_MODULES = ['pandas', 'cartopy', 'cartopy.crs', 'cartopy.feature']
+MOCK_MODULES = ['pandas', 'cartopy', 'cartopy.crs', 'cartopy.feature', 'matplotlib', 'matplotlib.pyplot', 'mpl_toolkits.basemap']
 
 for mod in MOCK_MODULES:
     sys.modules[mod] = mock.Mock()
 
-sys.modules['matplotlib'] = mock.MagicMock()
+#sys.modules['matplotlib'] = mock.MagicMock()
 
 
 import ppodd

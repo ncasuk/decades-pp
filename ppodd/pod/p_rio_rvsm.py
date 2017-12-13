@@ -31,17 +31,14 @@ class rio_rvsm(cal_base):
 :METHOD:
   For each DRS parameter to be calibrated:
   
-  1. If data is FFFF or FFFE or out of range then flag 3  
-  
+  1. If data is FFFF or FFFE or out of range then flag 3    
   2. Decode the altitude and use the tables in NASA TN D-822
-     to back compute the static pressure.     
-     
+     to back compute the static pressure.          
   3. Decode the airspeed and use fundamental equations to 
-     compute pitot-static pressure.     
-     
-  4. Check the results for being within acceptable values.  
-  
+     compute pitot-static pressure.          
+  4. Check the results for being within acceptable values.    
   5. Set data flag bits (16+17)
+  
     | 0: Good data
     | 1: Data of lower quality
     | 2: Probably faulty, exceed lims
@@ -64,17 +61,17 @@ class rio_rvsm(cal_base):
                                                                                                                                                                                  
 :ARGUMENTS:
   :Inputs:                                                                                                                                                         
-  | DRS para 222 RVAL 32 Hz RVSM altitude                                                                                                                         
-  |     para 223 RVAS 32 Hz RVSM computed airspeed                                                                                                                
+    | DRS para 222 RVAL 32 Hz RVSM altitude                                                                                                                         
+    | DRS para 223 RVAS 32 Hz RVSM computed airspeed                                                                                                                
                                                                                                                                                                                  
   :Outputs:                                                                                                                                                        
-  | Derived para 576 SPR  mb 32 Hz Static pressure                                                                                                                
-  |         para 577 PSP  mb 32 Hz Pitot-static pressure                                                                                                          
-  |         para 578 PHGT m  32 Hz Pressure height                                                                                                                
+    | Derived para 576 SPR  mb 32 Hz Static pressure                                                                                                                
+    | Derived para 577 PSP  mb 32 Hz Pitot-static pressure                                                                                                          
+    | Derived para 578 PHGT m  32 Hz Pressure height                                                                                                                
                                                                                                                                                                                
   :Flags:                                                                                                                                                          
-  | Missing/corrupt data output as 0 flagged 3.                                                                                                                   
-  | Out of range derived data flagged 2.                                                                                                                          
+    | Missing/corrupt data output as 0 flagged 3.                                                                                                                   
+    | Out of range derived data flagged 2.                                                                                                                          
                                                                                                                                                                                  
 :SUBPROGRAMS:
   S_PSP, ALT2PRESS, ISETFLG                                                                                                                                       
