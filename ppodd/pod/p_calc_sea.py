@@ -92,13 +92,15 @@ J. Res. Natl. Bur. Stand., Vol. 23, pp197-260, 1939.
 Cambridge University Press, 2000.
 """
 
-
-
-#import ppodd
-from ppodd.core import cal_base, flagged_data, timed_data, parameter
-
 import numpy as np
 from copy import deepcopy
+import sys
+
+try:
+    from ppodd.core import cal_base, flagged_data, timed_data, parameter
+except:
+    sys.stdout.write('PPODD not available ...\n')
+
 
 # Conversion from calories to joules [Woan00]_.
 cal_to_J = 4.1868
@@ -109,38 +111,6 @@ J_to_cal = 1./cal_to_J
 ### similar. This function will be derived from dryair_calc_comp() for
 ### many flights.
 Psense_dry_tmp = lambda P: P
-
-
-def moving_avg(a, n=3, pad=True):
-    """
-    Caculate the running average of a for smoothing with window length n.
-
-    :param a: Input 1D array to be smoothed
-    :type a: array of numbers
-    :param n: window length in samples
-    :type n: whole number
-    :param pad: Boolean. If true then make retun the same length as a by
-        placing unsmoothed a values where smoothed values do not exist.
-        Not sophisticated but should do as we expect n << len(a)
-
-    :returns: Array of floats of smoothed a
-    """
-    n = np.around(n,0)
-
-    if n <= 1: return a
-
-    # Make sure window is odd
-    if n//2. == n/2.: n += 1
-
-    ret = np.cumsum(a, dtype=float)
-    ret[n:] = ret[n:] - ret[:-n]
-
-    if pad is True:
-        # TODO: Hmm, numpy complains about this
-        a[int(n//2.):-int(n//2.)] = ret[n - 1:] / float(n)
-        return a
-    else:
-        return ret[n - 1:] / float(n)
 
 
 def get_cloud_mask(twc_power, threshold=0.45, _buffer=3):
@@ -164,7 +134,7 @@ def get_cloud_mask(twc_power, threshold=0.45, _buffer=3):
     return cloud_mask
 
 
-def get_slr_mask(dt,hdgr,altr,hdgr_atol=0.1,altr_atol=0.2):
+def get_slr_mask(hdgr, altr, hdgr_atol=0.25, altr_atol=1.0):
     """
     Create a straight and level run mask based on aircraft flight conditions.
 
@@ -173,8 +143,6 @@ def get_slr_mask(dt,hdgr,altr,hdgr_atol=0.1,altr_atol=0.2):
     straight through so slr_mask can be merged with SEA data. Should
     interpolate and merge be done to hdgr and altr before get_slr_mask called?
 
-    :param dt: Datetime stamp of aircraft parameters
-    :type dt: datetime.datetime or numpy.datetime64
     :param hdgr: Rate of heading change (deg/s)
     :type hdgr: float
     :param altr: Rate of altitude change (distance/s). Distance units
@@ -193,28 +161,32 @@ def get_slr_mask(dt,hdgr,altr,hdgr_atol=0.1,altr_atol=0.2):
     NOTE: This means that the masking is the inverse of cloud_mask. Change?
     """
 
+    # https://stackoverflow.com/questions/13728392/moving-average-or-running-mean
+    def moving_avg(x, N):
+        np.convolve(x, np.ones((N,))/N, mode='valid')
+
     # TODO: Need to test default atols more rigorously
     # TODO: hdgr_mask does not appear to work properly
 
     # Define the window length (in samples) for running average
     # 30sec worth of samples
     # TODO: Cope with dt arrays that are not 1Hz
-    hdgr_win = 30.
-    altr_win = 30.
+    hdgr_win = 3
+    altr_win = 3
 
     # init slr mask
-    n = dt.shape[0]
+    n = hdgr.shape[0]
     slr_mask = np.zeros((n,), dtype=np.bool)
 
-    hdgr_mask = np.isclose(moving_avg(hdgr,hdgr_win),0,atol=hdgr_atol,rtol=0)
-    altr_mask = np.isclose(moving_avg(altr,altr_win),0,atol=altr_atol,rtol=0)
+    #hdgr_mask = np.isclose(moving_avg(np.max(np.abs(hdgr), axis=1), hdgr_win), 0.0, atol=hdgr_atol,rtol=0)
+    #altr_mask = np.isclose(moving_avg(np.max(np.abs(altr), axis=1), altr_win), 0.0, atol=altr_atol,rtol=0)
+    hdgr_mask = np.isclose(np.max(np.abs(hdgr), axis=1), 0.0, atol=hdgr_atol,rtol=0)
+    altr_mask = np.isclose(np.max(np.abs(altr), axis=1), 0.0, atol=altr_atol,rtol=0)
+    slr_mask = np.logical_and(hdgr_mask, altr_mask)
+    return slr_mask
 
-    slr_mask = np.logical_or(hdgr_mask,altr_mask)
 
-    return dt, slr_mask
-
-
-def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None):
+def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None, verbose=True):
     """
     Calculate dry air power term by fitting constants for 1st principles.
 
@@ -260,6 +232,18 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None):
     _ps = ps[cloud_mask == 0, :].ravel()
     _tas = tas[cloud_mask == 0, :].ravel()
 
+    # remove all nans
+    ix = np.where((np.isfinite(_Psense)) &
+                  (np.isfinite(_T)) &
+                  (np.isfinite(_ts)) &
+                  (np.isfinite(_ps)) &
+                  (np.isfinite(_tas)))[0]
+    _Psense = _Psense[ix]
+    _T = _T[ix]
+    _ts = _ts[ix]
+    _ps = _ps[ix]
+    _tas = _tas[ix]
+
     # Linear fitting function
     func1 = lambda x,a,b: a * (_T - _ts) * (_ps * _tas)**b - x
     func2 = lambda a,b: a * (T - ts) * (ps * tas)**b
@@ -272,6 +256,9 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None):
     if np.any(np.isinf(pcov)):
         # No convergence
         return None
+
+    if verbose:
+        sys.stdout.write('K1: %8.3f   K2: %6.3f\n' % tuple(popt))
 
     result = func2(popt[0], popt[1])
     return result
