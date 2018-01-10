@@ -1,5 +1,8 @@
 """
-ppodd reader module for the SEAPROBE
+ppodd reader module for the SEAPROBE data stream ending with "*.wcm". The data
+file is a csv file and contains a range of data sentences. The first column
+is the data sentence identifier and the parsing has to be done accordingly.
+
 """
 
 from datetime import datetime, timedelta
@@ -163,12 +166,12 @@ def timestamp_func(d3):
     produce a function to calculate datetime stamps for all data
     lines.
 
-    Args:
-        d3 (dict)
+    :params d3:
+    :type d3: dict
     """
 
     dt = np.array([(datetime.combine(d, t)).replace(tzinfo=None) for (d, t)
-                      in zip(d3['data']['date'], d3['data']['time'])])
+                       in zip(d3['data']['date'], d3['data']['time'])])
 
     # Convert to seconds to do fitting
     delta_dt = [timedelta.total_seconds(dt_-dt[0]) for dt_ in dt]
@@ -193,10 +196,11 @@ def get_frequency(timestamp):
     :param timestamp: array of timestamps for every data line
     :type timestamp: numpy.array with numpy.datetime64 elements
     :returns: frequency
+    :rtype: int
     """
 
     possible_freq_setting = [20, 10, 5, 2, 1]
-    tolerance = 20 # in percent
+    tolerance = 20  # in percent
 
     if timestamp.size < 3:
         return None
@@ -210,10 +214,23 @@ def get_frequency(timestamp):
 
 
 def to_dataframe(ifile, rtn_all=False):
-    """returns a dictionary where each item is a sentence
+    """returns a dictionary where each item holds the data for a data sentence.
 
     :param ifile: input file
+    :key rtn_all: set to `True` if all data sentences should be parsed
     :return: dictionary of pandas.DataFrame
+
+    :Example:
+
+    In [1]: ifile = 'seaprobe_20171214_090141_C072.wcm'
+
+    In [2]: d = to_dataframe(ifile, rtn_all=True)
+
+    In [3]: print(d.keys())
+    ['c0', 'd2', 'd3', 'd0', 'd1']
+
+    In [4]: d['d0'].head()
+
     """
     # Read the wcm file into raw_data as a 1D numpy array of strings
     with open(ifile) as f:
@@ -227,7 +244,7 @@ def to_dataframe(ifile, rtn_all=False):
     else:
         # Only return d0 and d3 sentences as they are all that is
         # required for calculation of water content
-        sentence_id = np.asarray(['d0', 'd3'])
+        sentence_id = np.asarray(['d0', 'd3', 'c0'])
 
     # Dictionary of raw and parsed data sentences
     # 'row' key is array of row numbers in file
@@ -257,9 +274,11 @@ def to_dataframe(ifile, rtn_all=False):
     df_dic = {}
     for k in list(wcm['parsed'].keys()):
 
-        wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_).replace(tzinfo=tz)) for \
-                                           t_ in wcm['parsed'][k]['row']])
-
+        #wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_).replace(tzinfo=tz)) for \
+        #                                   t_ in wcm['parsed'][k]['row']])
+        # Changed tzinfo due to Deprecation Warning
+        wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_).replace(tzinfo=None)) for \
+                                          t_ in wcm['parsed'][k]['row']])
         freq = get_frequency(wcm['parsed'][k]['dt'])
 
         wcm['parsed'][k]['f'] = freq
@@ -334,16 +353,15 @@ class read_sea(file_read):
     def __init__(self, dataset, rtn_all=False):
         """
 
-        :param dataset: Input dataset
-        :type dataset: ppodd.pod.decades_dataset
+        :param dataset: Input deacdes dataset
+        :type dataset: ppodd.core.decades_dataset
         :param rtn_all: If False [Default] then return only those
-                fields required for data processing. If True return all
-                housekeeping and ancillary fields.
-        :type rtn_all: boolean (default = False)
+            fields required for data processing. If True return all
+            housekeeping and ancillary fields.
+        :type rtn_all: boolean (default=False)
         :returns: dictionary with dictionary keys representing data
-          sentence ids
-          (d0, d1, d2, d3, c0, cscb, cpbx, cmcb, cprb)
-        :type returns: dictionary
+            sentence ids (d0, d1, d2, d3, c0, cscb, cpbx, cmcb, cprb)
+        :rtype: dictionary
         """
 
         self.input_names = ['SEA']
