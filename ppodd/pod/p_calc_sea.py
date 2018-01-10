@@ -113,22 +113,38 @@ J_to_cal = 1./cal_to_J
 Psense_dry_tmp = lambda P: P
 
 
-def get_cloud_mask(twc_power, threshold=0.45, _buffer=3):
+def get_cloud_mask(twc_power, rng_threshold=0.45, _buffer=3):
     """
-    Use the range of values within a second.
+    Function determines wheater the measurement is taken in or outside of
+    cloud. It uses the range (max-min) of values within a second assuming that
+    the variation inside a cloud is much larger than outside a cloud.
+
     The _buffer is used to mask also values around flagged values. For example
     a _buffer value of three also masks the three seconds before *and* three
     seconds after each masked value as cloud.
+
+    :param twc_power: TWC element power in Watts
+    :type twc_power: 2D-array of
+    :key rng_threshold: values above the threshold are flagged as cloud
+    :type rng_threshold: float
+    :key _buffer: time buffer around detected cloud event
+    :type _buffer: int
     :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
 
     """
-    # init cloud mask
+    #TODO: function currently only works on multidimensional arrays
+    # if the twc_power array is one dimensional the range calculations won't
+    # work
+
+    # get number of rows
     n = twc_power.shape[0]
+    # init cloud mask
     cloud_mask = np.zeros((n,), dtype=np.bool)
     rng = np.max(twc_power, axis=1)-np.min(twc_power, axis=1)
     ix = np.where(rng > threshold)[0]
     for i in range(_buffer*-1, _buffer+1):
         ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
+    # make sure that the indices do not exceed array dimensions
     ix = np.clip(ix, 0, n-1)
     cloud_mask[ix] = True
     return cloud_mask
@@ -366,13 +382,13 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
 
 def energy_liq(ps):
     """
-    Calculate the evaporative temperature and latent heat of evaporation
+    Calculate the evaporative temperature and latent heat of evaporation.
 
     Based on WCM-2000 empirical equations on page 64. No references found.
     Valid for pressures 100-1050mb.
 
     :param ps: ambient static air pressure (mbar)
-    :type ps: float:
+    :type ps: float
     :returns Tevap: Temperature of evaporation (deg C)
     :rtype Tevap: float
 
@@ -597,12 +613,11 @@ def calc_wc():
     pass
 
 
-
 def find_efficiencies(W_twc,W_083,W_021,
                       e_liq=None,e_ice=None,
                       cloud_mask=None,liq_mask=None,ice_mask=None):
     """
-    Find the sense element collection efficiencies by fitting.
+    Find the sense element collection efficencies by fitting.
 
 
     :param W_twc: array of as-measured total water content from TWC element
@@ -648,7 +663,6 @@ def find_efficiencies(W_twc,W_083,W_021,
         e_liq = deepcopy(e_liq_default)
     if e_ice is None:
         e_ice = deepcopy(e_ice_default)
-
 
     # Create masks based on cloud_mask, liq_mask, and ice_mask
     # This step is to cope with different types of binary elements
@@ -761,20 +775,34 @@ class calc_sea(cal_base):
                                   units='WATER PER VOLUME',
                                   frequency=20,
                                   long_name='From element 083',
-                                  standard_name=''),]
+                                  standard_name='')]
         self.version = 1.00
         cal_base.__init__(self, dataset)
 
     def process(self):
+        """
+        We catch
+        """
         # TODO: Move those values to the flight-constant file
-        CALSEA083LENGTH = 22.8090
-        CALSEA083WIDTH = 2.1080
-        CALSEA021LENGTH = 21.3110
-        CALSEA021WIDTH = 0.5330
-        CALSEATWCLENGTH = 23.3170
-        CALSEATWCWIDTH = 2.1080
+        #CALSEA083LENGTH = 22.8090
+        #CALSEA083WIDTH = 2.1080
+        #CALSEA021LENGTH = 21.3110
+        #CALSEA021WIDTH = 0.5330
+        #CALSEATWCLENGTH = 23.3170
+        #CALSEATWCWIDTH = 2.1080
+        # Pull the sensor element dimensions from the c0 message
+        CALSEA083LENGTH = float(self.dataset['SEAPROBE_083_l'][0])
+        CALSEA083WIDTH = float(self.dataset['SEAPROBE_083_w'])
+        CALSEA021LENGTH = float(self.dataset['SEAPROBE_021_l'])
+        CALSEA021WIDTH = float(self.dataset['SEAPROBE_021_w'])
+        CALSEATWCLENGTH = float(self.dataset['SEAPROBE_TWC_l'])
+        CALSEATWCWIDTH = float(self.dataset['SEAPROBE_TWC_w'])
+
 
         match = self.dataset.matchtimes(self.input_names)
+        # The frequency of the SEAPROBE measurement can be set by the user
+        # Therefore to cover different settings, we have to make sure that all
+        # the data arrays have the same shape (equals frequency)
         freq = self.dataset['SEAPROBE_021'].shape[1]
         wow_ind = self.dataset['WOW_IND'].data.ismatch(match)
         tas = self.dataset['TAS_RVSM'].data.ismatch(match)
@@ -821,13 +849,26 @@ class calc_sea(cal_base):
 
         Tevap, Levap = energy_liq(ps)
 
-        twc = (sea_twc_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEATWCLENGTH*CALSEATWCWIDTH)
-        lwc_021 = (sea_021_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA021LENGTH*CALSEA021WIDTH)
-        lwc_083 = (sea_083_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA083LENGTH*CALSEA083WIDTH)
+        def calc_water_content(wet_power, Levap, Tevapt, tat, tas, element_length, element_width):
+            result = (wet_power*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*element_length*element_width)
 
+        twc = calc_water_content(sea_twc_p_sense_wet, Levap, Tevap,
+                                 tat, tas,
+                                 CALSEATWCLENGTH, CALSEATWCWIDTH)
+        lwc_021 = calc_water_content(sea_021_p_sense_wet, Levap, Tevap,
+                                     tat, tas,
+                                     CALSEA021LENGTH, CALSEA021WIDTH)
+        lwc_083 = calc_water_content(sea_083_p_sense_wet, Levap, Tevap,
+                                     tat, tas,
+                                     CALSEA083LENGTH, CALSEA083WIDTH)
+        #twc = (sea_twc_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEATWCLENGTH*CALSEATWCWIDTH)
+        #lwc_021 = (sea_021_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA021LENGTH*CALSEA021WIDTH)
+        #lwc_083 = (sea_083_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA083LENGTH*CALSEA083WIDTH)
+
+        # TODO: More flagging needs to be done
         flag = np.zeros(twc.shape, dtype=np.int8)
 
-        flag[wow_ind != 0, :] = 3  # flag all data as 3 when aircraft is on th ground
+        flag[wow_ind != 0, :] = 3  # flag all 3 when aircraft on ground
 
         self.outputs[0].data = flagged_data(twc, match, flag)
         self.outputs[1].data = flagged_data(lwc_021, match, flag)
