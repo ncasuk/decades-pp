@@ -8,6 +8,7 @@
   3. Aircraft on the ground
 
 :OUTPUT:
+
   Voltages of collectors
   Amparage of collectors
   Power of collectors
@@ -35,7 +36,9 @@ def get_no_cloud_mask(twc_col_p, wow):
     variance in a cloud should be much higher than outside.
 
     :param twc_col_p: Total water Collector power (W)
+    :type twc_col_p: numpy.array
     :param wow: Weight on wheels indicator ('1' aircraft on the ground)
+    :type wow: numpy.array
     :returns: mask
     :rtype: np.array
 
@@ -76,7 +79,7 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
     :param k: K value which is defined in the flight-cst file
     :return: fitted values
 
-    Reference:
+    :Reference:
       S J Abel, R J Cotton, P A Barrett and A K Vance. A comparison of ice
       water content measurement techniques on the FAAM BAe-146 aircraft.
       Atmospheric Measurement Techniques 7(5):4815--4857, 2014.
@@ -109,6 +112,9 @@ class rio_nevzorov_1t2l1r(cal_base):
 
     def __init__(self, dataset):
         """
+        Defining of the input and output parameters that are necessary for
+        processing.
+
         :param dataset: dataset for flight
         :type dataset: ppodd.core.decades_dataset
 
@@ -185,9 +191,10 @@ class rio_nevzorov_1t2l1r(cal_base):
         np.seterr(divide='ignore')  # suppress divide by zero messages
         t = self.dataset.matchtimes(self.input_names)
 
-        # This is the dictionary that is used for translating the variable
+        # Dictionary that is used for translating the variable
         # names in the dataset; the original DLU variable names were defined
-        # for the 'old' vane type with two references
+        # for the 'old' vane type with two reference sensors. Therefore the
+        # variable names need to be adapted for the new vane design
         dictionary = [('CORCON_nv_lwc1_vcol', 'CORCON_nv_lwc_vcol'),
                       ('CORCON_nv_lwc1_icol', 'CORCON_nv_lwc_icol'),
                       ('CORCON_nv_lwc1_vref', 'CORCON_nv_lwc_vref'),
@@ -284,7 +291,7 @@ class rio_nevzorov_1t1l2r(cal_base):
     Processing module for the vane that has
       1x Total Water sensor
       1x Liquid Water sensors
-      2x references
+      2x Reference sensors
 
     """
 
