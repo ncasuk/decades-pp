@@ -1,4 +1,4 @@
-from ppodd.core import *
+from ppodd.core import parameter, fort_cal
 
 class rio_temps(fort_cal):
     """
@@ -47,7 +47,7 @@ FORTRAN routine C_TEMPS2
            q=pitot static pressure [mbs]
 
   True Air Temperature is derived as::
-    
+
     TAT[K] = (Indicated Air Temperature[K]) /
                          (1.0 +(0.2 * MACHNO * MACHNO * TRECFTR))
     where: MACHNO  is computed by scientific subroutine S_MACH.
@@ -68,14 +68,14 @@ FORTRAN routine C_TEMPS2
   a similar scheme for error flagging, with worst case flags
   being propagated through the calculations.  Sources of error
   flags are:
-  
+
     | Absence of calibration constants    - flag 3
     | Absence of recovery factor constant - flag 3
     | Static pressure errors              - Parameter 576 flag
     | Pitot pressure errors               - Parameter 577 flag
     | Max/min/rate of change errors       - flag 2
     | Mach No less than 0.1               - flag 1
-  
+
   Not all the above errors need affect all measurements. For
   instance pressure errors will not affect Indicated Air
   Temperatures, unless the deicing heater is on. Note that
@@ -85,7 +85,7 @@ FORTRAN routine C_TEMPS2
   data transcribed on the Gould computer can carry flags). If
   any temperature has a flag of three, its value is set to
   0.0 K (and flagged with a three).
-   
+
  :VERSION:
    1.00  10/09/92  W.D.N.JACKSON
 
@@ -127,7 +127,7 @@ FORTRAN routine C_TEMPS2
 :CHANGES:
   V1.01  27/09/02  W.D.N.JACKSON
   Changed to handle 16 bit temperature recording.
-  
+
   V1.02  23/05/05  D.A.TIDDEMAN
   Temperature heater correction changed to opposite sense
   Now raw para 27 bit 5 on = heater on
@@ -143,6 +143,7 @@ FORTRAN routine C_TEMPS2
                             'SECS',
                             'PS_RVSM',
                             'Q_RVSM']
+
         self.outputs = [parameter('ITDI',
                                   units='DEG K',
                                   frequency=32,
@@ -174,3 +175,16 @@ FORTRAN routine C_TEMPS2
         self.dataset[self.input_names[3]].number = 10
         self.dataset[self.input_names[5]].number = 23
         fort_cal.process(self)
+
+        # Check if Sensortype and Serialnumber information is available from
+        # the flight constant file and if so include it in the long_name
+        # attribute of the NC-variable
+        if 'DITSENS' in list(self.dataset.keys()):
+            tmpl = 'True air temperature from the Rosemount deiced temperature sensor (Type: %s; SN: %s)'
+            tat_di_r_long_name = tmpl % (str(self.dataset['DITSENS'][1]), str(self.dataset['DITSENS'][0]))
+            self.outputs[1].long_name = tat_di_r_long_name
+
+        if 'NDTSENS' in list(self.dataset.keys()):
+            tmpl = 'True air temperature from the Rosemount non-deiced temperature sensor (Type: %s; SN: %s)'
+            tat_nd_r_long_name = tmpl % (str(self.dataset['NDTSENS'][1]), str(self.dataset['NDTSENS'][0]))
+            self.outputs[3].long_name = tat_nd_r_long_name
