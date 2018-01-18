@@ -189,7 +189,8 @@ def timestamp_func(d3):
 
 
 def get_frequency(timestamp):
-    """The frequency of the different data sentences of the SEADAS probe can
+    """
+    The frequency of the different data sentences of the SEADAS probe can
     be adjusted in the software. This small function estimates the most likely
     frequency setting using the timedelta of consecutive timestamps.
 
@@ -214,7 +215,8 @@ def get_frequency(timestamp):
 
 
 def to_dataframe(ifile, rtn_all=False):
-    """returns a dictionary where each item holds the data for a data sentence.
+    """
+    returns a dictionary where each item holds the data for a data sentence.
 
     :param ifile: input file
     :key rtn_all: set to `True` if all data sentences should be parsed
@@ -222,17 +224,17 @@ def to_dataframe(ifile, rtn_all=False):
 
     :Example:
 
-    In [1]: ifile = 'seaprobe_20171214_090141_C072.wcm'
+      In [1]: ifile = 'seaprobe_20171214_090141_C072.wcm'
 
-    In [2]: d = to_dataframe(ifile, rtn_all=True)
+      In [2]: d = to_dataframe(ifile, rtn_all=True)
 
-    In [3]: print(d.keys())
-    ['c0', 'd2', 'd3', 'd0', 'd1']
+      In [3]: print(d.keys())
+      ['c0', 'd2', 'd3', 'd0', 'd1']
 
-    In [4]: d['d0'].head()
+      In [4]: d['d0'].head()
 
     """
-    # Read the wcm file into raw_data as a 1D numpy array of strings
+    # Read the wcm txt file into raw_data as a 1D-numpy.array of strings
     with open(ifile) as f:
         raw_data = np.genfromtxt(f, dtype='S')
 
@@ -242,7 +244,8 @@ def to_dataframe(ifile, rtn_all=False):
     if rtn_all is True:
         sentence_id = np.unique(mtype)
     else:
-        # Only return d0 and d3 sentences as they are all that is
+        # Only return d0, d3 and c0 by default
+        # Those sentences are all that is
         # required for calculation of water content
         sentence_id = np.asarray(['d0', 'd3', 'c0'])
 
@@ -313,7 +316,7 @@ def to_dataframe(ifile, rtn_all=False):
 
 class read_sea(file_read):
     """
-    Class to read and parse .wcm text file produced by SEA SeaWcm software.
+    Class to read and parse "*.wcm" text file produced by SEA SeaWcm software.
 
     The ASCII file has lines starting with a sentence id. The frequencies of
     these different id's are not the same and are set between 0 and 20Hz.

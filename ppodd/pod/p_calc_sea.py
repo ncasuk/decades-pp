@@ -113,7 +113,45 @@ J_to_cal = 1./cal_to_J
 Psense_dry_tmp = lambda P: P
 
 
-def get_cloud_mask(twc_power, rng_threshold=0.45, _buffer=3):
+def get_cloud_mask_from_twc_temperature(twc_temperature, rng_threshold=0.6, min_val=139.0, max_val=141.0, _buffer=3):
+    """
+    Function determines wheater the measurement is taken in or outside of
+    cloud. It uses the range (max-min) of values within a second assuming that
+    the variation inside a cloud is much larger than outside a cloud.
+
+    The _buffer is used to mask also values around flagged values. For example
+    a _buffer value of three also masks the three seconds before *and* three
+    seconds after each masked value as cloud.
+
+    :param twc_temperature: TWC element temperature in degC
+    :type twc_temperature: 2D-array of
+    :key float rng_threshold: values above the threshold are flagged as cloud
+    :key float min_val: mininum; Data points below are flagged as cloud
+    :key float max_val: maximum; Data points above are flagged as cloud
+    :key _buffer: time buffer around detected cloud event
+    :type _buffer: int
+    :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
+
+    """
+    # TODO: function currently only works on multidimensional arrays
+    # if the twc_power array is one dimensional the range calculations won't
+    # work
+
+    # get number of rows
+    n = twc_temperature.shape[0]
+    # init cloud mask
+    cloud_mask = np.zeros((n,), dtype=np.bool)
+    rng = np.max(twc_temperature, axis=1)-np.min(twc_temperature, axis=1)
+    ix = np.where((rng > rng_threshold) | (np.min(twc_temperature, axis=1) < min_val) | (np.max(twc_temperature, axis=1) > max_val))[0]
+    for i in range(_buffer*-1, _buffer+1):
+        ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
+    # make sure that the indices do not exceed array dimensions
+    ix = np.clip(ix, 0, n-1)
+    cloud_mask[ix] = True
+    return cloud_mask
+
+
+def get_cloud_mask_from_twc_power(twc_power, rng_threshold=0.45, _buffer=3):
     """
     Function determines wheater the measurement is taken in or outside of
     cloud. It uses the range (max-min) of values within a second assuming that
@@ -132,7 +170,7 @@ def get_cloud_mask(twc_power, rng_threshold=0.45, _buffer=3):
     :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
 
     """
-    #TODO: function currently only works on multidimensional arrays
+    # TODO: function currently only works on multidimensional arrays
     # if the twc_power array is one dimensional the range calculations won't
     # work
 
@@ -141,7 +179,7 @@ def get_cloud_mask(twc_power, rng_threshold=0.45, _buffer=3):
     # init cloud mask
     cloud_mask = np.zeros((n,), dtype=np.bool)
     rng = np.max(twc_power, axis=1)-np.min(twc_power, axis=1)
-    ix = np.where(rng > threshold)[0]
+    ix = np.where(rng > rng_threshold)[0]
     for i in range(_buffer*-1, _buffer+1):
         ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
     # make sure that the indices do not exceed array dimensions
@@ -332,7 +370,8 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None):
 
     if np.any(np.isinf(pcov)):
         # No convergence
-        return None         #### THis should RAISE an error instead
+        # TODO:
+        return None         # This should RAISE an error instead
 
     return lambda x: func(x,*popt)
 
@@ -368,7 +407,8 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
     """
 
     # +/- temperature difference (deg C) at which to trigger warning
-    if Twarn is None: Twarn = 5
+    if not Twarn:
+        Twarn = 5
 
     # Calculate resistance. Make 64bit so can cope with I -> 0
     R = np.divide(V,I,dtype='f8')
@@ -377,7 +417,7 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
     Tcalc = 100 + (R-R100) * dTdR
     Tdiff = Tcalc - Tset
 
-    return np.ma.masked_outside(Tdiff,-abs(Twarn),abs(Twarn))
+    return np.ma.masked_outside(Tdiff, -abs(Twarn), abs(Twarn))
 
 
 def energy_liq(ps):
@@ -391,7 +431,6 @@ def energy_liq(ps):
     :type ps: float
     :returns Tevap: Temperature of evaporation (deg C)
     :rtype Tevap: float
-
     :returns Levap: Latent heat of evaporation (cal/g)
     :rtype: float
     """
@@ -419,12 +458,18 @@ def glaciated():
     Special case calculation of LWC and TWC for fully glaciated cloud.
 
     """
+    # TODO:
+    pass
+
 
 def liquid():
     """
     Special case calculation of LWC and TWC for warm liquid cloud.
 
     """
+    # TODO:
+    pass
+
 
 def calc_L(T,ps):
     """
@@ -783,21 +828,13 @@ class calc_sea(cal_base):
         """
         We catch
         """
-        # TODO: Move those values to the flight-constant file
-        #CALSEA083LENGTH = 22.8090
-        #CALSEA083WIDTH = 2.1080
-        #CALSEA021LENGTH = 21.3110
-        #CALSEA021WIDTH = 0.5330
-        #CALSEATWCLENGTH = 23.3170
-        #CALSEATWCWIDTH = 2.1080
         # Pull the sensor element dimensions from the c0 message
         CALSEA083LENGTH = float(self.dataset['SEAPROBE_083_l'][0])
-        CALSEA083WIDTH = float(self.dataset['SEAPROBE_083_w'])
-        CALSEA021LENGTH = float(self.dataset['SEAPROBE_021_l'])
-        CALSEA021WIDTH = float(self.dataset['SEAPROBE_021_w'])
-        CALSEATWCLENGTH = float(self.dataset['SEAPROBE_TWC_l'])
-        CALSEATWCWIDTH = float(self.dataset['SEAPROBE_TWC_w'])
-
+        CALSEA083WIDTH = float(self.dataset['SEAPROBE_083_w'][0])
+        CALSEA021LENGTH = float(self.dataset['SEAPROBE_021_l'][0])
+        CALSEA021WIDTH = float(self.dataset['SEAPROBE_021_w'][0])
+        CALSEATWCLENGTH = float(self.dataset['SEAPROBE_TWC_l'][0])
+        CALSEATWCWIDTH = float(self.dataset['SEAPROBE_TWC_w'][0])
 
         match = self.dataset.matchtimes(self.input_names)
         # The frequency of the SEAPROBE measurement can be set by the user
@@ -811,6 +848,7 @@ class calc_sea(cal_base):
         ps = ps.interp(frequency=freq)
         tat = self.dataset['TAT_DI_R'].data.ismatch(match)
         tat = tat.interp(frequency=freq)
+        # The seaprobe functions work in degC
         tat -= 273.15
 
         sea_twc_a = self.dataset['SEAPROBE_TWC_A'].data.ismatch(match)
@@ -839,9 +877,15 @@ class calc_sea(cal_base):
 
         cloud_mask = get_cloud_mask(sea_twc_p_sense_total)
 
-        sea_twc_p_sense_dry = dryair_calc(sea_twc_p_sense_total, tat, sea_twc_t, ps, tas, cloud_mask=cloud_mask)
-        sea_021_p_sense_dry = dryair_calc(sea_021_p_sense_total, tat, sea_021_t, ps, tas, cloud_mask=cloud_mask)
-        sea_083_p_sense_dry = dryair_calc(sea_083_p_sense_total, tat, sea_083_t, ps, tas, cloud_mask=cloud_mask)
+        sea_twc_p_sense_dry = dryair_calc(sea_twc_p_sense_total, tat,
+                                          sea_twc_t, ps, tas,
+                                          cloud_mask=cloud_mask)
+        sea_021_p_sense_dry = dryair_calc(sea_021_p_sense_total, tat,
+                                          sea_021_t, ps, tas,
+                                          cloud_mask=cloud_mask)
+        sea_083_p_sense_dry = dryair_calc(sea_083_p_sense_total, tat,
+                                          sea_083_t, ps, tas,
+                                          cloud_mask=cloud_mask)
 
         sea_twc_p_sense_wet = sea_twc_p_sense_total-sea_twc_p_sense_dry
         sea_021_p_sense_wet = sea_021_p_sense_total-sea_021_p_sense_dry
@@ -861,14 +905,11 @@ class calc_sea(cal_base):
         lwc_083 = calc_water_content(sea_083_p_sense_wet, Levap, Tevap,
                                      tat, tas,
                                      CALSEA083LENGTH, CALSEA083WIDTH)
-        #twc = (sea_twc_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEATWCLENGTH*CALSEATWCWIDTH)
-        #lwc_021 = (sea_021_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA021LENGTH*CALSEA021WIDTH)
-        #lwc_083 = (sea_083_p_sense_wet*2.389E5)/((Levap+1.0*(Tevap-tat))*tas*CALSEA083LENGTH*CALSEA083WIDTH)
 
         # TODO: More flagging needs to be done
         flag = np.zeros(twc.shape, dtype=np.int8)
 
-        flag[wow_ind != 0, :] = 3  # flag all 3 when aircraft on ground
+        flag[wow_ind != 0, :] = 3  # flag everything `3` when ARA on ground
 
         self.outputs[0].data = flagged_data(twc, match, flag)
         self.outputs[1].data = flagged_data(lwc_021, match, flag)
