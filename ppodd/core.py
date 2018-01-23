@@ -691,7 +691,7 @@ class timed_data(np.ndarray):
 class flagged_data(timed_data):
     """ Timed data with associated flag information """
     def __new__(cls,data,arg1,arg2=None,maxflag=3,fill_value=-9999.0):
-        if(arg2 == None):
+        if arg2 is None:
             obj = data.view(flagged_data)
             obj.flag = np.asarray( arg1 )
         else:
