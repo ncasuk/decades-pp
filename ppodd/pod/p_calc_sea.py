@@ -7,7 +7,7 @@ content, ice water content, and total water content. Included are
 functions for calculating dry air offsets, element efficiencies, and
 housekeeping checks.
 
-Calculation process is as follows;
+Calculation process is as follows:
 * Calculate total element power
   * In calc_sense_wc(), derived from raw voltage and currents
 * Subtraction of dry power to obtain wet element power (1)
@@ -22,7 +22,7 @@ Calculation process is as follows;
    compared.
 * Addition of IWC and LWC to obtain TWC
 
-Additional calculations;
+Additional calculations:
 1. Determination of dry power from compensation element after calibration
 2. Determination of evaporative temperature, latent heat, and specific heats
 3. Various element efficiencies need to be calculated for this
@@ -113,7 +113,47 @@ J_to_cal = 1./cal_to_J
 Psense_dry_tmp = lambda P: P
 
 
-def get_cloud_mask_from_twc_temperature(twc_temperature, rng_threshold=0.6, min_val=139.0, max_val=141.0, _buffer=3):
+def get_instr_fault_mask(twc_t, _083_t, _021_t,
+                         temp_limits=(100, 180), verbose=True):
+    """
+    Detect SEAPROBE instrument issues. The temperature measurements are checked
+    if they are in a defined range. The result is a boolean array, that
+    defines the instrument status for one second. 'True' indicates an
+    instrument issue.
+
+    :param float twc_t: Total Water Sensor Measurements (degC)
+    :param float _083_t: Temperature from the 083 sensor (degC)
+    :param float _021_t: Temperature from the 021 sensor (degC)
+    :return: instrument mask
+    :rtype: np.array of np.bool type
+
+    .. todo::
+        So far this routine only uses temperature to determine if it
+        is working correctly. More failure conditions might be added in the
+        future.
+    """
+    mask = np.zeros(twc_t.shape, dtype=np.bool)
+    ix = np.where((np.min(twc_t, axis=1) < temp_limits[0]) |
+                  (np.max(twc_t, axis=1) > temp_limits[1]) |
+                  (np.min(_083_t, axis=1) < temp_limits[0]) |
+                  (np.max(_083_t, axis=1) > temp_limits[1]) |
+                  (np.min(_021_t, axis=1) < temp_limits[0]) |
+                  (np.max(_021_t, axis=1) > temp_limits[1]))[0]
+    mask[ix] = True
+    if verbose:
+        if ix.size != 0:
+            perc_flagged = float(ix.size)/float(mask.size) * 100.
+        else:
+            perc_flagged = 0.
+        sys.stdout.write('Percentage of data flagged due to instrument issues: %.2f (n=%i)\n' % (perc_flagged, ix.size))
+    return np.max(mask, axis=1)
+
+
+def get_cloud_mask_from_twc_temperature(twc_temperature,
+                                        rng_threshold=0.6,
+                                        min_val=139.0,
+                                        max_val=141.0,
+                                        _buffer=3):
     """
     Function determines wheater the measurement is taken in or outside of
     cloud. It uses the range (max-min) of values within a second assuming that
@@ -132,11 +172,12 @@ def get_cloud_mask_from_twc_temperature(twc_temperature, rng_threshold=0.6, min_
     :type _buffer: int
     :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
 
-    """
-    # TODO: function currently only works on multidimensional arrays
-    # if the twc_power array is one dimensional the range calculations won't
-    # work
+    .. todo::
+        function currently only works on multidimensional arrays
+        if the twc_power array is one dimensional the range calculations
+        won't work
 
+    """
     # get number of rows
     n = twc_temperature.shape[0]
     # init cloud mask
@@ -147,7 +188,8 @@ def get_cloud_mask_from_twc_temperature(twc_temperature, rng_threshold=0.6, min_
         ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
     # make sure that the indices do not exceed array dimensions
     ix = np.clip(ix, 0, n-1)
-    cloud_mask[ix] = True
+    if ix.size != 0:
+        cloud_mask[ix] = True
     return cloud_mask
 
 
@@ -197,22 +239,21 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.25, altr_atol=1.0):
     straight through so slr_mask can be merged with SEA data. Should
     interpolate and merge be done to hdgr and altr before get_slr_mask called?
 
-    :param hdgr: Rate of heading change (deg/s)
-    :type hdgr: float
-    :param altr: Rate of altitude change (distance/s). Distance units
+    :param float hdgr: Rate of heading change (deg/s)
+    :param float altr: Rate of altitude change (distance/s). Distance units
         may be imperial or metric
-    :param hdgr_atol: Absolute tolerance for determining acceptable rate
+    :param float hdgr_atol: Absolute tolerance for determining acceptable rate
         of change of heading. Default is 0.1 deg/s
-    :type hdgr: float
-    :param altr_atol: Absolute tolerance for determining acceptable rate
+    :param float altr_atol: Absolute tolerance for determining acceptable rate
         of change of altitude (distance). Default is 0.2 distance/s.
-    :type altr_atol: float
 
     :returns: dt: Datetime stamp of slr_mask.
     :returns: slr_mask: boolean array. `True` means SLR, `False` means in
         climb or turn.
 
-    NOTE: This means that the masking is the inverse of cloud_mask. Change?
+    .. note::
+
+        This means that the masking is the inverse of cloud_mask. Change?
     """
 
     # https://stackoverflow.com/questions/13728392/moving-average-or-running-mean
@@ -227,13 +268,9 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.25, altr_atol=1.0):
     # TODO: Cope with dt arrays that are not 1Hz
     hdgr_win = 3
     altr_win = 3
-
     # init slr mask
     n = hdgr.shape[0]
     slr_mask = np.zeros((n,), dtype=np.bool)
-
-    #hdgr_mask = np.isclose(moving_avg(np.max(np.abs(hdgr), axis=1), hdgr_win), 0.0, atol=hdgr_atol,rtol=0)
-    #altr_mask = np.isclose(moving_avg(np.max(np.abs(altr), axis=1), altr_win), 0.0, atol=altr_atol,rtol=0)
     hdgr_mask = np.isclose(np.max(np.abs(hdgr), axis=1), 0.0, atol=hdgr_atol,rtol=0)
     altr_mask = np.isclose(np.max(np.abs(altr), axis=1), 0.0, atol=altr_atol,rtol=0)
     slr_mask = np.logical_and(hdgr_mask, altr_mask)
@@ -440,15 +477,15 @@ def energy_liq(ps):
 
     # Calculate evaporative temperature of liquid water with pressure
     Tevap = 32.16 + \
-            0.1801 * ps - \
-            2.391e-4 * ps**2. + \
-            1.785e-7 * ps**3. - \
-            5.19e-11 * ps**4.
+           ( 0.1801 * ps) - \
+            (2.391e-4 * ps**2.) + \
+            (1.785e-7 * ps**3.) - \
+            (5.19e-11 * ps**4.)
 
     # Calculate latent heat of evaporation (cal/g)
     Levap = 594.4 - \
-            0.484 * Tevap - \
-            7.0e-4 * Tevap**2.
+            (0.484 * Tevap) - \
+            (7.0e-4 * Tevap**2.)
 
     return Tevap, Levap
 
@@ -494,9 +531,11 @@ def calc_L(T,ps):
         C_ice       C_ice           Specific heat of ice
         L_ice       L_ice           Latent heat of fusion
 
-    Notes:  1cal/gK == 4.184J/gK
-            1J == 0.239 cal
-            Specific heat (cal/gK) is same as heat capacity (J/molK)
+    .. note::
+
+       1cal/gK == 4.184J/gK
+       1J == 0.239 cal
+       Specific heat (cal/gK) is same as heat capacity (J/molK)
 
     :param T: Ambient temperature (degree C)
     :type T:  float
@@ -543,49 +582,35 @@ def calc_L(T,ps):
     return SpecEnergy_liq, SpecEnergy_ice
 
 
-def calc_sense_wc():
+def calc_sense_wc(Psense, Levap, Tevap, tat, tas, sens_dim):
     """
     Calculate the sense element-measured water content (either LWC or IWC).
 
     Use equation as given on pages 61,65 of the WCM-2000 manual. This is
     the same as eqs 3,4 from Korolev 2003 but for calories instead of joules.
 
-    NOTE: The same L*liq is used for both liquid and total water contents.
-    This is fine as the difference between liquid and ice is accounted for
-    by including the appropriate efficiencies in calc_lwc() and calc_iwc().
+    .. note::
 
-    :param Vsense: Sense element voltage (V)
-    :type Vsense:  float
-    :param Isense: Sense element current (A)
-    :type Isense: float
-    :param Vcomp: Compensation element voltage (V)
-    :type Vcomp:  float
-    :param Icomp: Compensation element current (A)
-    :type Icomp: float
-    :param Lsense: Length of sense element (mm)
-    :type Lsense: float
-    :param Wsense: Width of sense element (mm)
-    :type Wsense: float
-    :param L: Liquid specific energy of evaporation (cal/g)
-    :type L: float
+       The same L*liq is used for both liquid and total water contents.
+       This is fine as the difference between liquid and ice is accounted for
+       by including the appropriate efficiencies in calc_lwc() and calc_iwc().
 
+    :param float Psense: Sense element power (W)
+    :param float Levap:
+    :param float Tevap:
+    :param float tat: True air temperature (degC)
+    :param float tas: True air speed (m s-1)
+    :param tuple sens_dim: (length, width) both in mm
     :returns W_meas: Water content (liquid or total) as measured by the
         sense element (g/m**3)
     :rtype: float
     """
 
-    # Calculate total sense power (W)
-    Psense_tot = Vsense * Isense
-    Pcomp = Vcomp * Icomp
-
     # Calculate wet power by subtracting dry air power term
     # TODO: Where Psense_dry_tmp() is the placeholder function to derive Psens_dry from Pcomp
-    Psense_wet = Psense_tot - Psense_dry_tmp(Pcomp)
-
-    # Calculate measured water content ignoring any non-ideal efficiencies
-    W_meas = Psense_wet / (tas * Wsense * Lsense * L)
-
-    return W_meas
+    #Psense_wet = Psense_tot - Psense_dry_tmp(Pcomp)
+    lwc = (Psense * 2.389*10**5) / ((Levap + (Tevap-tat))*tas*sens_dim[0]*sens_dim[1])
+    return lwc
 
 
 def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
@@ -593,7 +618,6 @@ def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
     Calculate liquid water content from the measured LWC and TWC.
 
     """
-
 
     lwc = np.divide(beta_iceL * W_twc - k*e_iceT * W_lwc,
                     beta_iceL * e_liqT - e_liqL * k*e_iceT)
@@ -607,7 +631,6 @@ def calc_iwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
 
     iwc = np.divide(e_liqL * W_twc - e_liqT * W_lwc,
                     e_liqL * k*e_iceT - beta_iceL * e_liqT)
-
 
 
 def calc_wc():
@@ -651,7 +674,7 @@ def calc_wc():
     W_{\scriptsize\text{ice}} = \frac{\epsilon_{\scriptsize\text{liqL}} W_{\scriptsize\text{TWC}} - \epsilon_{\scriptsize\text{liqT}} W_{\scriptsize\text{LWC}}}
         {\epsilon_{\scriptsize\text{liqL}} k \epsilon_{\scriptsize\text{iceT}} - \beta \epsilon_{\scriptsize\text{liqT}}}
 
-    Note that for the SEA WCM-2000 there are two LWC sensors, the 083 and 021.
+    .. note:: Note that for the SEA WCM-2000 there are two LWC sensors, the 083 and 021.
 
     """
 
@@ -732,7 +755,6 @@ def find_efficiencies(W_twc,W_083,W_021,
     else:
         liq = np.ma.make_mask(liq_mask)
         ice = np.ma.make_mask(ice_mask)
-
 
     # Find efficiencies in glaciated clouds
     def ice_fit(Wvars,fitvars):
