@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 """
+Processing module for the Nevzorov instrument. The module handles the data from
+both vane types: The old original vane with two references and the new design
+that has only one reference collector. The distinction is done in the flight
+constant file using the variable ``VANETYPE`` which can be set to either
+``1T1L2R`` or ``1T2L1R``.
+
 :FLAGGING:
 
   0. Data OK
@@ -26,21 +32,23 @@ from ppodd.core import cal_base, flagged_data, parameter
 import numpy as np
 
 
-def get_no_cloud_mask(twc_col_p, wow):
+def get_no_cloud_mask(twc_col_p, wow, _buffer=3):
     """
     Create a mask where times in cloud are indicated by zero
     and time outside of cloud (*no* total water) are indicated by a
     one.
     The way we determine whether cloud or not is present is looking at the
-    range (max-min) of the power reading of the total water collector. The
-    variance in a cloud should be much higher than outside.
+    range (max-min) of the power reading of the total water collector from the
+    Nevzorov instrument. The range inside a cloud should be much higher than
+    outside.
 
     :param twc_col_p: Total water Collector power (W)
-    :type twc_col_p: numpy.array
+    :type twc_col_p: numpy.array of floats
     :param wow: Weight on wheels indicator ('1' aircraft on the ground)
     :type wow: numpy.array
-    :returns: mask
-    :rtype: np.array
+    :param int _buffer: add time buffer to the cloud detection (in secs)
+    :returns: maske ('0' cloud; '1' no cloud
+    :rtype: numpy.array
 
     """
     # set range limits for a one second measurement
@@ -54,11 +62,12 @@ def get_no_cloud_mask(twc_col_p, wow):
          np.max(wow == 0, axis=1)] = 1
     # add two second time buffer, so that all data two seconds before
     # and after the estimated mask are also flagged as in cloud
-    mask = np.min(np.vstack([mask,
-                             np.roll(mask, -2),
-                             np.roll(mask, -1),
-                             np.roll(mask, 1),
-                             np.roll(mask, 2)]), axis=0)
+    ix = np.where(mask == 0)[0]
+    for i in range(_buffer*-1, _buffer+1):
+        ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
+    # make sure that the indices do not exceed array dimensions
+    ix = np.clip(ix, 0, len(mask)-1)
+    mask[ix] = 0
     return mask
 
 
@@ -104,9 +113,9 @@ def get_fitted_k(col_p, ref_p, ias, ps, no_cloud_mask, k):
 class rio_nevzorov_1t2l1r(cal_base):
     """
     Processing module for the  Nevzorov vane that has:
-      1x Total Water sensor (TWC)
-      2x Liquid Water sensors (LWC1 & LWC2)
-      1x reference
+      | 1x Total Water sensor (TWC)
+      | 2x Liquid Water sensors (LWC1 & LWC2)
+      | 1x reference
 
     """
 
@@ -117,7 +126,6 @@ class rio_nevzorov_1t2l1r(cal_base):
 
         :param dataset: dataset for flight
         :type dataset: ppodd.core.decades_dataset
-
         """
 
         self.input_names = ['CORCON_nv_lwc_vcol',
@@ -289,9 +297,9 @@ class rio_nevzorov_1t2l1r(cal_base):
 class rio_nevzorov_1t1l2r(cal_base):
     """
     Processing module for the vane that has
-      1x Total Water sensor
-      1x Liquid Water sensors
-      2x Reference sensors
+      | 1x Total Water sensor
+      | 1x Liquid Water sensors
+      | 2x Reference sensors
 
     """
 
@@ -383,9 +391,9 @@ class rio_nevzorov_1t1l2r(cal_base):
             for m in measurements:
                 raw = self.dataset['CORCON_nv_%s_%s' % (i, m)].ismatch(t)
                 cons = self.dataset[('c%s%s' % (i, m)).upper()]
-                #Calibrate to volts or current
+                # Calibrate to volts or current
                 cal['%s%s' % (i, m)] = (cons[0]+cons[1]*raw)*cons[2]
-            #Sensor power (W).
+            # Sensor power (W).
             col_p = cal['%sicol' % i]*cal['%svcol' % i]  # V*I; collector
             ref_p = cal['%siref' % i]*cal['%svref' % i]  # V*I; reference
             if i.lower() == 'twc':
@@ -427,11 +435,11 @@ class rio_nevzorov_1t1l2r(cal_base):
 
 class rio_nevzorov(cal_base):
     """
-    Main Nevzorov processing modules Calls the appropriate module depending
-    on the vanetype that was fitted on the flight.
+    Main Nevzorov processing modules, which calls the appropriate module
+    depending on the vanetype that was fitted on the flight.
 
-    The fitted vanetype is defined in the flight constant file with using the
-    constant 'VANETYPE'.
+    The fitted vanetype is defined in the flight constant file with the
+    constant name 'VANETYPE'.
     """
 
     def __init__(self, dataset):
