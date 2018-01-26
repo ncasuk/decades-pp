@@ -32,7 +32,7 @@ FORTRAN routine C_TURB
     centre-port pressure is then used to calculate TAS
     (currently only the dry value) using::
 
-    TAS = Corrtn.fac * 340.294*M*SQRT(T/288.15)
+      TAS = Corrtn.fac * 340.294*M*SQRT(T/288.15)
 
 :VERSION:
     1.01   Phil Brown 24/5/2004

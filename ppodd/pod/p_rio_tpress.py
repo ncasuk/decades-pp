@@ -1,4 +1,5 @@
 from ppodd.core import *
+
 class rio_tpress(fort_cal):
     """
 FORTRAN routine C_TPRESS
@@ -22,6 +23,7 @@ FORTRAN routine C_TPRESS
     2. Apply the calibration constants
     3. Check the results for being within acceptable values.
     4. Set data flag bits (16+17) 0: Good data
+    
       1. Data of lower quality
       2. Probably faulty, exceed limits
       3. Data absent or invalid.
@@ -41,23 +43,25 @@ FORTRAN routine C_TPRESS
 
 :ARGUMENTS:
   :Inputs:
-  | para 215 TBP1 32 Hz Turbulence probe centre port
-  | para 216 TBP2 32 Hz Turbulence probe attack ports
-  | para 217 TBP3 32 Hz Turbulence probe sideslip ports
-  | para 218 TBP4 32 Hz Turbulence probe attack check
-  | para 219 TBP5 32 Hz Turbulence probe sideslip check
+    | para 215 TBP1 32 Hz Turbulence probe centre port
+    | para 216 TBP2 32 Hz Turbulence probe attack ports
+    | para 217 TBP3 32 Hz Turbulence probe sideslip ports
+    | para 218 TBP4 32 Hz Turbulence probe attack check
+    | para 219 TBP5 32 Hz Turbulence probe sideslip check
+
   :Constants:
-  | RCONST(1 to 4) Para 215 cal constants X0 to X3
-  | RCONST(5 to 8) Para 216 cal constants X0 to X3
-  | RCONST(9 to 12) Para 217 cal constants X0 to X3
-  | RCONST(13 to 14) Para 218 cal constants X0 to X1
-  | RCONST(15 to 16) Para 219 cal constants X0 to X1
+    | RCONST(1 to 4) Para 215 cal constants X0 to X3
+    | RCONST(5 to 8) Para 216 cal constants X0 to X3
+    | RCONST(9 to 12) Para 217 cal constants X0 to X3
+    | RCONST(13 to 14) Para 218 cal constants X0 to X1
+    | RCONST(15 to 16) Para 219 cal constants X0 to X1
+
   :Outputs:
-  | para 773 TBP0 mb 32 Hz Centre pressure
-  | para 774 TBPA mb 32 Hz Attack pressure
-  | para 775 TBPB mb 32 Hz Sideslip pressure
-  | para 776 TBPC mb 32 Hz Attack check pressure
-  | para 777 TBPD mb 32 Hz Sideslip check pressure
+    | para 773 TBP0 mb 32 Hz Centre pressure
+    | para 774 TBPA mb 32 Hz Attack pressure
+    | para 775 TBPB mb 32 Hz Sideslip pressure
+    | para 776 TBPC mb 32 Hz Attack check pressure
+    | para 777 TBPD mb 32 Hz Sideslip check pressure
 
 :SUBPROGRAMS:
   ISETFLG 
@@ -86,8 +90,8 @@ FORTRAN routine C_TPRESS
   so all the subsequent parameters calculated n C_TURB.for end up with a
   flag-3 saetting. I reckon a better value would be 180.0 hPa."
 
-
 """
+
     def __init__(self,dataset):
         self.input_names=['CALTP1', 'CALTP2', 'CALTP3', 'CALTP4', 'CALTP5', 
                           'CORCON_tp_p0_s10', 'CORCON_tp_up_down', 'CORCON_tp_left_right', 'CORCON_tp_top_s10', 'CORCON_tp_right_s10']

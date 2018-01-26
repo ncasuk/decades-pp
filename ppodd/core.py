@@ -2,10 +2,10 @@
 Created on 4 Sep 2013
 
 ppodd.core includes all the base classes for dealing with timed aircraft data
-        
-    
-    
-            
+
+
+
+
 
 @author: Dave Tiddeman
 '''
@@ -57,7 +57,7 @@ class file_parameter(constants_parameter):
     def __getslice__(self,*args):
         ppodd.logger.debug("Can't slice set of files")
         return self.data
-        
+
     def __getitem__(self,*args):
         ppodd.logger.debug("Can't index set of files")
         return self.data
@@ -98,7 +98,7 @@ class parameter(constants_parameter):
         except KeyError:
             name=self.name
         self.data.plot(label=name,**kwargs)
-    
+
 class decades_dataset(OrderedDict):
     """An ordered dictionary of data, constants, attribute or file parameters
         and a dictionary of processing modules
@@ -123,6 +123,8 @@ class decades_dataset(OrderedDict):
         self.add_para('Attribute','Coordinates','LON_GIN LAT_GIN ALT_GIN Time')
         self.add_para('Attribute','references','http://www.faam.ac.uk')
         self.add_para('Attribute','institution','FAAM')
+        self.add_para('Attribute','SoftwareRepository','https://github.com/ncasuk/decades-pp')
+        self.add_para('Attribute','SoftwareVersion',ppodd.version)
         self.add_para('Attribute','format_version','1.0')
         self.add_para('Attribute','revision', 0)
         self.add_para('Data','SECS',long_name='Seconds past midnight',number=515,
@@ -133,7 +135,7 @@ class decades_dataset(OrderedDict):
         if 'process' in kwargs:
             if(kwargs['process']):
                 self.process()
-        
+
     def __repr__(self):
         return 'Decades dataset '+repr(self.keys())
 
@@ -147,7 +149,7 @@ class decades_dataset(OrderedDict):
                 self[name]=file_parameter(name,args)
         else:
             self[name]=constants_parameter(name,*args,paratype=paratype)
-        
+
 
     def getfiles(self):
         """Get all the specified files as a list of tuples"""
@@ -182,13 +184,13 @@ class decades_dataset(OrderedDict):
                     z.close()
             elif(os.path.isdir(df.filename)):
                 files+=os.listdir(df.filename)
-            
+
         return fltno_date(files,**kwargs)
 
     def DecadesFile(self,*args,**kwargs):
         """A decades file object for setting file types etc"""
         return decades_dataset.decades_file(self,*args,**kwargs)
-        
+
 
     class decades_file(object):
         """A decades file class for setting file types etc"""
@@ -201,17 +203,17 @@ class decades_dataset(OrderedDict):
             self.filetypes=dataset.filetypes
             self.filetype=filetype
             self.filename=filename
-            
+
         def __getfilename__(self):
             return self.filetypes[self.filetype].fixfilename(self.__file__)
 
         def __setfilename__(self,val):
             self.__file__=val
-        
+
         filename=property(__getfilename__,__setfilename__)
-        
+
         def astuple(self):
-            return (self.filename,self.filetype)    
+            return (self.filename,self.filetype)
 
     def guesstype(self,filen):
         ans='FOLDER'
@@ -275,8 +277,8 @@ class decades_dataset(OrderedDict):
             pass
         return ans
 
-    attributes=property(__getatts__) 
-             
+    attributes=property(__getatts__)
+
 
     def add_file(self,filename,filetype=None):
         """ Add a file to the dataset - the filetype tells it how to read in but doesnt do the reading """
@@ -287,7 +289,7 @@ class decades_dataset(OrderedDict):
             raise ValueError('No known reader for filetype %s' % df.filetype)
 
     def matchtimes(self,input_names,paras=None,notparas=None):
-        """ Finding matching times for a list of inputs """  
+        """ Finding matching times for a list of inputs """
         if paras is None:
             paras=[]
         if notparas is None:
@@ -306,7 +308,7 @@ class decades_dataset(OrderedDict):
                     if(p.name!='SECS'):
                         match=timestamp([])
             except AttributeError:
-                # If there is no frequency add to notparas list (probably constant) 
+                # If there is no frequency add to notparas list (probably constant)
                 notparas.append(p)
         return match
 
@@ -321,7 +323,7 @@ class decades_dataset(OrderedDict):
             if y not in self.modules:
                 ppodd.logger.warning('%s module not in dataset' % y)
 
-        
+
     def __getnocals__(self):
         """Which calibration modules to avoid"""
         nocals=[]
@@ -329,7 +331,7 @@ class decades_dataset(OrderedDict):
             if self.modules[m].runstate=='ignore':
                 nocals.append(m)
         return nocals
-        
+
     nocals=property(__getnocals__,__setnocals__)
 
     def __setcals__(self,x):
@@ -342,7 +344,7 @@ class decades_dataset(OrderedDict):
             if y not in self.modules:
                 ppodd.logger.warning('%s module not in dataset' % y)
 
-        
+
     def __getcals__(self):
         """Which calibration modules to use"""
         cals=[]
@@ -350,9 +352,9 @@ class decades_dataset(OrderedDict):
             if self.modules[m].runstate!='ignore':
                 cals.append(m)
         return cals
-        
+
     cals=property(__getcals__,__setcals__)
-    
+
     def getdata(self,*args):
         if(not args):
             self.process()
@@ -385,9 +387,9 @@ class decades_dataset(OrderedDict):
         return d
 
 
- 
+
     def process(self):
-        """ Sorts calibrate modules - so they are run in order of availability of their inputs 
+        """ Sorts calibrate modules - so they are run in order of availability of their inputs
         and do the processing """
         finished=False
         while(not finished):
@@ -418,7 +420,7 @@ def date2time(fromdate):
     # calculations because it uses the UTC time zone. The time module uses the
     # local time zone of the computer, which can cause issues
     #
-    # Removed the calendar references and the time module use only np.datetime64 
+    # Removed the calendar references and the time module use only np.datetime64
     l=len(fromdate)
     try:
         if(l==3):
@@ -433,7 +435,7 @@ def date2time(fromdate):
 
 class timestamp(np.ndarray):
     """ A class for time stamping data     --
-    
+
     Could at some time be replaced by something from pandas which handles timestamps
     """
     def __new__(cls,times=None,adddate=None,dtype='datetime64[s]'):
@@ -447,13 +449,13 @@ class timestamp(np.ndarray):
                 tim=tim+date2time(adddate)
             except (TypeError):
                 try:
-                    tim=tim+adddate       
+                    tim=tim+adddate
                 except (TypeError,ValueError):
                     raise Exception('Incompatible date for conversion')
         obj=tim.view(cls)
         return obj
 
-        
+
     def at_frequency(self,frequency=None):
         """ Resample at a different frequency """
         if frequency is not None:
@@ -495,33 +497,33 @@ class timestamp(np.ndarray):
             ans=ans.astype(int)*np.array(1,dtype=ans.dtype)/np.timedelta64(1,'s')
         else:
             ans=ans.astype('timedelta64[s]').astype(int)
-        return ans      
+        return ans
 
     def secondsarray(self):
         return np.unique(self.astype('datetime64[s]')) # .astype(self.dtype)
-        
+
 
 class timed_data(np.ndarray):
     """
     A timed parameter must be able to...
-    
+
     find matched times ( from two ( or more ) parameters )
-    extract data from matched times 
+    extract data from matched times
     put data onto a contiguous time frame / masked arrays
-    
-    
+
+
     keep it simple...
-    
+
     All times ( except GIN ) are whole seconds with multiple data points per second, same as output data, but output must be contiguous
-    
+
     The difficulty is going from data which isn't available every second to contiguous data and or vice versa
-    
+
     fortran routines don't like missing data
-    
+
     --
-    
+
     Could at some time be replaced by something from pandas which handles timestamps
-    
+
     """
     def __new__(cls,data,times):
         data = np.asarray(data)
@@ -534,16 +536,17 @@ class timed_data(np.ndarray):
         #if (times!=None):
         if hasattr(times, '__iter__'):
             if(len(times)==len(data)):
-                obj.times=times               
+                obj.times=times
         #if(obj.times==None):
         if not hasattr(obj.times, '__iter__'):
             raise Exception('No times')
-        else:                    
+        else:
             return obj
     def __array_finalize__(self, obj):
         if obj is None: return
         self.times = getattr(obj, 'times', None)
         self.frequency = getattr(obj, 'frequency', None)
+
     def _getrawdata(self):
         return self.view(np.ndarray)
     raw_data=property(_getrawdata)
@@ -642,7 +645,7 @@ class timed_data(np.ndarray):
             arr=self.times
         if frequency is None:
             frequency=self.frequency
-        
+
         try:
             if(indexes1d):
                 return np.squeeze(np.resize(np.array(arr),(frequency,len(arr))).T)*frequency+np.arange(frequency)
@@ -650,8 +653,8 @@ class timed_data(np.ndarray):
                 return np.squeeze(np.resize(np.array(arr),(frequency,len(arr))).T)
         except:
             return arr
-        
-        
+
+
     def asmasked(self,start=None,end=None,mask=None,fill_value=None,data=None,returntimes=False):
         """Only for 2d 1Hz times"""
         if data is None:
@@ -678,8 +681,8 @@ class timed_data(np.ndarray):
             times=t1.at_frequency(self.frequency)
             d=(d,times)
         return d
-        
-                
+
+
     def get1Hz(self,angle=False):
         if(self.frequency>1):
             times=self.times
@@ -692,14 +695,14 @@ class timed_data(np.ndarray):
             return timed_data(data,times)
         else:
             return self
-        
+
     def plot(self,**kwargs):
         plt.plot(self.ravel().times,self.ravel(),**kwargs)
 
 class flagged_data(timed_data):
     """ Timed data with associated flag information """
     def __new__(cls,data,arg1,arg2=None,maxflag=3,fill_value=-9999.0):
-        if(arg2 == None):
+        if arg2 is None:
             obj = data.view(flagged_data)
             obj.flag = np.asarray( arg1 )
         else:
@@ -725,7 +728,7 @@ class flagged_data(timed_data):
         return result
 
     def interp(self,times=None,frequency=None):
-        result=timed_data.interp(self,times,frequency)     
+        result=timed_data.interp(self,times,frequency)
         if(frequency):
             times=self.times.at_frequency(frequency)
         s=times.shape
@@ -740,14 +743,14 @@ class flagged_data(timed_data):
         return result
     def __getitem__(self,index):
         """ Return timestamped result
-            1d ( whole second ) time 
+            1d ( whole second ) time
         """
         result=timed_data.__getitem__(self,index)
         if(type(result)==type(self)):
             result.flag=self.flag[index]
         return result
     def __setitem__(self,index,value):
-        """ 
+        """
         """
         timed_data.__setitem__(self,index,value)
         try:
@@ -811,7 +814,7 @@ class cal_base(object):
         return (len(self.inputs)==len(self.input_names))
 
     def getoutputnames(self):
-        return [o.name for o in self.outputs]      
+        return [o.name for o in self.outputs]
 
     def run(self):
         if(self.runstate=='ready'):
@@ -830,7 +833,7 @@ class cal_base(object):
                     self.runstate='fail'
             else:
                 self.runstate='fail'
-                
+
     def addhistory(self):
         if(len(self.outputs)>0):
             self.dataset.history+='\n%s\n  Inputs=%s ,\n  Outputs=%s \n\n' % (self.name,
@@ -851,8 +854,8 @@ class cal_base(object):
             self.history+='\n\nOUTPUTS\n'
             for o in self.outputs:
                 self.history+=repr(o)+','+str(o)+'\n'
-                
-                
+
+
     def __repr__(self):
         return self.name
 
@@ -864,7 +867,7 @@ class file_read(cal_base):
         cal_base.__init__(self,dataset)
         self.patterns=getattr(self,'patterns',('.*','*'))
         self.dataset.filetypes[self.input_names[0]]=self
-            
+
     def getinput(self):
         ans=cal_base.getinput(self)
         try:
@@ -881,7 +884,7 @@ class file_read(cal_base):
             if fnmatch.fnmatch(os.path.basename(filen),patt):
                 ans=True
         return ans
-        
+
     def parse_filenames(self,files):
         from ppodd.util import fltno_date
         import dateutil.parser
@@ -891,23 +894,23 @@ class file_read(cal_base):
         if('DATE' not in self.dataset and date!='????????'):
             dt=dateutil.parser.parse(date)
             self.dataset['DATE']=constants_parameter('DATE',[dt.day,dt.month,dt.year])
- 
-    
+
+
     def process(self):
         for filename in self.inputs[self.input_names[0]].data:
             try:
                 self.readfile(filename)
             except IOError as IOE:
-                ppodd.logger.warning(IOE)  
+                ppodd.logger.warning(IOE)
 
     def fixfilename(self,filename):
         return filename
 
-    def __repr__(self):        
+    def __repr__(self):
         return self.name+' reads '+self.input_names[0]+' files'
-                
-        
-             
+
+
+
 class fort_cal(cal_base):
     """ Base class for calibration modules that call legacy fortran """
     def __init__(self,dataset):
@@ -923,8 +926,8 @@ class fort_cal(cal_base):
             self.pout[i]=p.number
         self.noutall=np.sum(self.frqout)
         self.fortname=getattr(self,'fortname',self.name) # Use the name as fortran module name unless explicitly set
-    
-    
+
+
     def process(self):
         """ Get the input data into an array matching the times..
         All input parameters must have a frequency and number set or will not be accepted as inputs
@@ -956,11 +959,11 @@ class fort_cal(cal_base):
                 if(frqin[i]==1):
                     s=ofs
                 else:
-                    s=slice(ofs,ofs+frqin[i])    
+                    s=slice(ofs,ofs+frqin[i])
                 try:
                     if(p.name=='SECS'):
                         din[:,s]=match.tosecs()
-                    else:   
+                    else:
                         din[:,s]=p.data.ismatch(match).raw_data
                 except ValueError:
                     ppodd.logger.error('Problem with input %s in %s' % (p.name,self.name))
@@ -969,7 +972,7 @@ class fort_cal(cal_base):
                     ppodd.logger.debug('DIN Shape %s' % str(din[:,s].shape))
                     raise ValueError
                 try:
-                    flagin[:,s]=p.data.flag.ismatch(match).raw_data 
+                    flagin[:,s]=p.data.flag.ismatch(match).raw_data
                 except:
                     pass
                 ofs+=frqin[i]
@@ -986,8 +989,7 @@ class fort_cal(cal_base):
                 else:
                     s=slice(ofs,ofs+frq)
                 p.data=flagged_data(dout[:,s],match,flagout[:,s])
-                ofs+=frq  
+                ofs+=frq
 
-    def __repr__(self):        
+    def __repr__(self):
         return self.name+' runs fortran '+self.fortname
-

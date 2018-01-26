@@ -89,16 +89,18 @@ class rio_nephelometer(cal_base):
      state of the Nephelometer. The values for the sixteen flags are as
      follows:
      
-     0 - Data OK
-     3 - Lamp not within 10% of SP setting
-         | Valve fault
-         | Chopper fault
-         | Shutter fault
-         | Heater active but not stabilized
-         | Pressure out of range
-         | Sample Temp out of range
-         | Inlet temp out of range
-         | RH out of range 
+       0. Data OK
+       1. Not used
+       2. Not used
+       3. Lamp not within 10% of SP setting
+          * Valve fault
+          * Chopper fault
+          * Shutter fault
+          * Heater active but not stabilized
+          * Pressure out of range
+          * Sample Temp out of range
+          * Inlet temp out of range
+          * RH out of range 
 
     """
     def __init__(self,dataset):
