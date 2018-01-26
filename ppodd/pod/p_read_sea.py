@@ -369,7 +369,7 @@ class read_sea(file_read):
 
         self.input_names = ['SEA']
         self.outputs = []
-        self.patterns = ('*.wcm',)
+        self.patterns = ('SEAPROBE_*', '*.wcm')
         self.rtn_all = rtn_all
         file_read.__init__(self, dataset)
 
