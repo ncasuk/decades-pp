@@ -45,12 +45,14 @@ class twc_calc(cal_base):
             fit=np.array(d[self.fit].data)
             print('Applying FIT={}'.format(fit))
             ans=np.polyval(fit,tfull)
-            px=d['PS_RVSM'].data.ravel()
-            px.interp1d()
-            p1=px.interpolated(tfullx).reshape(sh)
-            tx=d['TWC_TSAM'].data
-            tx.interp1d()
-            t2=tx.interpolated(tfullx).reshape(sh)
+            #px=d['PS_RVSM'].data.ravel()
+            #px.interp1d()
+            #p1=px.interpolated(tfullx).reshape(sh)
+            p1=d['PS_RVSM'].data.interp(tfullx).reshape(sh)
+            #tx=d['TWC_TSAM'].data
+            #tx.interp1d()
+            #t2=tx.interpolated(tfullx).reshape(sh)
+            t2=d['TWC_TSAM'].data.interp(tfullx).reshape(sh)
             KO=0.304+0.351*p1*F/p0
             vpo=(ans-(KO*uO*p1/(Kv*t2)))*t2
             vmro=vp2vmr(vpo,p1)
@@ -60,5 +62,5 @@ class twc_calc(cal_base):
             dp=np.zeros(sh)
             mmr=tfull
             vf[:]=3
-        self.outputs[0].data=flagged_data(dp,tfull.times,flags=vf)
-        self.outputs[1].data=flagged_data(mmr,tfull.times,flags=vf)
+        self.outputs[0].data=flagged_data(dp,tfull.times,vf)
+        self.outputs[1].data=flagged_data(mmr,tfull.times,vf)
