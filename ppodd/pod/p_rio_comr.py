@@ -39,7 +39,7 @@ threshold (3.4).
 
 """
 
-from ppodd.core import *
+from ppodd.core import flagged_data, cal_base, parameter
 
 import datetime
 import numpy as np
@@ -55,12 +55,12 @@ def create_plot(match, co_orig, co_interp, cal_status, ds):
 
     """
     import matplotlib.pyplot as plt
-    from matplotlib.dates import date2num, num2date, DateFormatter, HourLocator
+    from matplotlib.dates import date2num, DateFormatter, HourLocator
 
     dt=datetime.datetime.strptime('%i-%i-%i' % tuple(ds['DATE']), '%d-%m-%Y')
 
-    ts=match/86400.+date2num(dt)
-    dt=datetime.datetime.strptime('%0.2i-%0.2i-%0.4i' % tuple(ds['DATE']), '%d-%m-%Y')
+    ts = date2num(match.astype(datetime.datetime))
+
     title='QA-CO Aerolaser\n'+'%s - %s' % (ds['FLIGHT'].data.lower(), dt.strftime('%d-%b-%Y'))
 
     fig = plt.figure()
