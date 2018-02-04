@@ -897,7 +897,7 @@ class calc_sea(cal_base):
         sea_cmp_t = self.dataset['SEAPROBE_CMP_T'].data.ismatch(match)
         sea_dec_t = self.dataset['SEAPROBE_DCE_T'].data.ismatch(match)
 
-        cloud_mask = get_cloud_mask(sea_twc_p_sense_total)
+        cloud_mask = get_cloud_mask_from_twc_temperature(sea_twc_p_sense_total)
 
         sea_twc_p_sense_dry = dryair_calc(sea_twc_p_sense_total, tat,
                                           sea_twc_t, ps, tas,
