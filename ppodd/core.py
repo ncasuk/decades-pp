@@ -266,7 +266,7 @@ class decades_dataset(OrderedDict):
                 ans[n]=self[n].data
         ans['Flight_Constants']=self['Flight_Constants'].data
         ans['history']=self.history
-        ans['processing_version']=ppodd.version
+        #ans['processing_version']=ppodd.version
         ans['files']=''
         for f,t in self.getfiles():
             ans['files']+=os.path.basename(f)+':'+t+'\n'
@@ -416,11 +416,6 @@ def date2time(fromdate):
     """Convert a date to a time.
     :param fromdate: tuple or list, that can be either 3 or 9 times long
     """
-    # We are using the calendar module instead of the time module for the
-    # calculations because it uses the UTC time zone. The time module uses the
-    # local time zone of the computer, which can cause issues
-    #
-    # Removed the calendar references and the time module use only np.datetime64
     l=len(fromdate)
     try:
         if(l==3):
