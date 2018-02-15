@@ -1,4 +1,6 @@
 from ppodd.core import parameter, fort_cal
+import numpy as np
+
 
 class rio_temps(fort_cal):
     """
@@ -167,9 +169,42 @@ FORTRAN routine C_TEMPS2
                                   long_name='True air temperature from the Rosemount non-deiced temperature sensor',
                                   standard_name='air_temperature')]
         self.fortname = 'TEMPS2'
-        #self.name='RIO_TEMPS'
+        # self.name='RIO_TEMPS'
         self.version = 1.00
-        fort_cal.__init__(self,dataset)
+        fort_cal.__init__(self, dataset)
+
+    def set_temperature_diff_flag(self, threshold=1):
+        """
+        Whenever there is a significant difference between DI and NDI
+        temperatures, there is clearly an issue with one of the instruments.
+        As we cannot be sure which, we flag both variables with 1 whenever a
+        threshold delta is exceeded (assuming flag is not already > 1).
+
+        kwargs:
+            threshold: the maximum absolute difference between DI and ND before
+            the data are flagged.
+        """
+
+        # Find the indicies where a threshold is exceeded
+        ndi_di_flag = np.where(
+            np.abs((self.outputs[1].data - self.outputs[3].data)) > threshold
+        )
+
+        for _output in (1, 3):
+            # For TAT_DI_R and TAT_ND_R (outputs 1 & 3), ensure that the flag
+            # where temps disagree is at least 1, but is not decremented if
+            # already greater than 1.
+            new_flag = np.maximum(
+                np.ones_like(self.outputs[_output].flag[ndi_di_flag]),
+                self.outputs[_output].flag[ndi_di_flag]
+            )
+            self.outputs[_output].flag[ndi_di_flag] = new_flag
+
+            # Add a parameter to output netCDF to record the threshold at which
+            # we flag.
+            self.dataset.add_para(
+                'Attribute', 'RosemountTemperatureThreshold', threshold
+            )
 
     def process(self):
         self.dataset[self.input_names[3]].number = 10
@@ -188,3 +223,6 @@ FORTRAN routine C_TEMPS2
             tmpl = 'True air temperature from the Rosemount non-deiced temperature sensor (Type: %s; SN: %s)'
             tat_nd_r_long_name = tmpl % (str(self.dataset['NDTSENS'][1]), str(self.dataset['NDTSENS'][0]))
             self.outputs[3].long_name = tat_nd_r_long_name
+
+        # Flag temperature data where ND/DI do not agree sufficiently.
+        self.set_temperature_diff_flag()
