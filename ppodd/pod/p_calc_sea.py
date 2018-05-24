@@ -155,7 +155,7 @@ def get_cloud_mask_from_twc_temperature(twc_temperature,
                                         max_val=141.0,
                                         _buffer=3):
     """
-    Function determines wheater the measurement is taken in or outside of
+    Function determines whether the measurement is taken in or outside of
     cloud. It uses the range (max-min) of values within a second assuming that
     the variation inside a cloud is much larger than outside a cloud.
 
