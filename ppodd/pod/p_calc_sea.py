@@ -230,6 +230,32 @@ def get_cloud_mask_from_twc_power(twc_power, rng_threshold=0.45, _buffer=3):
     return cloud_mask
 
 
+def get_cloud_mask(mask_func = get_cloud_mask_from_twc_power,
+                   mask_func_arg = [],
+                   mask_func_kargs = {}):
+    """
+    Convenience function for accessing different cloud mask creation functions
+
+    Cloud masks can be generated in several different ways. These methods may
+    be besed entirely on the SEA data and are included in p_calc_sea, the
+    default is to call p_calc_sea.get_cloud_mask_from_twc_power(). Functions
+    in external files may also be called, for example to base the cloud
+    mask on the CDP data.
+
+    :param mask_func: function call to calculate cloud mask. Default is
+        p_calc_sea.get_cloud_mask_from_twc_power().
+    :type mask_func: function
+    :param mask_func_arg: Any arguments for function.
+    :type mask_func_arg: List of arguments
+    :param mask_func_kargs: Any keyword arguments for function
+    :type mask_func_kargs: Dictionary of keyword arguments
+
+    :returns: Return value/s of function
+    """
+
+    return mask_func(*mask_func_arg,**mask_func_kargs)
+
+
 def get_slr_mask(hdgr, altr, hdgr_atol=0.25, altr_atol=1.0):
     """
     Create a straight and level run mask based on aircraft flight conditions.
