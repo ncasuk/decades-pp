@@ -104,9 +104,21 @@ rio_wow.py
 .. autoclass:: ppodd.pod.p_rio_wow.rio_weight_on_wheels
 
 --------
+p_calc_sea.py
+--------
+.. automodule:: ppodd.pod.p_calc_sea
+    :members:
+.. autoclass:: ppodd.pod.p_calc_sea.calc_sea
+    :members:
+--------
 p_gin.py
 --------
 .. autoclass:: ppodd.pod.p_gin.gin
+
+--------
+p_read_sea.py
+--------
+.. autoclass:: ppodd.pod.p_read_sea.read_sea
 
 ---------
 p_turb.py
