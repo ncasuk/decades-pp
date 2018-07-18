@@ -256,24 +256,32 @@ def get_cloud_mask(mask_func = get_cloud_mask_from_twc_power,
     return mask_func(*mask_func_arg,**mask_func_kargs)
 
 
-def get_slr_mask(hdgr, altr, hdgr_atol=0.25, altr_atol=1.0):
+def get_slr_mask(hdgr, altr, hdgr_atol=0.5, altr_atol=0.1, win=20):
     """
     Create a straight and level run mask based on aircraft flight conditions.
 
-    Note that these parameters are not intrinsically related to SEA parameters
-    thus datetime stamp of aircraft parameters are included and passed
-    straight through so slr_mask can be merged with SEA data. Should
-    interpolate and merge be done to hdgr and altr before get_slr_mask called?
+    Straight and level mask for aircraft based on rate of change of heading
+    and altitude. Both these rates are arrays of floats with no timestep
+    information, this means that the window length, win, and tolerances in
+    the rates of change are per sample.
 
-    :param float hdgr: Rate of heading change (deg/s)
-    :param float altr: Rate of altitude change (distance/s). Distance units
-        may be imperial or metric
+    The input arrays may be 1D, in which case a tophat running average of
+    width win is used to smooth the data. If the input arrays have more
+    dimensions then the first dimension is taken and no smoothing is done.
+    Both input arrays must be the same shape and the returned mask has the
+    same shape as the input arrays.
+
+    :param float hdgr: Rate of heading change (deg/sample).
+    :param float altr: Rate of altitude change (distance/sample). Distance
+        units may be imperial or metric
+    :param int win: Window length for moving average, integral number of
+        samples. Default is 20 (thus with a std data rate of 20Hz equates to
+        changes on a per second basis).
     :param float hdgr_atol: Absolute tolerance for determining acceptable rate
-        of change of heading. Default is 0.1 deg/s
+        of change of heading. Default is 0.25 deg/sample.
     :param float altr_atol: Absolute tolerance for determining acceptable rate
-        of change of altitude (distance). Default is 0.2 distance/s.
+        of change of altitude (distance). Default is 1.0 distance/sample.
 
-    :returns: dt: Datetime stamp of slr_mask.
     :returns: slr_mask: boolean array. `True` means SLR, `False` means in
         climb or turn.
 
@@ -284,23 +292,43 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.25, altr_atol=1.0):
 
     # https://stackoverflow.com/questions/13728392/moving-average-or-running-mean
     def moving_avg(x, N):
-        np.convolve(x, np.ones((N,))/N, mode='valid')
+        # Have used mode 'same' as N << x
+        return np.convolve(x.ravel(), np.ones((N,))/N, mode='same')
 
-    # TODO: Need to test default atols more rigorously
-    # TODO: hdgr_mask does not appear to work properly
 
-    # Define the window length (in samples) for running average
-    # 30sec worth of samples
-    # TODO: Cope with dt arrays that are not 1Hz
-    hdgr_win = 3
-    altr_win = 3
-    # init slr mask
-    n = hdgr.shape[0]
-    slr_mask = np.zeros((n,), dtype=np.bool)
-    hdgr_mask = np.isclose(np.max(np.abs(hdgr), axis=1), 0.0, atol=hdgr_atol,rtol=0)
-    altr_mask = np.isclose(np.max(np.abs(altr), axis=1), 0.0, atol=altr_atol,rtol=0)
-    slr_mask = np.logical_and(hdgr_mask, altr_mask)
-    return slr_mask
+    #### TODO: Use reshaping within this function then return
+    #### flattened array (or array with same shape as input)
+    #### This allows to get trend in changes
+    pdb.set_trace()
+    # Note that the input arrays should be the same size
+    hdgr_shape = hdgr.shape
+    altr_shape = altr.shape
+    if hdgr_shape != altr_shape:
+        print('Input array shape must be the same.')
+        raise Exception
+
+    # Reshape inputs as necessary to determine trend in change
+    if len(hdgr.shape) == 1:
+        # Reduce number of samples by window length after doing smoothing
+        hdgr_ = moving_avg(hdgr,win)[::win]
+    elif len(hdgr.shape) > 1:
+        # Take only first dimension. No smoothing is done
+#### TODO: Is it worth ravelling and then smoothing?
+#### Have no smoothing at this stage for performance reasons
+        hdgr_ = hdgr[::,0]
+
+    if len(altr.shape) == 1:
+        # Reshape array with length of smoothing window
+        altr_ = moving_avg(altr,win)[::win]
+    elif len(hdgr.shape) > 1:
+        altr_ = altr[::,0]
+
+    hdgr_mask = np.isclose(hdgr_, 0.0, atol=hdgr_atol, rtol=0)
+    altr_mask = np.isclose(altr_, 0.0, atol=altr_atol, rtol=0)
+    slr_mask_ = np.logical_and(hdgr_mask, altr_mask)
+    slr_mask = np.broadcast_to(slr_mask_, (win,slr_mask_.size))
+
+    return np.resize(slr_mask.transpose(),hdgr_shape)
 
 
 def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None, verbose=True):
