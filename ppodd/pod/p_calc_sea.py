@@ -295,11 +295,6 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.5, altr_atol=0.1, win=20):
         # Have used mode 'same' as N << x
         return np.convolve(x.ravel(), np.ones((N,))/N, mode='same')
 
-
-    #### TODO: Use reshaping within this function then return
-    #### flattened array (or array with same shape as input)
-    #### This allows to get trend in changes
-    pdb.set_trace()
     # Note that the input arrays should be the same size
     hdgr_shape = hdgr.shape
     altr_shape = altr.shape
