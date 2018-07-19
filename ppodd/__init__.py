@@ -16,6 +16,7 @@ It is intended to be a flexible and modular system.
 import logging
 import os.path
 import time
+
 logging.basicConfig()
 
 logger = logging.getLogger('PPODD')
@@ -26,11 +27,18 @@ version = '1.1'
 def logfile(filename=None):
     if(not filename):
         rouops = '$ROUOPS'
-        rouops = os.path.expandvars(rouops) if os.path.expandvars(rouops)!=rouops else ''
-        filename = os.path.join(rouops,time.strftime('ppodd_log_%Y%m%d_%H%M%S.txt'))
+        if os.path.expandvars(rouops) != rouops:
+            rouops = os.path.expandvars(rouops)
+        else:
+            rouops = ''
+
+        filename = os.path.join(
+            rouops, time.strftime('ppodd_log_%Y%m%d_%H%M%S.txt')
+        )
+
     try:
         filelog = logging.FileHandler(filename)
         filelog.setLevel(logger.level)
         logger.addHandler(filelog)
     except IOError:
-        logger.warning("Can't write to %s" % filename)
+        logger.warning('Cannot write to %s' % filename)
