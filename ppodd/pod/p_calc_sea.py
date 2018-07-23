@@ -193,41 +193,69 @@ def get_cloud_mask_from_twc_temperature(twc_temperature,
     return cloud_mask
 
 
-def get_cloud_mask_from_twc_power(twc_power, rng_threshold=0.45, _buffer=3):
+def get_cloud_mask_from_twc_power(twc_power, rng_threshold=0.45, _buffer=3,
+                                  freq=1., win=1.):
     """
-    Function determines wheater the measurement is taken in or outside of
-    cloud. It uses the range (max-min) of values within a second assuming that
-    the variation inside a cloud is much larger than outside a cloud.
+    Function determines whether the measurement is taken inside or outside
+    of cloud. It uses the range (max-min) of values within a time interval
+    win, assuming that the variation inside a cloud is much larger than
+    outside a cloud.
 
-    The _buffer is used to mask also values around flagged values. For example
+    The _buffer is used to extend the masked region in time. For example
     a _buffer value of three also masks the three seconds before *and* three
     seconds after each masked value as cloud.
 
-    :param twc_power: TWC element power in Watts
+    :param twc_power: TWC element power (Watts).
     :type twc_power: 2D-array of
-    :key rng_threshold: values above the threshold are flagged as cloud
+    :key rng_threshold: Values ranging over more than the threshold in the
+        timespan given by `win` are flagged as cloud. Default is 0.45W.
     :type rng_threshold: float
-    :key _buffer: time buffer around detected cloud event
-    :type _buffer: int
-    :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
+    :key _buffer: time buffer around detected cloud event that is also
+        masked. Default is 3s.
+    :type _buffer: float
+    :key freq: Frequency of input data (Hz). Default is 1Hz.
+    :type freq: float
+    :key win: Window length for range calculation (sec). Default is 1s.
+    :type win: float
+
+    :return cloud_mask: boolean array `True` equals cloud;
+        `False` equals no cloud
 
     """
-    # TODO: function currently only works on multidimensional arrays
-    # if the twc_power array is one dimensional the range calculations won't
-    # work
 
-    # get number of rows
-    n = twc_power.shape[0]
-    # init cloud mask
-    cloud_mask = np.zeros((n,), dtype=np.bool)
-    rng = np.max(twc_power, axis=1)-np.min(twc_power, axis=1)
-    ix = np.where(rng > rng_threshold)[0]
-    for i in range(_buffer*-1, _buffer+1):
-        ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
-    # make sure that the indices do not exceed array dimensions
-    ix = np.clip(ix, 0, n-1)
-    cloud_mask[ix] = True
-    return cloud_mask
+    import pdb
+
+    twc_shape = twc_power.shape
+
+    # Convert from per second to per data sample
+    win_s = int(np.rint(freq  *win))
+    _buffer_s = int(np.rint(freq * _buffer))
+
+    # Reshape inputs as necessary to determine trend in change
+    if len(twc_shape) > 1:
+        twc_power = twc_power[::].ravel()
+
+    # Create fancy indexer that provides a top-hat sliding window
+    # https://stackoverflow.com/questions/15722324/sliding-window-in-numpy
+    # The window has length win_s + 2 * _buffer_s
+    s = 1
+    w = 2*_buffer_s + win_s
+    # Step window across array by the window width
+    #idx = np.arange(w)[None, :] + w*np.arange(twc_power.size/w)[:, None]
+    #rng = np.ptp(twc_power[idx],axis=1) >= rng_threshold
+    #cloud_mask_ = np.broadcast_to(rng, idx.T.shape)
+    #cloud_mask = np.resize(cloud_mask_.transpose(),twc_shape)
+
+    # Step window across array by a single sample
+    # Edge effects are dealt with by clipping. NOTE that this only works as
+    # the peak-to-peak values are being calculated, mean etc will not work!
+    idx = np.arange(w)[None, :] + s*np.arange(twc_power.size/s)[:, None] - w/2
+    _ = np.clip(idx,0,twc_power.size-1,out=idx)
+
+    # Determine range across each window and apply resultant flag
+    cloud_mask = np.ptp(twc_power[idx],axis=1) >= rng_threshold
+
+    return np.reshape(cloud_mask,twc_shape)
 
 
 def get_cloud_mask(mask_func = get_cloud_mask_from_twc_power,
@@ -250,13 +278,13 @@ def get_cloud_mask(mask_func = get_cloud_mask_from_twc_power,
     :param mask_func_kargs: Any keyword arguments for function
     :type mask_func_kargs: Dictionary of keyword arguments
 
-    :returns: Return value/s of function
+    :returns: Return value/s from function
     """
 
     return mask_func(*mask_func_arg,**mask_func_kargs)
 
 
-def get_slr_mask(hdgr, altr, hdgr_atol=0.5, altr_atol=0.1, win=20):
+def get_slr_mask(hdgr, altr, hdgr_atol=10., altr_atol=2, freq=1., win=1.):
     """
     Create a straight and level run mask based on aircraft flight conditions.
 
@@ -271,16 +299,21 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.5, altr_atol=0.1, win=20):
     Both input arrays must be the same shape and the returned mask has the
     same shape as the input arrays.
 
-    :param float hdgr: Rate of heading change (deg/sample).
-    :param float altr: Rate of altitude change (distance/sample). Distance
+    :param hdgr: Rate of heading change (deg/sample).
+    :type hdgr: float
+    :param altr: Rate of altitude change (distance/sample). Distance
         units may be imperial or metric
-    :param int win: Window length for moving average, integral number of
-        samples. Default is 20 (thus with a std data rate of 20Hz equates to
-        changes on a per second basis).
-    :param float hdgr_atol: Absolute tolerance for determining acceptable rate
-        of change of heading. Default is 0.25 deg/sample.
-    :param float altr_atol: Absolute tolerance for determining acceptable rate
-        of change of altitude (distance). Default is 1.0 distance/sample.
+    :type altr: float
+    :key hdgr_atol: Absolute tolerance for determining acceptable rate
+        of change of heading. Default is 10 deg/sec.
+    :type hdgr_atol: float
+    :key altr_atol: Absolute tolerance for determining acceptable rate
+        of change of altitude (distance). Default is 2 distance/sec.
+    :type altr_atol: float
+    :key freq: Frequency of input data (Hz). Default is 1Hz.
+    :type freq: float
+    :key win: Window length for moving average (sec). Default is 1s.
+    :type win: float
 
     :returns: slr_mask: boolean array. `True` means SLR, `False` means in
         climb or turn.
@@ -302,10 +335,15 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.5, altr_atol=0.1, win=20):
         print('Input array shape must be the same.')
         raise Exception
 
+    # Convert from per second to per data sample
+    win_s = int(np.rint(freq*win))
+    hdgr_atol_s = np.divide(hdgr_atol,freq,dtype=float)
+    altr_atol_s = np.divide(altr_atol,freq,dtype=float)
+
     # Reshape inputs as necessary to determine trend in change
     if len(hdgr.shape) == 1:
         # Reduce number of samples by window length after doing smoothing
-        hdgr_ = moving_avg(hdgr,win)[::win]
+        hdgr_ = moving_avg(hdgr,win_s)[::win_s]
     elif len(hdgr.shape) > 1:
         # Take only first dimension. No smoothing is done
 #### TODO: Is it worth ravelling and then smoothing?
@@ -314,14 +352,14 @@ def get_slr_mask(hdgr, altr, hdgr_atol=0.5, altr_atol=0.1, win=20):
 
     if len(altr.shape) == 1:
         # Reshape array with length of smoothing window
-        altr_ = moving_avg(altr,win)[::win]
+        altr_ = moving_avg(altr,win_s)[::win_s]
     elif len(hdgr.shape) > 1:
         altr_ = altr[::,0]
 
-    hdgr_mask = np.isclose(hdgr_, 0.0, atol=hdgr_atol, rtol=0)
-    altr_mask = np.isclose(altr_, 0.0, atol=altr_atol, rtol=0)
+    hdgr_mask = np.isclose(hdgr_, 0.0, atol=hdgr_atol_s, rtol=0)
+    altr_mask = np.isclose(altr_, 0.0, atol=altr_atol_s, rtol=0)
     slr_mask_ = np.logical_and(hdgr_mask, altr_mask)
-    slr_mask = np.broadcast_to(slr_mask_, (win,slr_mask_.size))
+    slr_mask = np.broadcast_to(slr_mask_, (win_s,slr_mask_.size))
 
     return np.resize(slr_mask.transpose(),hdgr_shape)
 
