@@ -113,6 +113,16 @@ J_to_cal = 1./cal_to_J
 Psense_dry_tmp = lambda P: P
 
 
+def moving_avg(x, N):
+    """
+    Running average with a top-hat filter
+    https://stackoverflow.com/questions/13728392/moving-average-or-running-mean
+    """
+
+    # Have used mode 'same' as N << x
+    return np.convolve(x.ravel(), np.ones((N,))/N, mode='same')
+
+
 def get_instr_fault_mask(twc_t, _083_t, _021_t,
                          temp_limits=(100, 180), verbose=True):
     """
@@ -149,35 +159,91 @@ def get_instr_fault_mask(twc_t, _083_t, _021_t,
     return np.max(mask, axis=1)
 
 
-def get_cloud_mask_from_twc_temperature(twc_temperature,
-                                        rng_threshold=0.6,
-                                        min_val=139.0,
-                                        max_val=141.0,
-                                        _buffer=3):
+def get_cloud_mask_from_el_temperature(el_temperature,
+                                       var_thres=0.6,
+                                       set_temp=140.,
+                                       var_temp=1.,
+                                       _buffer=3,
+                                       freq=1., win=1.):
     """
-    Function determines whether the measurement is taken in or outside of
-    cloud. It uses the range (max-min) of values within a second assuming that
-    the variation inside a cloud is much larger than outside a cloud.
+    Create cloud mask by calculating TWC power variation in a rolling window.
+    Create cloud mask from variation in element temperature in a rolling window.
 
-    The _buffer is used to mask also values around flagged values. For example
+    Function determines whether the measurement is taken inside or outside
+    of cloud. It compares the variation (max-min) in temperature values
+    within a time interval, win, to a given threshold value, var_thres.
+    The variation inside a cloud is much larger than that outside of cloud.
+    Additionally, if the element temperture strays too far from the set-point
+    temperature it is assumed to be in cloud.
+
+    The _buffer is used to extend the masked region in time. For example
     a _buffer value of three also masks the three seconds before *and* three
     seconds after each masked value as cloud.
 
-    :param twc_temperature: TWC element temperature in degC
-    :type twc_temperature: 2D-array of
-    :key float rng_threshold: values above the threshold are flagged as cloud
-    :key float min_val: mininum; Data points below are flagged as cloud
-    :key float max_val: maximum; Data points above are flagged as cloud
-    :key _buffer: time buffer around detected cloud event
-    :type _buffer: int
-    :return cloud_mask: boolean array `True` equals cloud; `False` equals no cloud
+    :param el_temperature: Element temperature (deg C).
+    :type el_temperature: 2D-array of floats
+    :key var_thres: Values varying by more than the threshold in the
+        timespan given by `win` are flagged as cloud. Default is 0.6C.
+    :type var_thres: float
+    :param set_temp: Set-point temperature of element, default is 140C.
+    :type set_temp: float
+    :key var_temp: +/- variation around set_temp over which it is adjudged
+        to be in cloud.
+    :type var_temp: float
+    :key _buffer: Time buffer around detected cloud event that is also
+        masked. Default is 3s.
+    :type _buffer: float
+    :key freq: Frequency of input data (Hz). Default is 1Hz.
+    :type freq: float
+    :key win: Window length for range calculation (sec). Default is 1s.
+    :type win: float
 
-    .. todo::
-        function currently only works on multidimensional arrays
-        if the twc_power array is one dimensional the range calculations
-        won't work
-
+    :return cloud_mask: Boolean array; `True` equals cloud, `False`
+        equals no cloud.
     """
+
+    el_shape = el_temperature.shape
+
+    # Convert from per second to per data sample
+    win_s = int(np.rint(freq  *win))
+    _buffer_s = int(np.rint(freq * _buffer))
+
+    # Reshape inputs as necessary to determine trend in change
+    if len(el_shape) > 1:
+        el_temperature = el_temperature[::].ravel()
+
+    # Create fancy indexer that provides a top-hat sliding window
+    # https://stackoverflow.com/questions/15722324/sliding-window-in-numpy
+    # The window has length win_s
+    s = 1
+    w = win_s
+    # Step window across array by the window width
+    #idx = np.arange(w)[None, :] + w*np.arange(el_power.size/w)[:, None]
+    #var = np.ptp(el_power[idx],axis=1) >= var_thres
+    #cloud_mask_ = np.broadcast_to(var, idx.T.shape)
+    #cloud_mask = np.resize(cloud_mask_.transpose(),el_shape)
+
+    # Step window across array by a single sample
+    # Edge effects are dealt with by clipping. NOTE that this only works as
+    # the peak-to-peak values are being calculated, mean etc will not work!
+    idx = np.arange(w)[None, :] + s*np.arange(el_temperature.size/s)[:, None] - w/2
+    _ = np.clip(idx,0,el_temperature.size-1,out=idx)
+
+    # Determine range across each window and extreme values to create mask
+    cloud_mask = np.logical_or(np.ptp(moving_avg(el_temperature,w/2)[idx],axis=1) >= var_thres,
+                               np.min(moving_avg(el_temperature,w/2)[idx],axis=1) < set_temp-var_temp,
+                               np.max(moving_avg(el_temperature,w/2)[idx],axis=1) > set_temp+var_temp)
+
+    # Add any extra masking for _buffer
+    # Note that if _buffer_s is even the actual added buffer shall be one sample shorter
+    idx_buf = np.ravel([range(i_-_buffer_s/2,
+                              1+i_+_buffer_s/2) for i_ in np.where(np.diff(cloud_mask))[0]])
+    cloud_mask[idx_buf] = True
+
+    return np.reshape(cloud_mask,el_shape)
+
+
+
     # get number of rows
     n = twc_temperature.shape[0]
     # init cloud mask
@@ -193,24 +259,27 @@ def get_cloud_mask_from_twc_temperature(twc_temperature,
     return cloud_mask
 
 
-def get_cloud_mask_from_twc_power(twc_power, rng_threshold=0.45, _buffer=3,
-                                  freq=1., win=1.):
+def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
+                                 _buffer=3,
+                                 freq=1., win=1.):
     """
+    Create cloud mask from the variation in element power in a rolling window.
+
     Function determines whether the measurement is taken inside or outside
-    of cloud. It uses the range (max-min) of values within a time interval
-    win, assuming that the variation inside a cloud is much larger than
-    outside a cloud.
+    of cloud. It compares the variation (max-min) in power values within
+    a time interval, win, to a given threshold value, var_thres. The
+    variation inside a cloud is much larger than that outside of cloud.
 
     The _buffer is used to extend the masked region in time. For example
     a _buffer value of three also masks the three seconds before *and* three
     seconds after each masked value as cloud.
 
-    :param twc_power: TWC element power (Watts).
-    :type twc_power: 2D-array of
-    :key rng_threshold: Values ranging over more than the threshold in the
+    :param el_power: element power, may be TWC, 083, or 021 (Watts).
+    :type el_power: 2D-array of floats
+    :key var_thres: Values varying by more than the threshold in the
         timespan given by `win` are flagged as cloud. Default is 0.45W.
-    :type rng_threshold: float
-    :key _buffer: time buffer around detected cloud event that is also
+    :type var_thres: float
+    :key _buffer: Time buffer around detected cloud event that is also
         masked. Default is 3s.
     :type _buffer: float
     :key freq: Frequency of input data (Hz). Default is 1Hz.
@@ -218,47 +287,50 @@ def get_cloud_mask_from_twc_power(twc_power, rng_threshold=0.45, _buffer=3,
     :key win: Window length for range calculation (sec). Default is 1s.
     :type win: float
 
-    :return cloud_mask: boolean array `True` equals cloud;
-        `False` equals no cloud
-
+    :return cloud_mask: Boolean array; `True` equals cloud, `False`
+        equals no cloud.
     """
 
-    import pdb
-
-    twc_shape = twc_power.shape
+    el_shape = el_power.shape
 
     # Convert from per second to per data sample
     win_s = int(np.rint(freq  *win))
     _buffer_s = int(np.rint(freq * _buffer))
 
     # Reshape inputs as necessary to determine trend in change
-    if len(twc_shape) > 1:
-        twc_power = twc_power[::].ravel()
+    if len(el_shape) > 1:
+        el_power = el_power[::].ravel()
 
     # Create fancy indexer that provides a top-hat sliding window
     # https://stackoverflow.com/questions/15722324/sliding-window-in-numpy
-    # The window has length win_s + 2 * _buffer_s
+    # The window has length win_s
     s = 1
-    w = 2*_buffer_s + win_s
+    w = win_s
     # Step window across array by the window width
-    #idx = np.arange(w)[None, :] + w*np.arange(twc_power.size/w)[:, None]
-    #rng = np.ptp(twc_power[idx],axis=1) >= rng_threshold
-    #cloud_mask_ = np.broadcast_to(rng, idx.T.shape)
-    #cloud_mask = np.resize(cloud_mask_.transpose(),twc_shape)
+    #idx = np.arange(w)[None, :] + w*np.arange(el_power.size/w)[:, None]
+    #var = np.ptp(el_power[idx],axis=1) >= var_thres
+    #cloud_mask_ = np.broadcast_to(var, idx.T.shape)
+    #cloud_mask = np.resize(cloud_mask_.transpose(),el_shape)
 
     # Step window across array by a single sample
     # Edge effects are dealt with by clipping. NOTE that this only works as
     # the peak-to-peak values are being calculated, mean etc will not work!
-    idx = np.arange(w)[None, :] + s*np.arange(twc_power.size/s)[:, None] - w/2
-    _ = np.clip(idx,0,twc_power.size-1,out=idx)
+    idx = np.arange(w)[None, :] + s*np.arange(el_power.size/s)[:, None] - w/2
+    _ = np.clip(idx,0,el_power.size-1,out=idx)
 
-    # Determine range across each window and apply resultant flag
-    cloud_mask = np.ptp(twc_power[idx],axis=1) >= rng_threshold
+    # Determine variation across each window and compare to given threshold
+    cloud_mask = np.ptp(moving_avg(el_power,w/2)[idx],axis=1) >= var_thres
 
-    return np.reshape(cloud_mask,twc_shape)
+    # Add any extra masking for _buffer
+    # Note that if _buffer_s is even the actual added buffer shall be one sample shorter
+    idx_buf = np.ravel([range(i_-_buffer_s/2,
+                              1+i_+_buffer_s/2) for i_ in np.where(np.diff(cloud_mask))[0]])
+    cloud_mask[idx_buf] = True
+
+    return np.reshape(cloud_mask,el_shape)
 
 
-def get_cloud_mask(mask_func = get_cloud_mask_from_twc_power,
+def get_cloud_mask(mask_func = get_cloud_mask_from_el_power,
                    mask_func_arg = [],
                    mask_func_kargs = {}):
     """
@@ -266,12 +338,12 @@ def get_cloud_mask(mask_func = get_cloud_mask_from_twc_power,
 
     Cloud masks can be generated in several different ways. These methods may
     be besed entirely on the SEA data and are included in p_calc_sea, the
-    default is to call p_calc_sea.get_cloud_mask_from_twc_power(). Functions
+    default is to call p_calc_sea.get_cloud_mask_from_el_power(). Functions
     in external files may also be called, for example to base the cloud
     mask on the CDP data.
 
     :param mask_func: function call to calculate cloud mask. Default is
-        p_calc_sea.get_cloud_mask_from_twc_power().
+        p_calc_sea.get_cloud_mask_from_el_power().
     :type mask_func: function
     :param mask_func_arg: Any arguments for function.
     :type mask_func_arg: List of arguments
@@ -322,11 +394,6 @@ def get_slr_mask(hdgr, altr, hdgr_atol=10., altr_atol=2, freq=1., win=1.):
 
         This means that the masking is the inverse of cloud_mask. Change?
     """
-
-    # https://stackoverflow.com/questions/13728392/moving-average-or-running-mean
-    def moving_avg(x, N):
-        # Have used mode 'same' as N << x
-        return np.convolve(x.ravel(), np.ones((N,))/N, mode='same')
 
     # Note that the input arrays should be the same size
     hdgr_shape = hdgr.shape
