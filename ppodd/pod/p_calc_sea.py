@@ -124,7 +124,7 @@ def moving_avg(x, N):
 
 
 def get_instr_fault_mask(el_temperature,
-                         temp_limits=(100, 180),
+                         temp_limits=[100, 180],
                          verbose=True):
     """
     Detect and flagging of SEAPROBE instrument issues.
@@ -134,11 +134,13 @@ def get_instr_fault_mask(el_temperature,
     returned, True indicating that a fault has occured.
 
     :param el_temperature: List of element temperature arrays. Any single
-        element temperatures can be given or all three. It is assumed that
-        each element has the same temperature limits.
+        element temperature array can be given or all three. It is assumed
+        that each element has the same temperature limits. All arrays should
+        have the same shape. Note that there is no error checking on the
+        form of el_temperature so it must be correct!
     :type el_temperature: List of numpy arrays of floats (degC)
-    :param temp_limits: Temperature min and max (degC)
-    :type temp_limits: tuple of floats
+    :param temp_limits: Temperature min and max (degC). Default is [100,180].
+    :type temp_limits: list of floats
     :param boolean verbose: If True then output percentage of data flagged.
         Default is True.
     :return: instrument mask
@@ -148,40 +150,39 @@ def get_instr_fault_mask(el_temperature,
         So far this routine only uses temperature to determine if it
         is working correctly. More failure conditions might be added in the
         future. Note that all inputs should have the same shape.
+    .. todo::
+        Add error checking for the inputs. Attempted np.atleast_2d but if
+        inputs are different lengths this will not catch it.
     """
 
-    el_shape = el_temperature.shape
+    # Note that all inputs are assumed to have the same shape
+    el_shape = el_temperature[0].shape
 
     # Ensure order of min and max temperatures
-    temp_limits.sort()
-
-    # Convert from per second to per data sample
-#    win_s = int(np.rint(freq  *win))
-#    _buffer_s = int(np.rint(freq * _buffer))
-
-    # Reshape inputs as necessary to determine trend in change
-    if len(el_shape) > 1:
-        el_temperature = el_temperature[::].ravel()
-
+    try:
+        temp_limits.sort()
+    except AttributeError:
+        # Probably a tuple
+        temp_limits = list(temp_limits[::])
+        temp_limits.sort()
 
     # Mask _any_ values that are outside the allowed temperature range
     # ie there is no smoothing or windowing done
-    temp_mask = np.logical_or([np.min(t_)<temp_limits[0] | np.max(t_)>temp_limits[1] for t_ in el_temperature])
+    temp_mask = np.any([np.logical_or(t_<temp_limits[0],
+                                      t_>temp_limits[1]) for t_ in el_temperature],axis=0)
 
     ### Add any other instrument flagging in here
-
 
     instr_mask = temp_mask.copy()
 
     if verbose:
-        if np.any(instr_mask) is True:
+        if np.any(instr_mask) == True:
             perc_flagged = np.count_nonzero(instr_mask)/float(temp_mask.size) * 100.
         else:
             perc_flagged = 0.
         sys.stdout.write('Percentage of data flagged due to instrument ' +
-                         'issues: {:.2f} (n={:d})\n'.format(perc_flagged,
-                                                            np.count_nonzero(instr_mask)))
-
+                         'issues: {:.2f}% (n={:d})\n'.format(perc_flagged,
+                                                             np.count_nonzero(instr_mask)))
 
     return np.reshape(instr_mask,el_shape)
 
