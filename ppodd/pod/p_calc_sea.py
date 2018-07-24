@@ -123,40 +123,84 @@ def moving_avg(x, N):
     return np.convolve(x.ravel(), np.ones((N,))/N, mode='same')
 
 
-def get_instr_fault_mask(twc_t, _083_t, _021_t,
-                         temp_limits=(100, 180), verbose=True):
+def get_instr_fault_mask(el_temperature,
+                         temp_limits=(100, 180),
+                         verbose=True):
     """
-    Detect SEAPROBE instrument issues. The temperature measurements are checked
-    if they are in a defined range. The result is a boolean array, that
-    defines the instrument status for one second. 'True' indicates an
-    instrument issue.
+    Detect and flagging of SEAPROBE instrument issues.
 
-    :param float twc_t: Total Water Sensor Measurements (degC)
-    :param float _083_t: Temperature from the 083 sensor (degC)
-    :param float _021_t: Temperature from the 021 sensor (degC)
+    The temperature measurements are checked to ensure they are in a
+    defined range. Checks are done on a sample-by-sample basis and a mask
+    returned, True indicating that a fault has occured.
+
+    :param el_temperature: List of element temperature arrays. Any single
+        element temperatures can be given or all three. It is assumed that
+        each element has the same temperature limits.
+    :type el_temperature: List of numpy arrays of floats (degC)
+    :param temp_limits: Temperature min and max (degC)
+    :type temp_limits: tuple of floats
+    :param boolean verbose: If True then output percentage of data flagged.
+        Default is True.
     :return: instrument mask
     :rtype: np.array of np.bool type
 
     .. todo::
         So far this routine only uses temperature to determine if it
         is working correctly. More failure conditions might be added in the
-        future.
+        future. Note that all inputs should have the same shape.
     """
-    mask = np.zeros(twc_t.shape, dtype=np.bool)
-    ix = np.where((np.min(twc_t, axis=1) < temp_limits[0]) |
-                  (np.max(twc_t, axis=1) > temp_limits[1]) |
-                  (np.min(_083_t, axis=1) < temp_limits[0]) |
-                  (np.max(_083_t, axis=1) > temp_limits[1]) |
-                  (np.min(_021_t, axis=1) < temp_limits[0]) |
-                  (np.max(_021_t, axis=1) > temp_limits[1]))[0]
-    mask[ix] = True
+
+    el_shape = el_temperature.shape
+
+    # Ensure order of min and max temperatures
+    temp_limits.sort()
+
+    # Convert from per second to per data sample
+#    win_s = int(np.rint(freq  *win))
+#    _buffer_s = int(np.rint(freq * _buffer))
+
+    # Reshape inputs as necessary to determine trend in change
+    if len(el_shape) > 1:
+        el_temperature = el_temperature[::].ravel()
+
+
+    # Mask _any_ values that are outside the allowed temperature range
+    # ie there is no smoothing or windowing done
+    temp_mask = np.logical_or([np.min(t_)<temp_limits[0] | np.max(t_)>temp_limits[1] for t_ in el_temperature])
+
+    ### Add any other instrument flagging in here
+
+
+    instr_mask = temp_mask.copy()
+
     if verbose:
-        if ix.size != 0:
-            perc_flagged = float(ix.size)/float(mask.size) * 100.
+        if np.any(instr_mask) is True:
+            perc_flagged = np.count_nonzero(instr_mask)/float(temp_mask.size) * 100.
         else:
             perc_flagged = 0.
-        sys.stdout.write('Percentage of data flagged due to instrument issues: %.2f (n=%i)\n' % (perc_flagged, ix.size))
-    return np.max(mask, axis=1)
+        sys.stdout.write('Percentage of data flagged due to instrument ' +
+                         'issues: {:.2f} (n={:d})\n'.format(perc_flagged,
+                                                            np.count_nonzero(instr_mask)))
+
+
+    return np.reshape(instr_mask,el_shape)
+
+
+    # mask = np.zeros(twc_t.shape, dtype=np.bool)
+    # ix = np.where((np.min(twc_t, axis=1) < temp_limits[0]) |
+    #               (np.max(twc_t, axis=1) > temp_limits[1]) |
+    #               (np.min(_083_t, axis=1) < temp_limits[0]) |
+    #               (np.max(_083_t, axis=1) > temp_limits[1]) |
+    #               (np.min(_021_t, axis=1) < temp_limits[0]) |
+    #               (np.max(_021_t, axis=1) > temp_limits[1]))[0]
+    # mask[ix] = True
+    # if verbose:
+    #     if ix.size != 0:
+    #         perc_flagged = float(ix.size)/float(mask.size) * 100.
+    #     else:
+    #         perc_flagged = 0.
+    #     sys.stdout.write('Percentage of data flagged due to instrument issues: %.2f (n=%i)\n' % (perc_flagged, ix.size))
+    # return np.max(mask, axis=1)
 
 
 def get_cloud_mask_from_el_temperature(el_temperature,
@@ -238,7 +282,7 @@ def get_cloud_mask_from_el_temperature(el_temperature,
     # Note that if _buffer_s is even the actual added buffer shall be one sample shorter
     idx_buf = np.ravel([range(i_-_buffer_s/2,
                               1+i_+_buffer_s/2) for i_ in np.where(np.diff(cloud_mask))[0]])
-    cloud_mask[idx_buf] = True
+    cloud_mask[np.clip(idx_buf,0,el_temperature.size-1,idx_buf)] = True
 
     return np.reshape(cloud_mask,el_shape)
 
@@ -325,7 +369,7 @@ def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
     # Note that if _buffer_s is even the actual added buffer shall be one sample shorter
     idx_buf = np.ravel([range(i_-_buffer_s/2,
                               1+i_+_buffer_s/2) for i_ in np.where(np.diff(cloud_mask))[0]])
-    cloud_mask[idx_buf] = True
+    cloud_mask[np.clip(idx_buf,0,el_power.size-1,idx_buf)] = True
 
     return np.reshape(cloud_mask,el_shape)
 
