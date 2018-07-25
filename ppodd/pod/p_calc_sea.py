@@ -123,6 +123,7 @@ def moving_avg(x, N):
     return np.convolve(x.ravel(), np.ones((N,))/N, mode='same')
 
 
+
 def get_instr_fault_mask(el_temperature,
                          temp_limits=[100, 180],
                          verbose=True):
@@ -185,6 +186,7 @@ def get_instr_fault_mask(el_temperature,
                                                              np.count_nonzero(instr_mask)))
 
     return np.reshape(instr_mask,el_shape)
+
 
 
 def get_cloud_mask_from_el_temperature(el_temperature,
@@ -272,21 +274,6 @@ def get_cloud_mask_from_el_temperature(el_temperature,
 
 
 
-    # get number of rows
-    n = twc_temperature.shape[0]
-    # init cloud mask
-    cloud_mask = np.zeros((n,), dtype=np.bool)
-    rng = np.max(twc_temperature, axis=1)-np.min(twc_temperature, axis=1)
-    ix = np.where((rng > rng_threshold) | (np.min(twc_temperature, axis=1) < min_val) | (np.max(twc_temperature, axis=1) > max_val))[0]
-    for i in range(_buffer*-1, _buffer+1):
-        ix = list(set(list(np.concatenate((np.array(ix), np.array(ix)+i)))))
-    # make sure that the indices do not exceed array dimensions
-    ix = np.clip(ix, 0, n-1)
-    if ix.size != 0:
-        cloud_mask[ix] = True
-    return cloud_mask
-
-
 def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
                                  _buffer=3,
                                  freq=1., win=1.):
@@ -358,6 +345,7 @@ def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
     return np.reshape(cloud_mask,el_shape)
 
 
+
 def get_cloud_mask(mask_func = get_cloud_mask_from_el_power,
                    mask_func_arg = [],
                    mask_func_kargs = {}):
@@ -382,6 +370,7 @@ def get_cloud_mask(mask_func = get_cloud_mask_from_el_power,
     """
 
     return mask_func(*mask_func_arg,**mask_func_kargs)
+
 
 
 def get_slr_mask(hdgr, altr, hdgr_atol=10., altr_atol=2, freq=1., win=1.):
@@ -459,7 +448,9 @@ def get_slr_mask(hdgr, altr, hdgr_atol=10., altr_atol=2, freq=1., win=1.):
     return np.resize(slr_mask.transpose(),hdgr_shape)
 
 
-def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,verbose=True):
+
+def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
+                rtn_func=False,verbose=True):
     """
     Calculate dry air power term by fitting constants for 1st principles.
 
@@ -484,62 +475,76 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,verbose=True):
     :type ps: float
     :param tas: true air speed (m/s)
     :type tas: float
-    :param cloud_mask: Array of True/False or 1/0 for in/out of cloud
-        Default is None for no cloud.
-    :type cloud_mask: Boolean
+    :key cloud_mask: Array of True/False or 1/0 for in/out of cloud
+            Default is None for no cloud.
+    :type cloud mask: np.array
+    :key rtn_func: If False [default] array of dry air powers for given
+        sense element is returned. If True then the lambda function to
+        calculate the dry air power from Pcomp is returned.
+    :type rtn_func: boolean
+    :key verbose: If True [default] then print to stdout the values and
+        and uncertainties of the fitting parameters.
+    :type verbose: boolean
 
     :returns result: Array of dry air power terms calculated for each
         value of Psense. Will return None if the fitting routine fails.
 
     """
-
     from scipy.optimize import curve_fit
 
+    # Create mask based on cloud_mask
+    # This step is to cope with different types of binary elements
+    # np.all statement so that cloud does not become False in make_mask step
+    if cloud_mask is None or np.all(cloud_mask==False):
+        cloud = np.array([False]*len(Pcomp))
+    else:
+        cloud = np.ma.make_mask(cloud_mask)
 
-    import pdb
-    pdb.set_trace()
+    # Remove any nan's from input arrays by wrapping up into cloud mask
+    nan_mask = ~np.isfinite(Psense)
+    mask = np.logical_or(cloud,nan_mask)
 
-    if cloud_mask is None:
-        n = Psense.shape[0]
-        cloud_mask = np.zeros((n,), dtype=np.bool)
-
-    _Psense = Psense[cloud_mask == 0, :].ravel()
-    _T = T[cloud_mask == 0, :].ravel()
-    _ts = ts[cloud_mask == 0, :].ravel()
-    _ps = ps[cloud_mask == 0, :].ravel()
-    _tas = tas[cloud_mask == 0, :].ravel()
-
-    # remove all nans
-    ix = np.where((np.isfinite(_Psense)) &
-                  (np.isfinite(_T)) &
-                  (np.isfinite(_ts)) &
-                  (np.isfinite(_ps)) &
-                  (np.isfinite(_tas)))[0]
-    _Psense = _Psense[ix]
-    _T = _T[ix]
-    _ts = _ts[ix]
-    _ps = _ps[ix]
-    _tas = _tas[ix]
+    _Psense = Psense[~mask]
+    _T = T[~mask]
+    _ts = ts[~mask]
+    _ps = ps[~mask]
+    _tas = tas[~mask]
 
     # Linear fitting function
+    # func1 is for finding the fitting parameters,
+    # func2 is for calculating P_dryair
     func1 = lambda x,a,b: a * (_T - _ts) * (_ps * _tas)**b - x
     func2 = lambda a,b: a * (T - ts) * (ps * tas)**b
 
-    # Find fitting constants that minimise difference between calculated
-    # and actual total power on sense element.
+    # Fit compensation power to sense power
     # Interpolations don't accept masked arrays so delete masked elements
-    popt,pcov = curve_fit(func1, _Psense, np.zeros(_Psense.size))
+    try:
+        popt,pcov = curve_fit(func1, _Psense, np.zeros(_Psense.size))
+    except (TypeError, ValueError, RuntimeError):
+        # Incompatible inputs or minimization failure
+        pcov = np.inf
 
     if np.any(np.isinf(pcov)):
         # No convergence
+        # TODO: This should RAISE an error instead?
+        if verbose:
+            sys.stdout.write('Dry air power fitting:\n Fitting failure')
         return None
 
+    # Calculate standard deviation of fitting parameters
+    perr = np.sqrt(np.diag(pcov))
+    opt_err = np.dstack((popt,perr)).ravel()
+
     if verbose:
-        sys.stdout.write('K1: %8.3f   K2: %6.3f\n' % tuple(popt))
+        sys.stdout.write('Dry air power fitting:\n'
+            ' k1: {:6.3f} (+/-{:0.3})\tk2: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err))
 
-    result = func2(popt[0], popt[1])
+    if rtn_func == True:
+        # This doesn't actually make a lot of sense due to constants
+        return lambda x: func2(*popt)
+    else:
+        return func2(*popt)
 
-    return result
 
 
 def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
@@ -561,19 +566,20 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
     defined in a slightly different way and this same method may be applied
     to the SEA probe in future. eg p_nevzerov.get_fitted_k()
 
-    :param Psense: Array of powers of sense element
+    :param Psense: Array of powers of sense element.
     :type Psense: float
     :param Pcomp: Array of powers of compensation element for same
-            times. len(Pcomp)==len(Psense)
+            times. Shape of two input arrays must be the same.
     :type Pcomp: float
     :key cloud_mask: Array of True/False or 1/0 for in/out of cloud
             Default is None for no cloud.
     :type cloud mask: np.array
-    :key rtn_func: If False [default] array of dry air powers is returned
-        in same shape as inputs. If True then the lambda function to
+    :key rtn_func: If False [default] array of dry air powers for given
+        sense element is returned. If True then the lambda function to
         calculate the dry air power from Pcomp is returned.
     :type rtn_func: boolean
-    :key verbose: If True [default] then print to stdout the fitting parameters
+    :key verbose: If True [default] then print to stdout the values and
+        and uncertainties of the fitting parameters.
     :type verbose: boolean
 
     :returns: Array of dry air powers if rtn_func is False, if rtn_func is
@@ -594,12 +600,12 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
 
     # Remove any nan's from input arrays by wrapping up into cloud mask
     nan_mask = np.logical_or(~np.isfinite(Pcomp),~np.isfinite(Psense))
-    cloud = np.logical_or(cloud[::],nan_mask)
+    mask = np.logical_or(cloud,nan_mask)
 
     # Fit compensation power to sense power
     # Interpolations don't accept masked arrays so delete masked elements
     try:
-        popt,pcov = curve_fit(func, Pcomp[~cloud], Psense[~cloud])
+        popt,pcov = curve_fit(func, Pcomp[~mask], Psense[~mask])
     except (TypeError, ValueError, RuntimeError):
         # Incompatible inputs or minimization failure
         pcov = np.inf
@@ -623,6 +629,7 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
         return lambda x: func(x,*popt)
     else:
         return func(Pcomp,*popt)
+
 
 
 def T_check(V,I,Tset,R100,dTdR,Twarn=None):
@@ -667,6 +674,7 @@ def T_check(V,I,Tset,R100,dTdR,Twarn=None):
     Tdiff = Tcalc - Tset
 
     return np.ma.masked_outside(Tdiff, -abs(Twarn), abs(Twarn))
+
 
 
 def energy_liq(ps):
