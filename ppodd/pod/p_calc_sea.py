@@ -187,23 +187,6 @@ def get_instr_fault_mask(el_temperature,
     return np.reshape(instr_mask,el_shape)
 
 
-    # mask = np.zeros(twc_t.shape, dtype=np.bool)
-    # ix = np.where((np.min(twc_t, axis=1) < temp_limits[0]) |
-    #               (np.max(twc_t, axis=1) > temp_limits[1]) |
-    #               (np.min(_083_t, axis=1) < temp_limits[0]) |
-    #               (np.max(_083_t, axis=1) > temp_limits[1]) |
-    #               (np.min(_021_t, axis=1) < temp_limits[0]) |
-    #               (np.max(_021_t, axis=1) > temp_limits[1]))[0]
-    # mask[ix] = True
-    # if verbose:
-    #     if ix.size != 0:
-    #         perc_flagged = float(ix.size)/float(mask.size) * 100.
-    #     else:
-    #         perc_flagged = 0.
-    #     sys.stdout.write('Percentage of data flagged due to instrument issues: %.2f (n=%i)\n' % (perc_flagged, ix.size))
-    # return np.max(mask, axis=1)
-
-
 def get_cloud_mask_from_el_temperature(el_temperature,
                                        var_thres=0.6,
                                        set_temp=140.,
@@ -476,7 +459,7 @@ def get_slr_mask(hdgr, altr, hdgr_atol=10., altr_atol=2, freq=1., win=1.):
     return np.resize(slr_mask.transpose(),hdgr_shape)
 
 
-def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None, verbose=True):
+def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,verbose=True):
     """
     Calculate dry air power term by fitting constants for 1st principles.
 
@@ -511,6 +494,10 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None, verbose=True):
     """
 
     from scipy.optimize import curve_fit
+
+
+    import pdb
+    pdb.set_trace()
 
     if cloud_mask is None:
         n = Psense.shape[0]
@@ -551,10 +538,12 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None, verbose=True):
         sys.stdout.write('K1: %8.3f   K2: %6.3f\n' % tuple(popt))
 
     result = func2(popt[0], popt[1])
+
     return result
 
 
-def dryair_calc_comp(Psense,Pcomp,cloud_mask=None):
+def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
+                     rtn_func=False,verbose=True):
     """
     Calculate dry air power term from compensation element measurements.
 
@@ -577,11 +566,18 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None):
     :param Pcomp: Array of powers of compensation element for same
             times. len(Pcomp)==len(Psense)
     :type Pcomp: float
-    :param cloud_mask: Array of True/False or 1/0 for in/out of cloud
+    :key cloud_mask: Array of True/False or 1/0 for in/out of cloud
             Default is None for no cloud.
     :type cloud mask: np.array
+    :key rtn_func: If False [default] array of dry air powers is returned
+        in same shape as inputs. If True then the lambda function to
+        calculate the dry air power from Pcomp is returned.
+    :type rtn_func: boolean
+    :key verbose: If True [default] then print to stdout the fitting parameters
+    :type verbose: boolean
 
-    :returns: Function for calculating dry air power of sense element from Pcomp
+    :returns: Array of dry air powers if rtn_func is False, if rtn_func is
+        True then returns the fitting function.
     """
     from scipy.optimize import curve_fit
 
@@ -597,19 +593,36 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None):
         cloud = np.ma.make_mask(cloud_mask)
 
     # Remove any nan's from input arrays by wrapping up into cloud mask
-    nan_mask = np.logical_or(np.isnan(Pcomp),np.isnan(Psense))
+    nan_mask = np.logical_or(~np.isfinite(Pcomp),~np.isfinite(Psense))
     cloud = np.logical_or(cloud[::],nan_mask)
 
     # Fit compensation power to sense power
     # Interpolations don't accept masked arrays so delete masked elements
-    popt,pcov = curve_fit(func, Pcomp[~cloud], Psense[~cloud])
+    try:
+        popt,pcov = curve_fit(func, Pcomp[~cloud], Psense[~cloud])
+    except (TypeError, ValueError, RuntimeError):
+        # Incompatible inputs or minimization failure
+        pcov = np.inf
 
     if np.any(np.isinf(pcov)):
         # No convergence
-        # TODO:
-        return None         # This should RAISE an error instead
+        # TODO: This should RAISE an error instead?
+        if verbose:
+            sys.stdout.write('Dry air power fitting:\n Fitting failure')
+        return None
 
-    return lambda x: func(x,*popt)
+    # Calculate standard deviation of fitting parameters
+    perr = np.sqrt(np.diag(pcov))
+    opt_err = np.dstack((popt,perr)).ravel()
+
+    if verbose:
+        sys.stdout.write('Dry air power fitting:\n'
+            ' K: {:6.3f} (+/-{:0.3})\tP0: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err))
+
+    if rtn_func == True:
+        return lambda x: func(x,*popt)
+    else:
+        return func(Pcomp,*popt)
 
 
 def T_check(V,I,Tset,R100,dTdR,Twarn=None):
