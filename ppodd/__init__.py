@@ -149,3 +149,28 @@ class PpoddUtils(object):
         Return the confidence of the frequency inferrence.
         """
         return self._freq_conf
+
+
+    def set_el_dim(self,el,l,w):
+        """
+        Set element ('TWC','083','021') dimensions; length and width
+        """
+
+        try:
+            self.hdware_dict
+        except NameError:
+            self.hdware_dict = {}
+
+        self.hdware_dict[el] = {'l': l, 'w': w}
+
+    def get_el_dim(self,el):
+        """
+        Return element ('TWC','083','021') dimensions; length and width
+        """
+
+        try:
+            return self.hdware_dict[el]
+        except (NameError, KeyError):
+            # Element hardware dictionary not created
+            return None
+
