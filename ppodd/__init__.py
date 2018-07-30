@@ -151,7 +151,7 @@ class PpoddUtils(object):
         return self._freq_conf
 
 
-    def set_el_dim(self,el,l,w):
+    def set_sea_dim(self,el,l,w):
         """
         Set element ('TWC','083','021') dimensions; length and width
         """
@@ -163,7 +163,7 @@ class PpoddUtils(object):
             self.hdware_dict[el] = {'l': l, 'w': w}
 
 
-    def get_el_dim(self,el):
+    def get_sea_dim(self,el):
         """
         Return element ('TWC','083','021') dimensions; length and width
         """
