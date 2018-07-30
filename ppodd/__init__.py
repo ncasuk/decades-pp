@@ -78,6 +78,8 @@ class PpoddUtils(object):
         self._freq = None
         self._freq_conf = None
 
+        self._sea_meta = None
+
     def _guess_freq(self):
         """
         'Guess' the frequency of the DataFrame index, by looking at the modal
@@ -151,26 +153,69 @@ class PpoddUtils(object):
         return self._freq_conf
 
 
-    def set_sea_dim(self,el,l,w):
+    def set_sea_meta(self,el,param):
         """
-        Set element ('TWC','083','021') dimensions; length and width
+        Set SEA WCM-2000 metadata. This is stored in a dictionary with
+        keys and values been set by param. Probe metadata should be stored
+        in an el subdict 'sea', while element metadata should be stored
+        in an el subdict 'TWC','083','021', or 'CMP').
+
+        Note that due to the expanded kwarg, it is up to the user to
+        monitor key consistency in the dictionary _sea_meta.
+        """
+
+        if self._sea_meta == None:
+            self._sea_meta = {}
+
+        if el not in self._sea_meta:
+            self._sea_meta[el] = {}
+
+        self._sea_meta[el].update(param)
+
+
+    def get_sea_meta(self,el,param=None):
+        """
+        Return element parameter. If param is None then all parameters
+        for element el are returned as a dictionary. More than one
+        parameter as a dictionary shall be returned if param is list-like
         """
 
         try:
-            self.hdware_dict[el] = {'l': l, 'w': w}
-        except NameError:
-            self.hdware_dict = {}
-            self.hdware_dict[el] = {'l': l, 'w': w}
-
-
-    def get_sea_dim(self,el):
-        """
-        Return element ('TWC','083','021') dimensions; length and width
-        """
-
-        try:
-            return self.hdware_dict[el]
-        except (NameError, KeyError):
+            self._sea_meta[el]
+        except (NameError, AttributeError, KeyError):
             # Element hardware dictionary not created
             return None
+
+        if param is None:
+            return self._sea_meta[el]
+        elif type(param) is str:
+            param = [param]
+
+        p = {k_:v_ for k_,v_ in self._sea_meta[el].items() if k_ in param}
+
+        if len(p.keys()) == 0:
+            return None
+        elif len(param) == 1:
+            # If only a single param requested then return value
+            return p[param[0]]
+        else:
+            # Return dictionary of params
+            return p
+
+
+    def sea_meta(self,meta=None):
+        """
+        If meta is None [default] then return metadata dictionary
+        If meta dictionary is given then overwirte any existing metadata
+        Return entire SEA metadata dictionary
+        """
+
+        if meta == None:
+            return self._sea_meta
+        else:
+            # The nested dictionaries are necessary to remove any empty values
+            self._sea_meta = \
+                {_k:{__k:__v for __k,__v in _v.items() if __v not in ['',np.nan]} \
+                 for _k,_v in meta.items()}
+
 
