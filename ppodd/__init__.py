@@ -157,11 +157,11 @@ class PpoddUtils(object):
         """
 
         try:
-            self.hdware_dict
+            self.hdware_dict[el] = {'l': l, 'w': w}
         except NameError:
             self.hdware_dict = {}
+            self.hdware_dict[el] = {'l': l, 'w': w}
 
-        self.hdware_dict[el] = {'l': l, 'w': w}
 
     def get_el_dim(self,el):
         """
