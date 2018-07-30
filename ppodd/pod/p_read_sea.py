@@ -233,6 +233,10 @@ def to_dataframe(ifile, rtn_all=False):
 
       In [4]: d['d0'].head()
 
+###   TODO: If rtn_all is False then merge 'normal' data files and return
+      single dataframe instead of dict of dataframes. If rtn_all is True
+      then return dictionary of dataframes (?)
+
     """
     # Read the wcm txt file into raw_data as a 1D-numpy.array of strings
     with open(ifile) as f:
@@ -310,6 +314,19 @@ def to_dataframe(ifile, rtn_all=False):
             df = df.reindex(index=newIndex, method='nearest')
 
         df_dic[k] = df.copy()
+
+    # Add probe metadata as dictionary accessor
+    for el in ['TWC','083','021','CMP']:
+
+        # Create list of valid element variables
+        k = [s_ for s_ in ['l','w','f','s','o'] if '{}_{}'.format(el,s_) in df_dic['c0']]
+
+        # Add these parameters to the sea metadata. All rows are the same but
+        # take 10th just in case there are issues at beginning of the file.
+        df_dic['d0'].ppodd.set_sea_meta(el,{_k:df_dic['c0']['{}_{}'.format(el,_k)][10] for _k in k})
+
+    # Add serial number
+    df_dic['d0'].ppodd.set_sea_meta('sea',{'sn': df_dic['c0']['sn'][10]})
 
     return df_dic
 
