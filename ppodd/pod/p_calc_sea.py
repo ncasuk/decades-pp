@@ -536,7 +536,7 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
     opt_err = np.dstack((popt,perr)).ravel()
 
     if verbose:
-        sys.stdout.write('Dry air power fitting:\n'
+        sys.stdout.write('Dry air power fitting, 1st principles:\n'
             ' k1: {:6.3f} (+/-{:0.3})\tk2: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err))
 
     if rtn_func == True:
@@ -622,7 +622,7 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
     opt_err = np.dstack((popt,perr)).ravel()
 
     if verbose:
-        sys.stdout.write('Dry air power fitting:\n'
+        sys.stdout.write('Dry air power fitting - Compensation element:\n'
             ' K: {:6.3f} (+/-{:0.3})\tP0: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err))
 
     if rtn_func == True:
@@ -815,22 +815,22 @@ def calc_sense_wc(Psense, Levap, Tevap, tat, tas, sens_dim):
        This is fine as the difference between liquid and ice is accounted for
        by including the appropriate efficiencies in calc_lwc() and calc_iwc().
 
-    :param float Psense: Sense element power (W)
-    :param float Levap:
-    :param float Tevap:
+    :param float Psense: Sense element wet power (total-DAT) (W)
+    :param float Levap: Latent heat of evaporation (cal/gm)
+    :param float Tevap: Evaporative temperature in (degC)
     :param float tat: True air temperature (degC)
     :param float tas: True air speed (m s-1)
     :param tuple sens_dim: (length, width) both in mm
-    :returns W_meas: Water content (liquid or total) as measured by the
+
+    :returns wc: Water content (liquid or total) as measured by the
         sense element (g/m**3)
     :rtype: float
     """
 
-    # Calculate wet power by subtracting dry air power term
-    # TODO: Where Psense_dry_tmp() is the placeholder function to derive Psens_dry from Pcomp
-    #Psense_wet = Psense_tot - Psense_dry_tmp(Pcomp)
-    lwc = (Psense * 2.389*10**5) / ((Levap + (Tevap-tat))*tas*sens_dim[0]*sens_dim[1])
-    return lwc
+    wc = np.divide(Psense * 2.389*10**5,
+                   (Levap + (Tevap-tat))*tas*sens_dim[0]*sens_dim[1])
+
+    return wc
 
 
 def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
