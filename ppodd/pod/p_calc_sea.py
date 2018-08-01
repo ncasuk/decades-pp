@@ -17,7 +17,7 @@ Calculation process is as follows:
 * Calculation of measured water content for each element (2)
   * Using latent heats from energy_liq(), calculate in calc_sense_wc()
 * Simultaneous calculation of actual IWC and LWC from measured values (3)
-  * Done in same was as dry air power, read efficiencies calculated for
+  * Done in same way as dry air power, read efficiencies calculated for
    many flights from flight constants file. Calculate for this flight to
    compared.
 * Addition of IWC and LWC to obtain TWC
@@ -31,8 +31,11 @@ Units:
 ======
 
 Many of the parameters are obtained from empirical equations, thus the
-use of the correct units is important. To use those equations and compare
-values these functions use the units as used by SEA.
+use of the correct units is important. Unfortunately SEA has used calories
+in their documentation, these are assumed to be IT calories however this is
+uncertain. The early papers, eg [OsSG39]_, use 20degC calories. To try and
+avoid confusion and compare with Nevzerov probe paper, energies have been
+converted to joules.
 
 .. glossary::
 
@@ -41,7 +44,7 @@ values these functions use the units as used by SEA.
    Element dimensions
       mm
    Latent heat
-      cal/g
+      J/g
    Temperature
       degrees celsius
    True air speed
@@ -57,7 +60,7 @@ In an attempt to clarify the use of different symbols from different sources
 here they all are;
 
 .. csv-table:: Variables
-   :header: "this file", "Korolev et al. [[KICS03]_", "SEA docs", "description"
+   :header: "this file", "Korolev et al. [KICS03]_", "SEA docs", "description"
    :widths: "auto","auto","auto"
 
    "iwc", :math:`W_{\scriptsize\text{liq}}`, "IWC", "Actual ice water content"
@@ -78,6 +81,8 @@ and IWC Sensitivities" received from Lyle Lilie via email, 20/07/2017.
 .. rubic:: References:
 .. [SEA16] Science Engineering Associates, WCM-2000 Users Guide. January
 25, 2016. http://www.scieng.com/pdf/WCM2000User.pdf
+.. [DiO15] Dickinson, Osborne, "Specific heat and heat of fusion of ice",
+Bulletin of the Bureau of Standards, Vol. 12, 49-81, pp49-81, 1915.
 .. [KoSI98] Korolev et al., "The Nevzorov Airborne Hot-Wire LWC-TWC Probe:
 Principle of Operation and Performance Characteristics", J. Atmos. Oceanic
 Technol., 15, pp1495-1510, 1998.
@@ -106,6 +111,13 @@ except:
 cal_to_J = 4.1868
 J_to_cal = 1./cal_to_J
 
+# Note that calories 20degC as used by Osborne et al. is 4.1819J
+cal20_to_J = 4.1819
+J_to_cal20 = 1./cal20_to_J
+
+# Convert Kelvin to degrees C
+C_to_K = lambda C: C + 273.15
+K_to_C = lambda K: K - 273.15
 
 ### Placeholder function that will be from flight constants file or something
 ### similar. This function will be derived from dryair_calc_comp() for
@@ -684,11 +696,14 @@ def energy_liq(ps):
     Based on WCM-2000 empirical equations on page 64. No references found.
     Valid for pressures 100-1050mb.
 
+    Korolev [KoSI98] includes the evaporative temperature in equation 8
+    although this includes element efficiency.
+
     :param ps: ambient static air pressure (mbar)
     :type ps: float
     :returns Tevap: Temperature of evaporation (deg C)
     :rtype Tevap: float
-    :returns Levap: Latent heat of evaporation (cal/g)
+    :returns Levap: Latent heat of evaporation (J/g)
     :rtype: float
     """
 
@@ -706,6 +721,9 @@ def energy_liq(ps):
     Levap = 594.4 - \
             (0.484 * Tevap) - \
             (7.0e-4 * Tevap**2.)
+
+    # Convert to J/g
+    Levap *= cal_to_J
 
     return Tevap, Levap
 
@@ -733,73 +751,90 @@ def calc_L(T,ps):
     Calculate the specific energies for melting and/or evaporation
 
     The specific energy expended to evaporate water of a given temperature,
-    T, is given by L*_l. The specific energy expended to melt then evaporate
-    ice of a given temperature, T, is given by L*_i. The ratio of L*_i to
-    L*_l is designated as k.
+    T, is given by L^*_liq. The specific energy expended to melt then evaporate
+    ice of a given temperature, T, is given by L^*_ice. The ratio of L*_i to
+    L*_l is designated as k and is used to calculate LWC and IWC.
 
     This is described in Korolev 1998 and 2003. For the Nevzerov probe,
-    a constant value is given but this includes efficiencies and temperatures
-    specific to that probe. k for the SEA probe must be calculated.
+    constant values are given with L^*_liq = 2580J/g and L^*_ice = 2900J/g
+    giving k=1.12 (in 2003, k=1.13 in 1998). For comparison for T=-35-5degC;
 
-    Variables names:
-        L^*_liq     SpecEnergy_liq  Specific energy expended to evaporate
-        C_liq       C_liq           Specific heat of liquid water
-        T_e         T_e             Temperature of evaporation
-        T           T               Ambient temperature
-        L_liq(Te)   L_liq           Latent heat of evaporation at T_e
-        L^*_ice     SpecEnergy_ice  Specific energy expended to melt+evaporate
-        C_ice       C_ice           Specific heat of ice
-        L_ice       L_ice           Latent heat of fusion
+    * SpecEnergy_liq = 2262.6-2312.8J/g
+    * SpecEnergy_ice = 2598.2-2648.1J/g
+    * k = 1.145-1.148
 
-    .. note::
+    These values are reasonably linear with temperature.
 
-       1cal/gK == 4.184J/gK
-       1J == 0.239 cal
-       Specific heat (cal/gK) is same as heat capacity (J/molK)
+    .. csv-table:: Variables
+       :header: "this file", "Korolev et al. [KICS03]_", "description"
+       :widths: "auto","auto","auto"
 
-    :param T: Ambient temperature (degree C)
+        "T", :math:`T_a`, "Ambient temperature"
+        "T_e", :math:`T_e`, "Temperature of evaporation"
+        "L_liq", :math:`L_{\scriptsize\text{liq}}`, "Latent heat of evaporation water"
+        "L_ice", :math:`L_{\scriptsize\text{ice}}`, "Latent heat of fusion of ice"
+        "C_liq", :math:`C_{\scriptsize\text{liq}}`, "Specific heat of liquid water"
+        "C_ice", :math:`C_{\scriptsize\text{ice}}`, "Specific heat of ice"
+        "Lstar_liq", :math:`L^*_{\scriptsize\text{liq}}`, "Specific energy expended to evaporate water"
+        "Lstar_ice", :math:`L^*_{\scriptsize\text{ice}}`, "Specific energy expended to melt and evaporate ice"
+
+
+    :param T: Ambient temperature (degree C). Function attempts to intercept
+        temperatures in kelvin and convert
     :type T:  float
     :param ps: Ambient static pressure (mb)
     :type ps: float
 
-    :returns SpecEnergy_liq: The specific energy expended for liquid water (cal/g)
+    :returns Lstar_liq: The specific energy expended for liquid water (J/g)
     :rtype: float
-    :returns SpecEnergy_ice: The specific energy expended for ice (cal/g)
+    :returns Lstar_ice: The specific energy expended for ice (J/g)
     :rtype: float
     """
 
-    # Latent heat of fusion for ice (cal/g)
-    # 333.5J/g == 79.71cal/g from Osborne, 1939.
-    # Note that I don't understand the difference between International and
-    # Absolute joules in these papers. Could be 79.72 as quoted by Wikipedia
-    L_ice = 333.5 * J_to_cal
 
-    # Specific heat of water from 0-100deg C converted to cal/gC
-    # From Osborne et al. 1939.
-    C_liq = lambda t: J_to_cal * (4.169828 \
+    # Convert temperatures from kelvin to celsius if necessary
+    if np.any(T<0):
+        # T must be in celcius
+        pass
+    elif np.any(T>170):
+        # Assume is in kelvin
+        T = K_to_C(T.copy())
+
+    # Latent heat of fusion for ice (J/g)
+    # 333.5J/g == 79.71cal/g from Osborne, 1939.
+    # (apparently, I can't find it now!)
+    L_ice = 333.5
+
+    # Specific heat of water from 0-100degC
+    # From Osborne et al. 1939, page 227 and checked against Table 6
+    C_liq = lambda t: (4.169828 \
                       + (0.000364 * (t+100)**5.26 )*1e-10 \
-                      + 0.046709*10**(-0.036*t))
+                      + 0.046709*10**(-0.036*t)) # *J_to_cal20
 
     # Specific heat of ice
     # from http://www.kayelaby.npl.co.uk/general_physics/2_3/2_3_6.html
-    # Convert from J to cal
-    # Have pinned to zero for values greater than zero
-    C_ice_T = np.array([-196.,-100.,0.])
-    C_ice_data = np.array([0.686,1.372,2.097]) * J_to_cal
-    C_ice = lambda t: np.interp(t,C_ice_T,C_ice_data,right=0)
+    # Have pinned values for T>0 to C_ice(0)
+    C_ice_T = K_to_C(np.array([77.,173.,273.]))
+    C_ice_data = np.array([0.686,1.372,2.097])# * J_to_cal
+    C_ice = lambda t: np.interp(t,C_ice_T,C_ice_data)
+
+    # Specific heat of ice from Dickinson, 1915 as a comparison to above.
+    # Has a slightly larger gradient with a cross-over at ~-33degC.
+    C_ice_d = lambda t: (0.5057 + 0.001863*t) * cal20_to_J
 
     # Obtain evaporation temperature and latent heat for ambient pressure
+    # Note that T_sens > T_e > T
     T_e, L_liq = energy_liq(ps)
 
     # Calculate specific energy of liquid water
     # from Korolev et al. 2003. eq 5
-    SpecEnergy_liq = C_liq(T_e-T) + L_liq
+    Lstar_liq = C_liq(T_e-T) + L_liq
 
     # Equation divided into melting (up to 0C) and evaporation (0C -> T_e)
     # from Korolev et al. 2003. eq 6
-    SpecEnergy_ice = C_ice(T) + L_ice + C_liq(T_e) + L_liq
+    Lstar_ice = C_ice(T) + L_ice + C_liq(T_e) + L_liq
 
-    return SpecEnergy_liq, SpecEnergy_ice
+    return Lstar_liq, Lstar_ice
 
 
 def calc_sense_wc(Psense, Levap, Tevap, tat, tas, sens_dim):
@@ -808,6 +843,7 @@ def calc_sense_wc(Psense, Levap, Tevap, tat, tas, sens_dim):
 
     Use equation as given on pages 61,65 of the WCM-2000 manual. This is
     the same as eqs 3,4 from Korolev 2003 but for calories instead of joules.
+    This calculation does not include any element efficiencies
 
     .. note::
 
@@ -833,14 +869,45 @@ def calc_sense_wc(Psense, Levap, Tevap, tat, tas, sens_dim):
     return wc
 
 
-def calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
+def calc_lwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     """
     Calculate liquid water content from the measured LWC and TWC.
 
+    :param W_twc: array of as-measured total water content from TWC element
+            in g/m**3.
+    :type W_twc: floats
+    :param W_083: array of as-measured total water content from 083 LWC
+            element in g/m**3.
+    :type W_083: floats
+    :param W_021: array of as-measured total water content from 021 LWC
+            element in g/m**3.
+    :type W_021: floats
+    :param k: Ratio of expended specific energies of water evaporation and ice
+        sublimation
+    :type k: float
+    :param e_liqL: Collection efficiency of the LWC sensor for liquid droplets.
+        Default is 1.
+    :type e_liqL: float
+    :param e_liqT: Collection efficiency of the TWC sensor for liquid droplets.
+        Default is 1.
+    :type e_liqT: float
+    :param beta_iceL: Collection efficiency of the LWC sensor for ice
+        particles. Default is 0.
+    :type beta_iceL: float
+    :param e_iceT: Collection efficiency of the TWC sensor for ice particles.
+        Default is 1.
+    :type e_iceT: floats
+
+    :returns lwc: The calculated liquid water content (g/m**3).
+    :rtype: float
+
+    TODO: This ignores any particle size dependency in the efficiencies.
     """
 
-    lwc = np.divide(beta_iceL * W_twc - k*e_iceT * W_lwc,
-                    beta_iceL * e_liqT - e_liqL * k*e_iceT)
+    lwc = np.divide(np.asfarray(beta_iceL) * W_twc - k * np.asfarray(e_iceT) * W_lwc,
+                    np.asfarray(beta_iceL) * np.asfarray(e_liqT) - np.asfarray(e_liqL) * k * np.asfarray(e_iceT))
+
+    return lwc
 
 
 def calc_iwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
