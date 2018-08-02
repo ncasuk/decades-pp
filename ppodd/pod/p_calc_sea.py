@@ -78,7 +78,16 @@ The SEA docs referred to is not the WCM-2000 manual but from the presentation
 "Simultaneous Solution for IWC and LWC Using Two Elements with Differing LWC
 and IWC Sensitivities" received from Lyle Lilie via email, 20/07/2017.
 
+**Note:** There is a lot of use of the symbol *k* in the references,
+unfortunately these are often inconsistent. *K* is used by Abel et al. [AbC14]_
+as the ratio of element to compensation powers, the lower case *k* is
+used in p_nevzerov.py/p_rio_nevzerov.py.
+
+
 .. rubic:: References:
+.. [AbC14] Abel, Cotton, Barrett, and Vance, "A comparison of ice water
+content measurement techniques on the FAAM BAe-146 aircraft", Atmos.
+Meas. Tech., Vol. 7, pp3007-3022, 2014.
 .. [SEA16] Science Engineering Associates, WCM-2000 Users Guide. January
 25, 2016. http://www.scieng.com/pdf/WCM2000User.pdf
 .. [DiO15] Dickinson, Osborne, "Specific heat and heat of fusion of ice",
@@ -87,7 +96,7 @@ Bulletin of the Bureau of Standards, Vol. 12, 49-81, pp49-81, 1915.
 Principle of Operation and Performance Characteristics", J. Atmos. Oceanic
 Technol., 15, pp1495-1510, 1998.
 .. [KICS03] Korolev et al., "Microphysical characterization of mixed-phase
-clouds", Q.J.R. Meteorol. Soc., 129, pp39-65, 2003.
+clouds", Q.J.R. Meteorol. Soc., Vol. 129, pp39-65, 2003.
 .. [Osbo39] Osborne, N.S., "Heat of fusion of ice. A revision", J. Res.
 Natl. Bur. Stand., Vol. 23, p. 643, 1939.
 .. [OsSG39] Osborne, Stimson, and Ginnings, "Measurements of heat capacity
@@ -469,7 +478,7 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
     The calculation of the dry air power term is based on method three
     as described on page 58 of the WCM-2000 manual. This uses a fit
     between the theoretical and measured (in cloud-free conditions)
-    sense powers to find the fitting constants K1 and K2.
+    sense powers to find the fitting constants k1 and k2 (k2~0.5).
 
     Psense,dry = k1 * (T - ts) * (ps * tas)**k2
 
@@ -564,15 +573,17 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
     """
     Calculate dry air power term from compensation element measurements.
 
-    The calculation of the dry air power term is based on the use of the
-    compensation element as described on page 56 of the WCM-2000 manual.
+    The calculation of the dry air power term (DAT) is based on the use of
+    the compensation element as described on page 56 of the WCM-2000 manual.
     This finds the slope and offset for conversion of the compensation
     power to dry air sense element power.
 
     Psense,dry = P0 + K * Pcomp
     Psense,total = P0 + K * Pcomp when in clear air
 
-    This will be TAS and Pambient dependent (possibly Tambient)
+    This will be TAS and Pambient dependent (possibly Tambient). This
+    function determines optimum fitting parameters for the entire dataset,
+    thus any baseline drift shall be lost.
 
     Note that the Nevzerov calculation of the dry air term has been
     defined in a slightly different way and this same method may be applied
@@ -596,6 +607,15 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
 
     :returns: Array of dry air powers if rtn_func is False, if rtn_func is
         True then returns the fitting function.
+
+
+    TODO:: Need to include the baseline drift. This is discussed in Abel et al.
+    for the Nevzerov in Appendix A. In that paper a single K value is used
+    and then the IAS and P dependency found so that it can be added to K. A
+    similar thing could be done here, the average fitting parameters for
+    the entire flight is found then the dependency of these averages on
+    flight conditions found and factored out.
+
     """
     from scipy.optimize import curve_fit
 
@@ -747,7 +767,7 @@ def liquid():
 
 
 def calc_L(T,ps):
-    """
+    r"""
     Calculate the specific energies for melting and/or evaporation
 
     The specific energy expended to evaporate water of a given temperature,
@@ -874,14 +894,11 @@ def calc_lwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     Calculate liquid water content from the measured LWC and TWC.
 
     :param W_twc: array of as-measured total water content from TWC element
-            in g/m**3.
+        in g/m**3.
     :type W_twc: floats
-    :param W_083: array of as-measured total water content from 083 LWC
-            element in g/m**3.
-    :type W_083: floats
-    :param W_021: array of as-measured total water content from 021 LWC
-            element in g/m**3.
-    :type W_021: floats
+    :param W_lwc: array of as-measured total water content from 083 or 021
+        LWC element in g/m**3.
+    :type W_lwc: floats
     :param k: Ratio of expended specific energies of water evaporation and ice
         sublimation
     :type k: float
@@ -910,17 +927,45 @@ def calc_lwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     return lwc
 
 
-def calc_iwc(W_twc,W_lwc,k,e_liqL,e_liqT,beta_iceL,e_iceT):
+def calc_iwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     """
     Calculate ice water content from the measured LWC and TWC
 
+    :param W_twc: array of as-measured total water content from TWC element
+            in g/m**3.
+    :type W_twc: floats
+    :param W_lwc: array of as-measured total water content from 083 or 021
+        LWC element in g/m**3.
+    :type W_lwc: floats
+    :param k: Ratio of expended specific energies of water evaporation and ice
+        sublimation
+    :type k: float
+    :param e_liqL: Collection efficiency of the LWC sensor for liquid droplets.
+        Default is 1.
+    :type e_liqL: float
+    :param e_liqT: Collection efficiency of the TWC sensor for liquid droplets.
+        Default is 1.
+    :type e_liqT: float
+    :param beta_iceL: Collection efficiency of the LWC sensor for ice
+        particles. Default is 0.
+    :type beta_iceL: float
+    :param e_iceT: Collection efficiency of the TWC sensor for ice particles.
+        Default is 1.
+    :type e_iceT: floats
+
+    :returns lwc: The calculated liquid water content (g/m**3).
+    :rtype: float
+
+    TODO: This ignores any particle size dependency in the efficiencies.
     """
 
-    iwc = np.divide(e_liqL * W_twc - e_liqT * W_lwc,
-                    e_liqL * k*e_iceT - beta_iceL * e_liqT)
+    iwc = np.divide(np.asfarray(e_liqL) * W_twc - np.asfarray(e_liqT) * W_lwc,
+                    np.asfarray(e_liqL) * k * np.asfarray(e_iceT) - np.asfarray(beta_iceL) * np.asfarray(e_liqT))
+
+    return iwc
 
 
-def calc_wc():
+def calc_wc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     r"""
     Calculate real water contents including sensor efficiencies.
 
@@ -964,8 +1009,12 @@ def calc_wc():
     .. note:: Note that for the SEA WCM-2000 there are two LWC sensors, the 083 and 021.
 
     """
+    lwc = calc_lwc(W_twc,W_lwc,k,e_liqL,e_liqT,e_iceT,beta_iceL)
+    iwc = calc_iwc(W_twc,W_lwc,k,e_liqL,e_liqT,e_iceT,beta_iceL)
+    twc = lwc + iwc
 
-    pass
+    return lwc,iwc,twc
+
 
 
 def find_efficiencies(W_twc,W_083,W_021,
