@@ -155,10 +155,10 @@ class PpoddUtils(object):
 
     def set_sea_meta(self,el,param):
         """
-        Set SEA WCM-2000 metadata. This is stored in a dictionary with
-        keys and values been set by param. Probe metadata should be stored
+        Set SEA WCM-2000 metadata. Probe metadata should be stored
         in an el subdict 'sea', while element metadata should be stored
-        in an el subdict 'TWC','083','021', or 'CMP').
+        in an el subdict 'TWC','083','021', or 'CMP'). param is a
+        dictionary of items to be added to _sea_meta[el].
 
         Note that due to the expanded kwarg, it is up to the user to
         monitor key consistency in the dictionary _sea_meta.
