@@ -34,7 +34,7 @@ Many of the parameters are obtained from empirical equations, thus the
 use of the correct units is important. Unfortunately SEA has used calories
 in their documentation, these are assumed to be IT calories however this is
 uncertain. The early papers, eg [OsSG39]_, use 20degC calories. To try and
-avoid confusion and compare with Nevzerov probe paper, energies have been
+avoid confusion and compare with Nevzorov probe paper, energies have been
 converted to joules.
 
 .. glossary::
@@ -158,11 +158,18 @@ def get_sea_eff(el,ideal=False):
             return (1,0)
     else:
         if 'twc' in el.lower():
-            return (0.95,0.462)
+            return (0.2,0.11)
         if '083' in el:
-            return (0.9,0.095)
+            return (0.3,0)
         if '021' in el:
-            return (0.9,0.095)
+            return (0.15,0)
+    # else:
+    #     if 'twc' in el.lower():
+    #         return (0.95,0.462)
+    #     if '083' in el:
+    #         return (0.9,0.095)
+    #     if '021' in el:
+    #         return (0.9,0.095)
 
 
 def moving_avg(x, N):
@@ -620,7 +627,7 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
     function determines optimum fitting parameters for the entire dataset,
     thus any baseline drift shall be lost.
 
-    Note that the Nevzerov calculation of the dry air term has been
+    Note that the Nevzorov calculation of the dry air term has been
     defined in a slightly different way and this same method may be applied
     to the SEA probe in future. eg p_nevzerov.get_fitted_k()
 
@@ -645,7 +652,7 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
 
 
     TODO:: Need to include the baseline drift. This is discussed in Abel et al.
-    for the Nevzerov in Appendix A. In that paper a single K value is used
+    for the Nevzorov in Appendix A. In that paper a single K value is used
     and then the IAS and P dependency found so that it can be added to K. A
     similar thing could be done here, the average fitting parameters for
     the entire flight is found then the dependency of these averages on
@@ -810,7 +817,7 @@ def calc_L(T,ps):
     ice of a given temperature, T, is given by L^*_ice. The ratio of L*_i to
     L*_l is designated as k and is used to calculate LWC and IWC.
 
-    This is described in Korolev 1998 and 2003. For the Nevzerov probe,
+    This is described in Korolev 1998 and 2003. For the Nevzorov probe,
     constant values are given with L^*_liq = 2580J/g and L^*_ice = 2900J/g
     giving k=1.12 (in 2003, k=1.13 in 1998). For comparison for T=-35-5degC;
 
@@ -924,7 +931,7 @@ def calc_sense_wc(Psense, Levap, Tevap, tat, tas, sens_dim):
     return wc
 
 
-def calc_lwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
+def calc_lwc(W_twc,W_lwc,k,e_liqT=1,e_iceT=1,e_liqL=1,beta_iceL=0):
     """
     Calculate liquid water content from the measured LWC and TWC.
 
@@ -937,18 +944,18 @@ def calc_lwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     :param k: Ratio of expended specific energies of water evaporation and ice
         sublimation
     :type k: float
-    :param e_liqL: Collection efficiency of the LWC sensor for liquid droplets.
-        Default is 1.
-    :type e_liqL: float
     :param e_liqT: Collection efficiency of the TWC sensor for liquid droplets.
         Default is 1.
     :type e_liqT: float
+    :param e_iceT: Collection efficiency of the TWC sensor for ice particles.
+        Default is 1.
+    :type e_iceT: float
+    :param e_liqL: Collection efficiency of the LWC sensor for liquid droplets.
+        Default is 1.
+    :type e_liqL: float
     :param beta_iceL: Collection efficiency of the LWC sensor for ice
         particles. Default is 0.
     :type beta_iceL: float
-    :param e_iceT: Collection efficiency of the TWC sensor for ice particles.
-        Default is 1.
-    :type e_iceT: floats
 
     :returns lwc: The calculated liquid water content (g/m**3).
     :rtype: float
@@ -962,7 +969,7 @@ def calc_lwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     return lwc
 
 
-def calc_iwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
+def calc_iwc(W_twc,W_lwc,k,e_liqT=1,e_iceT=1,e_liqL=1,beta_iceL=0):
     """
     Calculate ice water content from the measured LWC and TWC
 
@@ -975,18 +982,18 @@ def calc_iwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     :param k: Ratio of expended specific energies of water evaporation and ice
         sublimation
     :type k: float
-    :param e_liqL: Collection efficiency of the LWC sensor for liquid droplets.
-        Default is 1.
-    :type e_liqL: float
     :param e_liqT: Collection efficiency of the TWC sensor for liquid droplets.
         Default is 1.
     :type e_liqT: float
+    :param e_iceT: Collection efficiency of the TWC sensor for ice particles.
+        Default is 1.
+    :type e_iceT: float
+    :param e_liqL: Collection efficiency of the LWC sensor for liquid droplets.
+        Default is 1.
+    :type e_liqL: float
     :param beta_iceL: Collection efficiency of the LWC sensor for ice
         particles. Default is 0.
     :type beta_iceL: float
-    :param e_iceT: Collection efficiency of the TWC sensor for ice particles.
-        Default is 1.
-    :type e_iceT: floats
 
     :returns lwc: The calculated liquid water content (g/m**3).
     :rtype: float
@@ -1000,7 +1007,7 @@ def calc_iwc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
     return iwc
 
 
-def calc_wc(W_twc,W_lwc,k,e_liqL=1,e_liqT=1,e_iceT=1,beta_iceL=0):
+def calc_wc(W_twc,W_lwc,k,e_liqT=1,e_iceT=1,e_liqL=1,beta_iceL=0):
     r"""
     Calculate real water contents including sensor efficiencies.
 
