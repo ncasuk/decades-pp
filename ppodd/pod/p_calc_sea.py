@@ -134,6 +134,37 @@ K_to_C = lambda K: K - 273.15
 Psense_dry_tmp = lambda P: P
 
 
+def get_sea_eff(el,ideal=False):
+    """
+    Get sensor collection efficiencies for liquid and ice water respectively
+
+    Place holder for call to flight constants file or similar.
+
+    :param el: Element name; one of 'TWC', '038', '021'
+    :type el: string
+    :param ideal: Option for returning idealised element efficiencies
+    :type ideal: boolean
+    :returns: (e_liqL, beta_iceL) if el is 083
+              (e_liqL, beta_iceL) if el is 021
+              (e_liqT, e_iceT) if el is TWC
+    """
+    if ideal == True:
+        # Return the ideal efficiencies
+        if 'twc' in el.lower():
+            return (1,1)
+        if '083' in el:
+            return (1,0)
+        if '021' in el:
+            return (1,0)
+    else:
+        if 'twc' in el.lower():
+            return (0.95,0.462)
+        if '083' in el:
+            return (0.9,0.095)
+        if '021' in el:
+            return (0.9,0.095)
+
+
 def moving_avg(x, N):
     """
     Running average with a top-hat filter
@@ -202,7 +233,7 @@ def get_instr_fault_mask(el_temperature,
             perc_flagged = np.count_nonzero(instr_mask)/float(temp_mask.size) * 100.
         else:
             perc_flagged = 0.
-        sys.stdout.write('Percentage of data flagged due to instrument ' +
+        sys.stdout.write('\nPercentage of data flagged due to instrument ' +
                          'issues: {:.2f}% (n={:d})\n'.format(perc_flagged,
                                                              np.count_nonzero(instr_mask)))
 
@@ -251,6 +282,8 @@ def get_cloud_mask_from_el_temperature(el_temperature,
 
     :return cloud_mask: Boolean array; `True` equals cloud, `False`
         equals no cloud.
+
+    ::TODO: freq can now be automatically calculated from ppodd.sea_meta()
     """
 
     el_shape = el_temperature.shape
@@ -325,6 +358,8 @@ def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
 
     :return cloud_mask: Boolean array; `True` equals cloud, `False`
         equals no cloud.
+
+    ::TODO: freq can now be automatically calculated from ppodd.sea_meta()
     """
 
     el_shape = el_power.shape
@@ -549,7 +584,7 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
         # No convergence
         # TODO: This should RAISE an error instead?
         if verbose:
-            sys.stdout.write('Dry air power fitting:\n Fitting failure')
+            sys.stdout.write('Dry air power fitting:\n Fitting failure\n')
         return None
 
     # Calculate standard deviation of fitting parameters
@@ -646,7 +681,7 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
         # No convergence
         # TODO: This should RAISE an error instead?
         if verbose:
-            sys.stdout.write('Dry air power fitting:\n Fitting failure')
+            sys.stdout.write('Dry air power fitting:\n Fitting failure\n')
         return None
 
     # Calculate standard deviation of fitting parameters
