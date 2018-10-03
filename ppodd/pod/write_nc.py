@@ -22,7 +22,7 @@ beware it needs the DATE and FLIGHT parameters, and some timed data as a minimum
         'V_C', 'U_C', 'W_C', 'V_NOTURB', 'U_NOTURB', 'PSP_TURB', 'NO_TECO', 'SO2_TECO', 'BTHEIM_C', 'TWC_TDEW',
         'NV_LWC_U', 'NV_TWC_U', 'LAT_GIN', 'LON_GIN', 'ALT_GIN', 'VELN_GIN',
         'VELE_GIN', 'VELD_GIN', 'ROLL_GIN', 'PTCH_GIN', 'HDG_GIN', 'TRCK_GIN', 'GSPD_GIN',
-        'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 'ACLF_GIN', 'ACLS_GIN', 'ACLD_GIN', 'SW_UP_C',
+        'ROLR_GIN', 'PITR_GIN', 'HDGR_GIN', 'ACLF_GIN', 'ACLS_GIN', 'ACLD_GIN', 'SW_UP_C', 'NEPH_RH',
         'NEPH_PR', 'NEPH_T', 'TSC_BLUU', 'TSC_GRNU', 'TSC_REDU', 'BSC_BLUU', 'BSC_GRNU', 'BSC_REDU',
         'EXX_JCI', 'WOW_IND', 'WVSS2F_VMR', 'WVSS2R_VMR', 'CPC_CNTS', 'TDEW_CR2', 'TDEW_C_U',
         'VMR_CR2',  'VMR_C_U', 'TDEWCR2C']
