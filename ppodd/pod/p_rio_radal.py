@@ -46,7 +46,7 @@ FORTRAN routine C_RADAL1
                                   frequency=2,
                                   number=575,                                  
                                   long_name='Radar height from the aircraft radar altimeter',
-                                  standard_name='hieght')]
+                                  standard_name='height')]
         #self.name='RIO_RADAL'
         self.fortname = 'RADAL1'
         self.version = 1.00
