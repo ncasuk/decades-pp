@@ -69,7 +69,14 @@ class rio_ozone(cal_base):
         flag[flow_a < flow_threshold] = 3
         flag[flow_b < flow_threshold] = 3
         flag[wow_ind != 0]=3
-        #flag all data take-off+20secs
-        to_ix=int(np.where(wow_ind[:-1]-wow_ind[1:] == 1)[0])
+
+        # Flag all data to take-off + 20secs
+        to_ix = np.where(wow_ind[:-1] - wow_ind[1:] == 1)[0]
+        try:
+            to_ix = to_ix[0]
+        except IndexError:
+            # to_ix is already a scalar
+            pass
         flag[to_ix:to_ix+20] = 3
+
         self.outputs[0].data = flagged_data(conc,conc.times,flag)
