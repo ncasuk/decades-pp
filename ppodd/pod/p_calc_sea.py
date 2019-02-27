@@ -156,20 +156,20 @@ def get_sea_eff(el,ideal=False):
             return (1,0)
         if '021' in el:
             return (1,0)
-    else:
-        if 'twc' in el.lower():
-            return (0.2,0.11)
-        if '083' in el:
-            return (0.3,0)
-        if '021' in el:
-            return (0.15,0)
     # else:
     #     if 'twc' in el.lower():
-    #         return (0.95,0.462)
+    #         return (0.2,0.11)
     #     if '083' in el:
-    #         return (0.9,0.095)
+    #         return (0.3,0)
     #     if '021' in el:
-    #         return (0.9,0.095)
+    #         return (0.15,0)
+    else:
+        if 'twc' in el.lower():
+            return (0.95,0.462)
+        if '083' in el:
+            return (0.9,0.095)
+        if '021' in el:
+            return (0.9,0.095)
 
 
 def moving_avg(x, N):
@@ -1144,7 +1144,7 @@ def find_efficiencies(W_twc,W_083,W_021,
         (e_liq083,e_liq021,e_liqT,beta_ice083,beta_ice021,e_iceT) = fitvars
 
         return [calc_lwc(W_twc,W_083,k,e_liq083,e_liqT,beta_ice083,e_iceT),
-                calc_lwc(W_twc,W_21,k,e_liq021,e_liqT,beta_ice021,e_iceT)]
+                calc_lwc(W_twc,W_021,k,e_liq021,e_liqT,beta_ice021,e_iceT)]
 
 
     popt,pcov = curve_fit(ice_fit,(W_twc[ice],W_083[ice],W_021[ice]),
