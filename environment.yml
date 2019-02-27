@@ -1,0 +1,25 @@
+name: decades-pp
+# conda environment for DECADES post-processing python repository
+
+dependencies:
+  - python=2.7
+  - basemap
+  - Cython
+  - configparser
+  - h5py
+  - hdf5
+  - ipython
+  - natsort
+  - nose
+  - numpy
+  - matplotlib
+  - pandas
+  - pep8
+  - pytest
+  - pytz
+  - pyyaml
+  - netCDF4
+  - scipy
+  - seaborn
+  - sphinx
+  - sphinx_rtd_theme
