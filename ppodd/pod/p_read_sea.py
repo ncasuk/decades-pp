@@ -243,7 +243,10 @@ def to_dataframe(ifile, rtn_all=False):
         raw_data = np.genfromtxt(f, dtype='S')
 
     # Create a list of sentence ids
-    mtype = np.array([l.split(',')[0] for l in raw_data])
+    # Lines that do not conform to type are ignored
+    mtype = np.array([l.split(',')[0] for l in raw_data if l.split(',')!=[]])
+
+    pdb.set_trace()
 
     if rtn_all is True:
         sentence_id = np.unique(mtype)
