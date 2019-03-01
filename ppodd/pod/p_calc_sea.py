@@ -235,6 +235,10 @@ def get_instr_fault_mask(el_temperature,
 
     instr_mask = temp_mask.copy()
 
+    if np.all(instr_mask):
+        # Instrument in constantly in fault condition
+        sys.stdout.write('\nSEA probe constantly in fault condition\nNo data\n')
+
     if verbose:
         if np.any(instr_mask) == True:
             perc_flagged = np.count_nonzero(instr_mask)/float(temp_mask.size) * 100.
@@ -255,7 +259,6 @@ def get_cloud_mask_from_el_temperature(el_temperature,
                                        _buffer=3,
                                        freq=1., win=1.):
     """
-    Create cloud mask by calculating TWC power variation in a rolling window.
     Create cloud mask from variation in element temperature in a rolling window.
 
     Function determines whether the measurement is taken inside or outside
@@ -325,10 +328,15 @@ def get_cloud_mask_from_el_temperature(el_temperature,
                                np.min(moving_avg(el_temperature,w/2)[idx],axis=1) < set_temp-var_temp,
                                np.max(moving_avg(el_temperature,w/2)[idx],axis=1) > set_temp+var_temp)
 
+    if np.all(cloud_mask) or np.any(cloud_mask) == False:
+        # There is either all cloud or no cloud so don't bother with buffering
+        return np.reshape(cloud_mask,el_shape)
+
     # Add any extra masking for _buffer
     # Note that if _buffer_s is even the actual added buffer shall be one sample shorter
     idx_buf = np.ravel([range(i_-_buffer_s/2,
                               1+i_+_buffer_s/2) for i_ in np.where(np.diff(cloud_mask))[0]])
+
     cloud_mask[np.clip(idx_buf,0,el_temperature.size-1,idx_buf)] = True
 
     return np.reshape(cloud_mask,el_shape)
@@ -398,6 +406,10 @@ def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
 
     # Determine variation across each window and compare to given threshold
     cloud_mask = np.ptp(moving_avg(el_power,w/2)[idx],axis=1) >= var_thres
+
+    if np.all(cloud_mask) or np.any(cloud_mask) == False:
+        # There is either all cloud or no cloud so don't bother with buffering
+        return np.reshape(cloud_mask,el_shape)
 
     # Add any extra masking for _buffer
     # Note that if _buffer_s is even the actual added buffer shall be one sample shorter
@@ -567,6 +579,10 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
     nan_mask = ~np.isfinite(Psense)
     mask = np.logical_or(cloud,nan_mask)
 
+    # Check whether entire array is masked
+    if np.all(mask):
+        return None
+
     _Psense = Psense[~mask]
     _T = T[~mask]
     _ts = ts[~mask]
@@ -648,15 +664,18 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
     :type verbose: boolean
 
     :returns: Array of dry air powers if rtn_func is False, if rtn_func is
-        True then returns the fitting function.
+        True then returns the fitting function. If there is no data to fit
+        as all data is masked then an array of NaN is returned
 
 
-    TODO:: Need to include the baseline drift. This is discussed in Abel et al.
-    for the Nevzorov in Appendix A. In that paper a single K value is used
-    and then the IAS and P dependency found so that it can be added to K. A
-    similar thing could be done here, the average fitting parameters for
-    the entire flight is found then the dependency of these averages on
-    flight conditions found and factored out.
+    ..TODO::
+
+        Need to include the baseline drift. This is discussed in Abel et al.
+        for the Nevzorov in Appendix A. In that paper a single K value is used
+        and then the IAS and P dependency found so that it can be added to K. A
+        similar thing could be done here, the average fitting parameters for
+        the entire flight is found then the dependency of these averages on
+        flight conditions found and factored out.
 
     """
     from scipy.optimize import curve_fit
@@ -670,11 +689,15 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
     if cloud_mask is None or np.all(cloud_mask==False):
         cloud = np.array([False]*len(Pcomp))
     else:
-        cloud = np.ma.make_mask(cloud_mask)
+        cloud = np.ma.make_mask(cloud_mask,shrink=False)
 
     # Remove any nan's from input arrays by wrapping up into cloud mask
     nan_mask = np.logical_or(~np.isfinite(Pcomp),~np.isfinite(Psense))
     mask = np.logical_or(cloud,nan_mask)
+
+    # Check whether entire array is masked
+    if np.all(mask):
+        return np.empty_like(mask) * np.nan
 
     # Fit compensation power to sense power
     # Interpolations don't accept masked arrays so delete masked elements
@@ -689,7 +712,7 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
         # TODO: This should RAISE an error instead?
         if verbose:
             sys.stdout.write('Dry air power fitting:\n Fitting failure\n')
-        return None
+        return np.empty_like(mask) * np.nan
 
     # Calculate standard deviation of fitting parameters
     perr = np.sqrt(np.diag(pcov))
