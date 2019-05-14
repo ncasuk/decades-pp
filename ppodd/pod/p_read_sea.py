@@ -11,6 +11,8 @@ import pandas as pd
 import pytz
 import sys
 
+import pdb
+
 try:
     import ppodd
     from ppodd.core import file_read, timed_data, parameter, timestamp
@@ -168,24 +170,32 @@ def timestamp_func(d3):
 
     :params d3:
     :type d3: dict
+
+    .. TODO::
+        Change so can input arrays into returned func
+
     """
+    from scipy.interpolate import interp1d
 
     dt = np.array([(datetime.combine(d, t)).replace(tzinfo=None) for (d, t)
                        in zip(d3['data']['date'], d3['data']['time'])])
 
-    # Convert to seconds to do fitting
-    delta_dt = [timedelta.total_seconds(dt_-dt[0]) for dt_ in dt]
+    # Convert to milliseconds to do fitting
+    delta_dt = np.array([timedelta.total_seconds(dt_-dt[0]) * 1e6 \
+                         for dt_ in dt]).astype('timedelta64[us]')
 
     row_nums = d3['row']
 
-    x = np.vstack([row_nums, np.ones(len(row_nums))]).T
     try:
-        a, b = np.linalg.lstsq(x, delta_dt)[0]
-    except np.linalg.LinAlgError:
+        delta_fit = interp1d(row_nums,delta_dt,
+                             kind='linear',fill_value='extrapolate',
+                             assume_sorted=True)
+    except ValueError:
         # Did not converge, probably not enough data points
         return None
     else:
-        return lambda r_: dt[0] + timedelta(seconds=(a*r_ + b))
+        return lambda r_: dt[0] + \
+                          timedelta(microseconds=np.around(delta_fit(r_)).astype(int))
 
 
 def get_frequency(timestamp):
@@ -207,10 +217,12 @@ def get_frequency(timestamp):
         return None
 
     _f = 1./np.median((timestamp[1:]-timestamp[:-1])).item().total_seconds()
+
     for pfs in possible_freq_setting:
-        delta = abs(_f-float(pfs))
-        if delta/pfs < float(tolerance)/100.:
+
+        if np.isclose(_f,pfs,rtol=tolerance/100.):
             return pfs
+
     return None
 
 
@@ -287,8 +299,8 @@ def to_dataframe(ifile, rtn_all=False):
         # Changed tzinfo due to Deprecation Warning
         wcm['parsed'][k]['dt'] = np.array([np.datetime64(dt_func(t_).replace(tzinfo=None)) for \
                                           t_ in wcm['parsed'][k]['row']])
-        freq = get_frequency(wcm['parsed'][k]['dt'])
 
+        freq = get_frequency(wcm['parsed'][k]['dt'])
         wcm['parsed'][k]['f'] = freq
         ts_start = wcm['parsed'][k]['dt'][0]
         ts_end = wcm['parsed'][k]['dt'][-1]
