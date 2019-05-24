@@ -100,11 +100,10 @@ class PpoddUtils(object):
 
         # Build the format string in Nanos
         freqstr = '{}N'.format(
-            int(_mode[0] / np.timedelta64(1, 'ns'))
-        )
+            int(_mode[0] / np.timedelta64(1, 'ns')))
 
         # Confidence of the frequency guess
-        conf = (_mode[1] / len(_diff))[0]
+        conf = np.divide(_mode[1],len(_diff),dtype=float)[0]
 
         return freqstr, conf
 
@@ -120,11 +119,17 @@ class PpoddUtils(object):
         Returns:
             _freq: The inferred frequency of the attached DataFrame Index.
         """
-        _freq = pd.infer_freq(self._obj.index)
-        if _freq is None:
-            _freq, _conf = self._guess_freq()
+
+        if self._obj.empty == True:
+            _freq = np.nan
+            _conf = np.nan
+
         else:
-            _conf = 1
+            _freq = pd.infer_freq(self._obj.index)
+            if _freq is None:
+                _freq, _conf = self._guess_freq()
+            else:
+                _conf = 1
 
         self._freq = _freq
         self._freq_conf = _conf
@@ -140,7 +145,15 @@ class PpoddUtils(object):
         Returns:
             the inferred frequency of the instance DataFrame Index, in Hz.
         """
-        _num_part = self.freq[:-1] or 1
+
+        if self._freq == None:
+            self.freq
+
+        try:
+            _num_part = self._freq[:-1] or 1
+        except:
+            import pdb
+            pdb.set_trace()
         _name_part = self._freq[-1]
 
         return (int(_num_part) * _pd_freqs[_name_part])**-1
@@ -206,7 +219,7 @@ class PpoddUtils(object):
     def sea_meta(self,meta=None):
         """
         If meta is None [default] then return metadata dictionary
-        If meta dictionary is given then overwirte any existing metadata
+        If meta dictionary is given then overwrite any existing metadata
         Return entire SEA metadata dictionary
         """
 
