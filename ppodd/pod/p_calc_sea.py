@@ -293,7 +293,11 @@ def get_cloud_mask_from_el_temperature(el_temperature,
     :return cloud_mask: Boolean array; `True` equals cloud, `False`
         equals no cloud.
 
-    ::TODO: freq can now be automatically calculated from ppodd.sea_meta()
+    ..TODO::
+        freq can now be automatically calculated from ppodd.sea_meta()
+
+    ..TODO::
+        unify usage of _, ie change _buffer as is not required to be internal
     """
 
     el_shape = el_temperature.shape
@@ -374,7 +378,12 @@ def get_cloud_mask_from_el_power(el_power, var_thres=0.45,
     :return cloud_mask: Boolean array; `True` equals cloud, `False`
         equals no cloud.
 
-    ::TODO: freq can now be automatically calculated from ppodd.sea_meta()
+    ..TODO::
+        freq can now be automatically calculated from ppodd.sea_meta()
+
+    ..TODO::
+        unify usage of _, ie change _buffer as is not required to be internal
+
     """
 
     el_shape = el_power.shape
@@ -428,7 +437,7 @@ def get_cloud_mask(mask_func = get_cloud_mask_from_el_power,
     Convenience function for accessing different cloud mask creation functions
 
     Cloud masks can be generated in several different ways. These methods may
-    be besed entirely on the SEA data and are included in p_calc_sea, the
+    be based entirely on the SEA data and are included in p_calc_sea, the
     default is to call p_calc_sea.get_cloud_mask_from_el_power(). Functions
     in external files may also be called, for example to base the cloud
     mask on the CDP data.
