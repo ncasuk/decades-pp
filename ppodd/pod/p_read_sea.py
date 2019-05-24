@@ -29,18 +29,18 @@ parser_f = {}
 parser_f['d0'] = {'descr': 'Raw element power and temperature',
                   'dtypes': ['S2',]+['S3', 'float32', 'float32', 'float32']*5,
                   'names': ['id',] + \
-                           [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
+                           [s1+s2 for s1 in ['elTWC', 'el083', 'el021', 'elCMP', 'elDCE'] \
                                   for s2 in ['', '_V', '_A', '_T']],
                   'long_names': ['id',] + \
-                                [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
+                                [s1+s2 for s1 in ['element TWC', 'element 083', 'element 021', 'element CMP', 'element DCE'] \
                                        for s2 in ['', ' voltage', ' current', ' temperature']],
                   'units': ['',] + ['', 'volt','amp','deg C']*5,
                   'converters': None}
 parser_f['d1'] = {'descr': 'Calculated total and liquid water contents',
                   'dtypes': ['S2',] + ['S3', 'float32']*3,
                   'names': ['id',] + \
-                           [s1+s2 for s1 in ['TWC', '083', '021'] \
-                                  for s2 in ['', '_wc']],
+                           [s1+s2 for s1 in ['elTWC', 'el083', 'el021'] \
+                                  for s2 in ['', '_rtwc']],
                   'long_names': ['id', '', 'total water content', '',
                                  'liquid water content', '', 'liquid water content'],
                   'units': ['', '', 'g/m^3', '', 'g/m^3', '', 'g/m^3'],
@@ -48,10 +48,10 @@ parser_f['d1'] = {'descr': 'Calculated total and liquid water contents',
 parser_f['d2'] = {'descr': 'Element status information',
                   'dtypes': ['S2',]+['S3', 'S6', 'int', 'i1', 'i1', 'i1']*5,
                   'names': ['id',] + \
-                           [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
+                           [s1+s2 for s1 in ['elTWC', 'el083', 'el021', 'elCMP', 'elDCE'] \
                                   for s2 in ['', '_status', '_DAC', '_pt', '_it', '_dt']],
                   'long_names': ['id'] + \
-                                [s1+s2 for s1 in ['TWC', '083', '021', 'CMP', 'DCE'] \
+                                [s1+s2 for s1 in ['element TWC', 'element 083', 'element 021', 'element CMP', 'element DCE'] \
                                        for s2 in ['', '_status', '_DAC', '_pt', '_it', '_dt']],
                   'units': ['']+['']*30,
                   'converters': None}
@@ -72,15 +72,15 @@ parser_f['c0'] = {'descr': 'Sense element information',
                             ['S3', 'float32', 'float32', 'float32', 'float32', 'float32']*3 + \
                             ['S3', 'float32', 'float32', 'float32'],
                   'names': ['id', 'sn'] + \
-                           [s1+s2 for s1 in ['TWC', '083', '021'] \
+                           [s1+s2 for s1 in ['elTWC', 'el083', 'el021'] \
                                   for s2 in ['','_l','_w','_f','_s','_o']] + \
-                           ['CMP'+s2 for s2 in ['','_l','_w','_f']],
+                           ['elCMP'+s2 for s2 in ['','_l','_w','_f']],
                   'long_names': ['id', 'serial number'] + \
-                                [s1+s2 for s1 in ['TWC', '083', '021'] \
+                                [s1+s2 for s1 in ['element TWC', 'element 083', 'element 021'] \
                                    for s2 in ['',' length',' width',
                                               ' fixture resistance', ' slope correction',
                                               ' offset correction']] + \
-                               ['CMP'+s2 for s2 in ['',' length',' width',' fixture resistance']],
+                               ['element CMP'+s2 for s2 in ['',' length',' width',' fixture resistance']],
                  'units': ['', ''] + ['', 'mm', 'mm', 'milliohm', '', '']*3 + \
                           ['', 'mm', 'mm', 'milliohm'],
                  'converters': None}
@@ -110,26 +110,26 @@ parser_f['cprb'] = {'descr': 'Probe configuration',
                               ['S4', 'float32'] + \
                               ['S3',]+['int']*11,
                     'names': ['id','sn','chipid','rev'] + \
-                             [s1+s2 for s1 in ['TWC','083','021','CMP','DCE'] \
+                             [s1+s2 for s1 in ['elTWC','el083','el021','elCMP','elDCE'] \
                                     for s2 in ['','_kp','_ki','_kd','_dacmin','_setpoint']] + \
-                             [s1+s2 for s1 in ['TWC','083','021','CMP'] \
+                             [s1+s2 for s1 in ['elTWC','el083','el021','elCMP'] \
                                     for s2 in ['_r100','_dtdr','_l','_w','_d','_shape','_f']] + \
-                             [s1+s2 for s1 in ['TWC','083','021'] for s2 in ['_s','_o']] + \
+                             [s1+s2 for s1 in ['elTWC','el083','el021'] for s2 in ['_s','_o']] + \
                              [s1+s2 for s1 in ['caldate','calduedate'] \
                                     for s2 in ['_month','_day','_year']],
                     'long_names': ['id','serial number','chip id','revision'] + \
-                                  [s1+s2 for s1 in ['TWC','083','021','CMP','DCE'] \
+                                  [s1+s2 for s1 in ['element TWC','element 083','element 021','element CMP','element DCE'] \
                                       for s2 in ['',' integral control loop gain',
                                                  ' differential control loop gain',
                                                  ' proportional control loop gain',
                                                  ' dac minimum',
                                                  ' setpoint temperature']] + \
-                                  [s1+s2 for s1 in ['TWC','083','021','CMP'] \
+                                  [s1+s2 for s1 in ['element TWC','element 083','element 021','element CMP'] \
                                       for s2 in [' r100 calibration parameter',
                                                  ' dtdr calibration parameter',
                                                  ' length',' width',' depth',
                                                  ' shape',' fixture resistance']] + \
-                                  [s1+s2 for s1 in ['TWC','083','021'] \
+                                  [s1+s2 for s1 in ['element TWC','element 083','element 021'] \
                                          for s2 in [' slope correction',' offset correction']] + \
                                   [s1+s2 for s1 in ['calibration','calibration due'] \
                                          for s2 in [' month',' day',' year']],
@@ -254,6 +254,10 @@ def to_dataframe(ifile, rtn_all=False):
     with open(ifile) as f:
         raw_data = np.genfromtxt(f, dtype='S')
 
+        if len(raw_data) == 0:
+            # Empty file so return
+            return None
+
     # Create a list of sentence ids
     # Lines that do not conform to type are ignored
     mtype = np.array([l.split(',')[0] for l in raw_data if l.split(',')!=[]])
@@ -332,11 +336,12 @@ def to_dataframe(ifile, rtn_all=False):
     for el in ['TWC','083','021','CMP']:
 
         # Create list of valid element variables
-        k = [s_ for s_ in ['l','w','f','s','o'] if '{}_{}'.format(el,s_) in df_dic['c0']]
+        k = [s_ for s_ in ['l','w','f','s','o'] if 'el{}_{}'.format(el,s_) in df_dic['c0']]
 
         # Add these parameters to the sea metadata. All rows are the same but
         # take 10th just in case there are issues at beginning of the file.
-        df_dic['d0'].ppodd.set_sea_meta(el,{_k:df_dic['c0']['{}_{}'.format(el,_k)][10] for _k in k})
+        df_dic['d0'].ppodd.set_sea_meta('el'+el,
+                                        {_k:df_dic['c0']['el{}_{}'.format(el,_k)][10] for _k in k})
 
     # Add serial number
     df_dic['d0'].ppodd.set_sea_meta('sea',{'sn': df_dic['c0']['sn'][10]})
