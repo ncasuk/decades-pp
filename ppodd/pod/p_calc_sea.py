@@ -183,8 +183,10 @@ def moving_avg(x, N):
 
 
 
-def get_instr_fault_mask(el_temperature,
+def get_instr_fault_mask(el_temperature=[[]],
                          temp_limits=[100, 180],
+                         el_power=[[]],
+                         power_limits=[1,1000], # Don't know what the upper limit will be
                          verbose=True):
     """
     Detect and flagging of SEAPROBE instrument issues.
@@ -201,6 +203,7 @@ def get_instr_fault_mask(el_temperature,
     :type el_temperature: List of numpy arrays of floats (degC)
     :param temp_limits: Temperature min and max (degC). Default is [100,180].
     :type temp_limits: list of floats
+
     :param boolean verbose: If True then output percentage of data flagged.
         Default is True.
     :return: instrument mask
@@ -232,6 +235,18 @@ def get_instr_fault_mask(el_temperature,
                                       t_>temp_limits[1]) for t_ in el_temperature],axis=0)
 
     ### Add any other instrument flagging in here
+    # Ensure order of min and max power
+    try:
+        power_limits.sort()
+    except AttributeError:
+        # Probably a tuple
+        power_limits = list(power_limits[::])
+        power_limits.sort()
+
+    # Mask _any_ values that are outside the allowed power range
+    power_mask = np.any([np.logical_or(p_<power_limits[0],
+                                       p_>power_limits[1]) for p_ in el_power],axis=0)
+
 
     instr_mask = temp_mask.copy()
 
@@ -534,7 +549,8 @@ def get_slr_mask(hdgr, altr, hdgr_atol=10., altr_atol=2, freq=1., win=1.):
 
 
 def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
-                rtn_func=False,verbose=True):
+                rtn_func=False,rtn_goodness=False,
+                verbose=True):
     """
     Calculate dry air power term by fitting constants for 1st principles.
 
@@ -566,6 +582,9 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
         sense element is returned. If True then the lambda function to
         calculate the dry air power from Pcomp is returned.
     :type rtn_func: boolean
+    :key rtn_goodness: If True then also return the quality of the fit based
+        on the covariance. Default is False.
+    :type rtn_goodness: boolean
     :key verbose: If True [default] then print to stdout the values and
         and uncertainties of the fitting parameters.
     :type verbose: boolean
@@ -580,7 +599,7 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
     # This step is to cope with different types of binary elements
     # np.all statement so that cloud does not become False in make_mask step
     if cloud_mask is None or np.all(cloud_mask==False):
-        cloud = np.array([False]*len(Pcomp))
+        cloud = np.array([False]*len(Psense))
     else:
         cloud = np.ma.make_mask(cloud_mask)
 
@@ -592,6 +611,7 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
     if np.all(mask):
         return None
 
+    # Interpolations don't accept masked arrays so delete masked elements
     _Psense = Psense[~mask]
     _T = T[~mask]
     _ts = ts[~mask]
@@ -600,14 +620,18 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
 
     # Linear fitting function
     # func1 is for finding the fitting parameters,
-    # func2 is for calculating P_dryair
-    func1 = lambda x,a,b: a * (_T - _ts) * (_ps * _tas)**b - x
-    func2 = lambda a,b: a * (T - ts) * (ps * tas)**b
+    # func2 is for calculating P_dryair in cloud-free air
+    # func3 is for calculating P_dryair for the entire flight
+    func1 = lambda x,a,b: (a * (_T - _ts) * (_ps * _tas)**b) - x
+    func2 = lambda a,b: a * (_T - _ts) * (_ps * _tas)**b
 
-    # Fit compensation power to sense power
-    # Interpolations don't accept masked arrays so delete masked elements
+    func3 = lambda a,b: a * (T - ts) * (ps * tas)**b
+
+    # Fit equation to sense power
+    # default 'lm' method often falls over
     try:
-        popt,pcov = curve_fit(func1, _Psense, np.zeros(_Psense.size))
+        popt,pcov = curve_fit(func1, _Psense, np.zeros_like(_Psense),
+                              p0=(2.5e-3,0.5),method='trf')
     except (TypeError, ValueError, RuntimeError):
         # Incompatible inputs or minimization failure
         pcov = np.inf
@@ -617,26 +641,40 @@ def dryair_calc(Psense,T,ts,ps,tas,cloud_mask=None,
         # TODO: This should RAISE an error instead?
         if verbose:
             sys.stdout.write('Dry air power fitting:\n Fitting failure\n')
-        return None
+        if rtn_goodness == True:
+            return None, -np.inf
+        else:
+            return None
 
     # Calculate standard deviation of fitting parameters
     perr = np.sqrt(np.diag(pcov))
     opt_err = np.dstack((popt,perr)).ravel()
 
+    # Calculate the coefficient of determination (r^2) to get goodness of fit metric
+    # https://en.wikipedia.org/wiki/Coefficient_of_determination
+    ss_res = np.sum((Psense[~mask] - func2(*popt)) ** 2)
+    ss_tot = np.sum((Psense[~mask] - np.mean(Psense[~mask])) ** 2)
+    r2 = 1 - (ss_res / ss_tot)
+
     if verbose:
         sys.stdout.write('Dry air power fitting, 1st principles:\n'
-            ' k1: {:6.3f} (+/-{:0.3})\tk2: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err))
+            ' k1: {:6.3f} (+/-{:0.3f})\tk2: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err) +\
+            ' r^2 = {:0.3f})\n'.format(r2))
 
-    if rtn_func == True:
+    if rtn_func & rtn_goodness == True:
         # This doesn't actually make a lot of sense due to constants
-        return lambda x: func2(*popt)
+        return lambda x: func3(*popt), r2
+    elif rtn_func == True:
+        return lambda x: func3(*popt)
+    elif rtn_goodness == True:
+        return func3(*popt), r2
     else:
-        return func2(*popt)
-
+        return func3(*popt)
 
 
 def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
-                     rtn_func=False,verbose=True):
+                     rtn_func=False,rtn_goodness=False,
+                     verbose=True):
     """
     Calculate dry air power term from compensation element measurements.
 
@@ -668,6 +706,9 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
         sense element is returned. If True then the lambda function to
         calculate the dry air power from Pcomp is returned.
     :type rtn_func: boolean
+    :key rtn_goodness: If True then also return the quality of the fit based
+        on the covariance. Default is False.
+    :type rtn_goodness: boolean
     :key verbose: If True [default] then print to stdout the values and
         and uncertainties of the fitting parameters.
     :type verbose: boolean
@@ -721,18 +762,33 @@ def dryair_calc_comp(Psense,Pcomp,cloud_mask=None,
         # TODO: This should RAISE an error instead?
         if verbose:
             sys.stdout.write('Dry air power fitting:\n Fitting failure\n')
-        return np.empty_like(mask) * np.nan
+
+        if rtn_goodness == True:
+            return np.empty_like(mask) * np.nan, -np.inf
+        else:
+            return np.empty_like(mask) * np.nan
 
     # Calculate standard deviation of fitting parameters
     perr = np.sqrt(np.diag(pcov))
     opt_err = np.dstack((popt,perr)).ravel()
 
+    # Calculate the coefficient of determination (r^2) to get goodness of fit metric
+    # https://en.wikipedia.org/wiki/Coefficient_of_determination
+    ss_res = np.sum((Psense[~mask] - func(Pcomp[~mask],*popt)) ** 2)
+    ss_tot = np.sum((Psense[~mask] - np.mean(Psense[~mask])) ** 2)
+    r2 = 1 - (ss_res / ss_tot)
+
     if verbose:
         sys.stdout.write('Dry air power fitting - Compensation element:\n'
-            ' K: {:6.3f} (+/-{:0.3})\tP0: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err))
+            ' K: {:6.3f} (+/-{:0.3f})\tP0: {:6.3f} (+/-{:0.3f})\n'.format(*opt_err) +\
+            ' r^2 = {:0.3f})\n'.format(r2))
 
-    if rtn_func == True:
+    if rtn_func & rtn_goodness == True:
+        return lambda x: func(x,*popt), r2
+    elif rtn_func == True:
         return lambda x: func(x,*popt)
+    elif rtn_goodness == True:
+        return func(Pcomp,*popt), r2
     else:
         return func(Pcomp,*popt)
 
