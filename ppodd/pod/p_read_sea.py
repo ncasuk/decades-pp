@@ -130,7 +130,7 @@ parser_f['cprb'] = {'descr': 'Probe configuration',
                                                  ' length',' width',' depth',
                                                  ' shape',' fixture resistance']] + \
                                   [s1+s2 for s1 in ['element TWC','element 083','element 021'] \
-                                         for s2 in [' slope correction',' offset correction']] + \
+                                         for s2 in [' slope correction (K1)',' offset correction (K2)']] + \
                                   [s1+s2 for s1 in ['calibration','calibration due'] \
                                          for s2 in [' month',' day',' year']],
                     'units': ['']*4 + \
@@ -250,6 +250,8 @@ def to_dataframe(ifile, rtn_all=False):
       then return dictionary of dataframes (?)
 
     """
+    default_sentences = ['d0', 'd3', 'c0']
+
     # Read the wcm txt file into raw_data as a 1D-numpy.array of strings
     with open(ifile) as f:
         raw_data = np.genfromtxt(f, dtype='S')
@@ -268,7 +270,7 @@ def to_dataframe(ifile, rtn_all=False):
         # Only return d0, d3 and c0 by default
         # Those sentences are all that is
         # required for calculation of water content
-        sentence_id = np.asarray(['d0', 'd3', 'c0'])
+        sentence_id = np.asarray(default_sentences)
 
     # Dictionary of raw and parsed data sentences
     # 'row' key is array of row numbers in file
@@ -278,11 +280,13 @@ def to_dataframe(ifile, rtn_all=False):
 
     # Parse raw data sentences
     for k in sentence_id:
+        # skip invalid lines instead of raising error
         wcm['parsed'][k]['data'] = np.genfromtxt(wcm['raw'][k],
                                                  delimiter=',',
                                                  dtype=zip(parser_f[k]['names'],
                                                  parser_f[k]['dtypes']),
-                                                 converters=parser_f[k]['converters'])
+                                                 converters=parser_f[k]['converters'],
+                                                 invalid_raise=False)
 
     # Determine interpolated time stamp function
     dt_func = timestamp_func(wcm['parsed']['d3'])
@@ -309,12 +313,25 @@ def to_dataframe(ifile, rtn_all=False):
         ts_start = wcm['parsed'][k]['dt'][0]
         ts_end = wcm['parsed'][k]['dt'][-1]
 
+        # Extract data from parsed dict as a list of arrays for each column
         data_list = []
         for name in parser_f[k]['names']:
             data_list.append(wcm['parsed'][k]['data'][name])
-        df = pd.DataFrame(np.column_stack(data_list),
+
+        # Create 2D array of data for conversion to dataframe
+        # Attempt to do some error catching to cope with mis-formed data
+        try:
+            data_array = np.column_stack(data_list)
+        except:
+            import pdb
+            pdb.set_trace()
+
+        # Create dataframe with datetime index. Note that index has been
+        # (possibly) truncated to cope with partial lines at the end of
+        # the file. Normally, len(data_array) == len(wcm['parsed'][k]['dt'])
+        df = pd.DataFrame(data_array,
                           columns=parser_f[k]['names'],
-                          index=wcm['parsed'][k]['dt'])
+                          index=wcm['parsed'][k]['dt'][:len(data_array)])
 
         dd = dict(zip(parser_f[k]['names'], parser_f[k]['dtypes']))
         for name in parser_f[k]['names']:
@@ -338,13 +355,12 @@ def to_dataframe(ifile, rtn_all=False):
         # Create list of valid element variables
         k = [s_ for s_ in ['l','w','f','s','o'] if 'el{}_{}'.format(el,s_) in df_dic['c0']]
 
-        # Add these parameters to the sea metadata. All rows are the same but
-        # take 10th just in case there are issues at beginning of the file.
+        # Add these parameters to the sea metadata. All rows are the same
         df_dic['d0'].ppodd.set_sea_meta('el'+el,
-                                        {_k:df_dic['c0']['el{}_{}'.format(el,_k)][10] for _k in k})
+                                        {_k:df_dic['c0']['el{}_{}'.format(el,_k)][0] for _k in k})
 
     # Add serial number
-    df_dic['d0'].ppodd.set_sea_meta('sea',{'sn': df_dic['c0']['sn'][10]})
+    df_dic['d0'].ppodd.set_sea_meta('sea',{'sn': df_dic['c0']['sn'][0]})
 
     return df_dic
 
