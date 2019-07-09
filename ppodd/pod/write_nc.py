@@ -203,7 +203,10 @@ Saving as output.nc""")
                 else:
                     data=par.data
                 # Replace all nans in data array
-                data[~np.isfinite(data)]=fill_value
+                try:
+                    data[~np.isfinite(data)]=fill_value
+                except TypeError:
+                    pass
                 try:
                     z=np.float_(data).asmasked(start=start,end=end,fill_value=fill_value)
                     para[:]=z[:]
