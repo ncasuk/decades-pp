@@ -104,6 +104,7 @@ class decades_dataset(OrderedDict):
         and a dictionary of processing modules
     """
     def __init__(self,*args,**kwargs):
+        OrderedDict.__init__(self)
         self.history=''
         self.modules=OrderedDict()
         self.outparas=None
@@ -114,7 +115,6 @@ class decades_dataset(OrderedDict):
         self.getmods()
         from ppodd.pod.write_nc import write_nc
         self.write_nc=write_nc(self)
-        OrderedDict.__init__(self)
         self.add_para('Attribute','Conventions','CF-1.4')
         #:Conventions = "NCAR-RAF/nimbus"
         #:ConventionsURL = "http://www.eol.ucar.edu/raf/Software/netCDF.html" ;
