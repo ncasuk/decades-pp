@@ -141,6 +141,13 @@ class rio_so2_mixingratio(cal_base):
                         cal_status,
                         np.array(so2_mr_raw))
 
+        # Use sensitivity in the flight constants file, if given. Otherwise use
+        # the sensitivity from the DLU.
+        try:
+            sens = self.dataset['SO2_SENS'][0]
+        except (KeyError, IndexError):
+            print('No SO2 sensitivity specified in constants')
+
         # interpolate the zero calibrations
         zero = interpolate_zero_cal_coefficient(utc_time, cals)
 
