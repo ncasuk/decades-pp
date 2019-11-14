@@ -127,6 +127,7 @@ class rio_nevzorov_1t2l1r(cal_base):
         :param dataset: dataset for flight
         :type dataset: ppodd.core.decades_dataset
         """
+
         self.input_names = ['CORCON_nv_lwc_vcol',
                             'CORCON_nv_lwc_icol',
                             'CORCON_nv_lwc_vref',
@@ -443,13 +444,11 @@ class rio_nevzorov(cal_base):
 
     def __init__(self, dataset):
         if not 'VANETYPE'in dataset.keys():
-            print('No VANETYPE specified, assuming 1T1L2R')
             dataset['VANETYPE'] = '1T1L2R'
 
-        if dataset['VANETYPE'][0] == '1T1L2R':
+        if dataset['VANETYPE'] == '1T1L2R':
             rio_nevzorov_1t1l2r.__init__(self, dataset)
-
-        elif dataset['VANETYPE'][0] == '1T2L1R':
+        elif dataset['VANETYPE'] == '1T2L1R':
             rio_nevzorov_1t2l1r.__init__(self, dataset)
         else:
             pass
