@@ -200,7 +200,19 @@ class rio_co_mixingratio(cal_base):
         cal_base.__init__(self,dataset)
 
     def process(self):
+
+        # Span cals on the CO are now controlled by V1 on the FGGA. If data is
+        # available for this we need to use it to flag the span cals
+        try:
+            fgga_v1 = self.dataset['CHFGGA_V1']
+            use_fgga = True
+            self.input_names.append('CHFGGA_V1')
+        except Exception:
+            use_fgga = False
+
         match = self.dataset.matchtimes(self.input_names)
+        if use_fgga:
+            fgga_v1 = self.dataset['CHFGGA_V1'].data.ismatch(match)
         co_mr = self.dataset['AL52CO_conc'].data.ismatch(match)
         counts = self.dataset['AL52CO_counts'].data.ismatch(match)
         co_mr[counts == 0] = np.nan
@@ -268,6 +280,21 @@ class rio_co_mixingratio(cal_base):
         cal_status_buffer = 8
         for i in range(cal_status_buffer*-1, cal_status_buffer+1):
             cal_status_ix = list(set(list(np.concatenate((np.array(cal_status_ix), np.array(cal_status_ix)+i)))))
+
+        if use_fgga:
+            fgga_status_ix = np.where(fgga_v1 == 1)[0]
+            fgga_status_buffer = 3
+            for i in range(fgga_status_buffer*-1, fgga_status_buffer+1):
+                fgga_status_ix = list(set(list(
+                    np.concatenate(
+                        (np.array(cal_status_ix), np.array(cal_status_ix)+i)
+                    )
+                )))
+            fgga_status_ix = np.array(fgga_status_ix)
+            fgga_status_ix = fgga_status_ix[cal_status_ix < len(fgga_v1)]
+            fgga_status_ix = list(fgga_status_ix)
+            fgga_v1[fgga_status_ix] = 1
+
         cal_status_ix = np.array(cal_status_ix)
         cal_status_ix = cal_status_ix[cal_status_ix < len(cal_status)]
         cal_status_ix = list(cal_status_ix)
@@ -277,6 +304,8 @@ class rio_co_mixingratio(cal_base):
         flag[cal_status == 1] = 3                        # flag data while calibration is running
         flag[calpress > 3.4] = 3                         # flag when calibration gas pressure is increased
         flag[counts == 0] = 3
+        if use_fgga:
+            flag[fgga_v1] = 3
         co_aero = flagged_data(conc_new, match, flag)
         # creating a plot which shows the "raw" time series and the one
         # that uses interpolated calibration coefficients
