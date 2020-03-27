@@ -305,7 +305,8 @@ class rio_co_mixingratio(cal_base):
         flag[calpress > 3.4] = 3                         # flag when calibration gas pressure is increased
         flag[counts == 0] = 3
         if use_fgga:
-            flag[fgga_v1] = 3
+            flag[fgga_v1 == 1] = 3
+
         co_aero = flagged_data(conc_new, match, flag)
         # creating a plot which shows the "raw" time series and the one
         # that uses interpolated calibration coefficients
