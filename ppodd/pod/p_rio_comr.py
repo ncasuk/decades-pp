@@ -43,6 +43,7 @@ from ppodd.core import flagged_data, cal_base, parameter
 
 import datetime
 import numpy as np
+import pandas as pd
 import sys
 
 
@@ -206,30 +207,34 @@ class rio_co_mixingratio(cal_base):
         try:
             fgga_v1 = self.dataset['CHFGGA_V1']
             use_fgga = True
-            self.input_names.append('CHFGGA_V1')
         except Exception:
             use_fgga = False
 
         match = self.dataset.matchtimes(self.input_names)
-        if use_fgga:
-            fgga_v1 = self.dataset['CHFGGA_V1'].data.ismatch(match)
         co_mr = self.dataset['AL52CO_conc'].data.ismatch(match)
         counts = self.dataset['AL52CO_counts'].data.ismatch(match)
         co_mr[counts == 0] = np.nan
         calpress = self.dataset['AL52CO_calpress'].data.ismatch(match)
         cal_status = self.dataset['AL52CO_cal_status'].data.ismatch(match)
+
         # cal_status is a character and needs to be converted to integer to do anything useful with it
         cal_status = np.int8(cal_status)
         sens = self.dataset['AL52CO_sens'].data.ismatch(match)
         sens[sens == 0.0] = np.nan
+
         # remove outliers: threshold is 25% difference from the overall median
         sens[(np.abs(sens-np.nanmedian(sens))) > (0.25*np.nanmedian(sens))] = np.nan
         zero = self.dataset['AL52CO_zero'].data.ismatch(match)
         zero[zero == 0.0] = np.nan
+
         # remove outliers: threshold is 25% difference from the overall median
         zero[(np.abs(zero-np.nanmedian(zero))) > (0.25*np.nanmedian(zero))] = np.nan
         utc_time = self.dataset['AL52CO_utc_time'].data.ismatch(match)
         wow_ind = self.dataset['WOW_IND'].data.ismatch(match)
+
+        if use_fgga:
+             _index = pd.DatetimeIndex(utc_time * 1e9)
+             fgga_v1 = self.dataset['CHFGGA_V1'].Series().reindex(_index).fillna(method='bfill')
         #
         # We calculate the raw counts from the CO concentration and the calibration coefficients.
         # The *AL52CO_counts variable can not be used* because it does not necessarily match the
@@ -248,7 +253,8 @@ class rio_co_mixingratio(cal_base):
         #
         # The concentration changes in the fourth line to 81.42 but the counts value is only updated
         # in the subsequent line.
-        #
+
+
         # The scaling factor is needed to take care of revised CO calibration gas concentrations, which
         # FAAM learns only about post flight/campaign, when the calibration gas is reanalysed by an authority.
         if len(self.dataset['CALCOMX'].data) <= 3:
@@ -257,6 +263,7 @@ class rio_co_mixingratio(cal_base):
         else:
             scaling_factor = self.dataset['CALCOMX'][3]
             sys.stdout.write('    Scaling factor defined in flight-cst file.\n')
+
         sys.stdout.write('    Scaling factor set to %f.\n' % (scaling_factor))
         co_mr *= scaling_factor
 
@@ -268,6 +275,7 @@ class rio_co_mixingratio(cal_base):
                       ((counts-np.roll(counts, -1)) < -2000) &
                       (counts < (np.nanmedian(counts)*0.8)))[0]
         counts[ix] = np.nan
+
         # calc new interpolated calibration coefficients
         sens_new, zero_new = interpolate_cal_coefficients(utc_time, sens, zero)
 
@@ -280,10 +288,14 @@ class rio_co_mixingratio(cal_base):
         cal_status_buffer = 8
         for i in range(cal_status_buffer*-1, cal_status_buffer+1):
             cal_status_ix = list(set(list(np.concatenate((np.array(cal_status_ix), np.array(cal_status_ix)+i)))))
+        cal_status_ix = np.array(cal_status_ix)
+        cal_status_ix = cal_status_ix[cal_status_ix < len(cal_status)]
+        cal_status_ix = list(cal_status_ix)
+        cal_status[cal_status_ix] = 1
 
         if use_fgga:
             fgga_status_ix = np.where(fgga_v1 == 1)[0]
-            fgga_status_buffer = 3
+            fgga_status_buffer = 6
             fgga_status_ix = np.concatenate(
                 [fgga_status_ix, fgga_status_ix + fgga_status_buffer]
             )
@@ -294,10 +306,6 @@ class rio_co_mixingratio(cal_base):
             fgga_cal = 0 * fgga_v1
             fgga_cal[fgga_status_ix] = 1
 
-        cal_status_ix = np.array(cal_status_ix)
-        cal_status_ix = cal_status_ix[cal_status_ix < len(cal_status)]
-        cal_status_ix = list(cal_status_ix)
-        cal_status[cal_status_ix] = 1
         flag = np.zeros(co_mr.size, dtype=np.int8)       # initialize flag array, with all values set to 0
         flag[co_mr < -10] = 3                            # flag very negative co_mr as 3
         flag[cal_status == 1] = 3                        # flag data while calibration is running
