@@ -31,6 +31,12 @@ Routine for reading in NETCDF data
                 if(v[:-5] in self.var):
                     newpar=False
             elif v=='Time':
+                try:
+                    ss=self.var[v].units.replace("seconds since ","").split()
+                    ss[0]+='T'
+                    start=np.datetime64(''.join(ss))
+                except:
+                    pass
                 self.time=timestamp(start+self.var[v][:].astype('timedelta64[s]'))
                 newpar=False
             if newpar:
