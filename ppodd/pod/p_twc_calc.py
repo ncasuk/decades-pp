@@ -1,6 +1,6 @@
 import numpy as np
 from ppodd.core import cal_base, flagged_data, parameter
-from ppodd.humidity_formulae import (vp2vmr, vmr_mmr, vp2dp)
+from ppodd.humidity_formulae import (vp2vmr, vmr_mmr, vp2dp, vmr2vp)
 
 
 class twc_calc(cal_base):
@@ -17,7 +17,7 @@ class twc_calc(cal_base):
         """
 
         self.fit = 'TWC_FIT_GE'
-        self.input_names = [self.fit, 'PS_RVSM', 'TWC_DET', 'TWC_TSAM']
+        self.input_names = [self.fit, 'PS_RVSM', 'TWC_DET', 'TWC_TSAM'] #,'TAT_DI_R']
         self.outputs = [
             parameter(
                 'TWC_TDEW', units='K', number=725,
@@ -27,6 +27,16 @@ class twc_calc(cal_base):
             parameter(
                 'TWC_EVAP', units='gram kg-1', number=572,
                 long_name='Total water specific humidity from the TWC evaporator instrument',
+                standard_name='mass_concentration_of_water_vapor_in_air'
+            ),
+            parameter(
+                'TWC_TDEW_1Hz', units='K', number=725,
+                long_name='Dew-point derived from TWC probe specific humidity (valid in cloud-free air) at 1 Hz',
+                standard_name='dew_point_temperature'
+            ),
+            parameter(
+                'TWC_EVAP_1Hz', units='gram kg-1', number=572,
+                long_name='Total water specific humidity from the TWC evaporator instrument at 1 Hz',
                 standard_name='mass_concentration_of_water_vapor_in_air'
             )
         ]
@@ -55,6 +65,7 @@ class twc_calc(cal_base):
         Kv = 427.0
         p0 = 1013.2
         uO = 0.2095
+        R=287.05
 
         if len(d[self.fit].data) == 2:
 
@@ -69,9 +80,20 @@ class twc_calc(cal_base):
             tx = d['TWC_TSAM'].data.ravel()
             t2 = tx.interp(times=tfullx).reshape(sh)
 
+            #ty = d['TAT_DI_R'].data.ravel()
+            #t1 = ty.interp(times=tfullx).reshape(sh)
+
             KO = 0.304 + 0.351 * p1 * F / p0
-            vpo = (ans - (KO * uO * p1 / (Kv * t2))) * t2
-            vmro = vp2vmr(vpo, p1)
+            
+            #vmro= ans*R*t1/(62200*p1) - KO*uO/Kv     # SA version       
+            #vpo=vmr2vp(vmro,p1)
+
+            vmro = ans*t2/p1 - KO*uO/Kv              
+            vpo=vmr2vp(vmro,p1)
+            
+            #vpo = (ans - (KO * uO * p1 / (Kv * t2))) * t2   #VP first         
+            #vmro = vp2vmr(vpo, p1)
+            
             mmr = vmr_mmr(vmro)
             dp = vp2dp(vpo.ravel()).reshape(sh)
 
@@ -82,3 +104,5 @@ class twc_calc(cal_base):
 
         self.outputs[0].data = flagged_data(dp, tfull.times, vf)
         self.outputs[1].data = flagged_data(mmr, tfull.times, vf)
+        self.outputs[2].data = self.outputs[0].data.get1Hz()
+        self.outputs[3].data = self.outputs[1].data.get1Hz()

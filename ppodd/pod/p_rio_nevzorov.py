@@ -196,6 +196,11 @@ class rio_nevzorov_1t2l1r(cal_base):
         cal_base.__init__(self, dataset)
 
     def process(self):
+        if 'VANETYPE' in dataset.keys():
+            if dataset['VANETYPE'][0] != '1T2L1R':
+                return
+        else:
+            return
         np.seterr(divide='ignore')  # suppress divide by zero messages
         t = self.dataset.matchtimes(self.input_names)
 
@@ -367,6 +372,9 @@ class rio_nevzorov_1t1l2r(cal_base):
     def process(self):
         """
         """
+        if 'VANETYPE' in dataset.keys():
+            if dataset['VANETYPE'][0] != '1T1L2R':
+                return
         np.seterr(divide='ignore')  # suppress divide by zero messages
         t = self.dataset.matchtimes(self.input_names)
         insts = ['twc', 'lwc']
@@ -432,15 +440,15 @@ class rio_nevzorov_1t1l2r(cal_base):
                                                       times.reshape(sh)[:, 0],
                                                       flag)
 
-
+"""
 class rio_nevzorov(cal_base):
-    """
+    
     Main Nevzorov processing modules, which calls the appropriate module
     depending on the vanetype that was fitted on the flight.
 
     The fitted vanetype is defined in the flight constant file with the
     constant name 'VANETYPE'.
-    """
+    
 
     def __init__(self, dataset):
         if not 'VANETYPE'in dataset.keys():
@@ -455,3 +463,4 @@ class rio_nevzorov(cal_base):
 
     def process(self):
         pass
+"""

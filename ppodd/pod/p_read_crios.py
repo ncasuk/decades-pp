@@ -89,7 +89,7 @@ Routine for reading in CRIO data
             if(debug_lengths):
                 import matplotlib.pyplot as plt #Plots to diagnose weird message lengths
                 plt.figure()
-                plt.ion()
+                #plt.ion()
                 inds=np.array(inds)
                 plt.plot(inds[1:]-inds[:-1],label='Packet separation')
                 plt.plot([0,len(inds)],[self.total,self.total],label='Correct')
