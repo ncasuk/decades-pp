@@ -1,6 +1,7 @@
 from ppodd.core import file_read,constants_parameter
 import ppodd
 import dateutil.parser
+from datetime import date
 
 class readconst(file_read):
     """
@@ -20,6 +21,8 @@ Routine for reading in CONST data
         f.close()
         self.outputs=[]
         self.outputs.append(constants_parameter('Flight_Constants', ''.join(self.dataset.flight_constants)))
+        dt=date.today()
+        self.revision={'number':0,'date':dt.strftime("%d %b %Y"),'comment':''}
         for l in self.dataset.flight_constants:
             l=l.strip()
             if not l:  # if line is empty move on
@@ -37,9 +40,13 @@ Routine for reading in CONST data
                         ppodd.logger.warning("READCONST:Can't parse Date %s" % cdate)
                 elif(l.startswith('! Revision ')):
                     rev=l.replace('! Revision ','',1).split(' - ')
-                    self.revision={'number':int(rev[0]),'date':rev[1]}
-                    #self.dataset.attributes['revision']=int(rev[0])
-                    self.dataset.add_para('Attribute','revision',int(rev[0]))
+                    try:
+                        self.revision['number']=int(rev[0])
+                        self.revision['date']=rev[1]
+                        self.revision['comment']=rev[2]
+                    except:
+                        pass
+                    
             else:
                 if('!' in l):
                     l=l[0:l.index('!')].strip()
@@ -55,5 +62,6 @@ Routine for reading in CONST data
                             values.append(float(val))
                         except:
                             values.append(str(val).strip())
-                    self.outputs.append(constants_parameter(name,values)) 
+                    self.outputs.append(constants_parameter(name,values))
+        self.dataset.add_para('Attribute','revision_number',self.revision['number'])
     

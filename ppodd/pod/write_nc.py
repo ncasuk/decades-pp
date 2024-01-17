@@ -85,7 +85,7 @@ The NetCDF file header also contains:
         if(self.filename is None):
             try:
                 self.filename=os.path.join(folder,'core_faam_%4.4i%2.2i%2.2i_' % tuple(self.dataset['DATE'][-1::-1]))
-                self.filename+='%s_r%1.1i_%s' % (ppodd.version,self.dataset['revision'].data,self.dataset['FLIGHT'][:])
+                self.filename+='%s_r%1.1i_%s' % (ppodd.version,self.dataset['revision_number'].data,self.dataset['FLIGHT'][:])
                 if(onehz):
                     self.filename+='_1hz'
                 self.filename+='.nc'

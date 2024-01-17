@@ -126,7 +126,7 @@ class decades_dataset(OrderedDict):
         self.add_para('Attribute','SoftwareRepository','https://github.com/ncasuk/decades-pp')
         self.add_para('Attribute','SoftwareVersion',ppodd.version)
         self.add_para('Attribute','format_version','1.0')
-        self.add_para('Attribute','revision', 0)
+        self.add_para('Attribute','revision_number', 0)
         self.add_para('Data','SECS',long_name='Seconds past midnight',number=515,
                                               units='s') # This is a place holder for a seconds past midnight value
                                                          # which is actually the time of each timed parameter.
