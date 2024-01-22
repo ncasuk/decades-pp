@@ -16,7 +16,7 @@ class twc_calc(cal_base):
             dataset  (a ppodd.core.decades_dataset): the dataset to process.
         """
 
-        self.fit = 'TWC_FIT_GE'
+        self.fit = 'TWC_FIT_WVSSF'
         self.input_names = [self.fit, 'PS_RVSM', 'TWC_DET', 'TWC_TSAM'] #,'TAT_DI_R']
         self.outputs = [
             parameter(
