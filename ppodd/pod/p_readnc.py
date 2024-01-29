@@ -16,7 +16,6 @@ Routine for reading in NETCDF data
         file_read.__init__(self,dataset)
    
     def readfile(self,filename):
-        self.outputs=[]
         self.file=Dataset(filename)
         self.var=self.file.variables
         start=0
